@@ -19,7 +19,7 @@ describe("handler function", () => {
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllMocks(); // 各テストの前にモックの呼び出し回数をリセット
-    process.env = { ...ORIGINAL_ENV, LINE_CHANNEL_ACCESS_TOKEN: "dummy_token" };
+    process.env = { ...ORIGINAL_ENV, LINE_CHANNEL_ACCESS_TOKEN: "dummy_token", AUTHORIZATION_TOKEN: "valid_token" };
   });
 
   afterEach(() => {
@@ -29,7 +29,6 @@ describe("handler function", () => {
   test("should return internal server error when LINE_CHANNEL_ACCESS_TOKEN is not set", async () => {
     delete process.env.LINE_CHANNEL_ACCESS_TOKEN;
     const event = {
-      headers: {},
       body: "{}"
     };
 
@@ -42,7 +41,7 @@ describe("handler function", () => {
 
   test("should handle notify event branch and call broadcastMessage with parsed form data", async () => {
     const event = {
-      headers: { "content-type": "application/x-www-form-urlencoded" },
+      headers: { "content-type": "application/x-www-form-urlencoded", Authorization: "Bearer valid_token" },
       rawPath: "/notify",
       requestContext: { http: { method: "POST" } },
       // "message=test" を base64 エンコードした文字列
@@ -55,6 +54,23 @@ describe("handler function", () => {
     expect(broadcastMessageMock).toHaveBeenCalledTimes(1);
     // 送信された引数（querystring.parse により { message: "test" } となることを想定）
     expect(broadcastMessageMock).toHaveBeenCalledWith({ message: "test" });
+  });
+
+  test("should return unauthorized error when AUTHORIZATION_TOKEN is invalid", async () => {
+    const event = {
+      headers: { "content-type": "application/x-www-form-urlencoded", Authorization: "Bearer invalid_token" },
+      rawPath: "/notify",
+      requestContext: { http: { method: "POST" } },
+      // "message=test" を base64 エンコードした文字列
+      body: Buffer.from("message=test").toString("base64"),
+      isBase64Encoded: true
+    };
+
+    const response = await handler(event);
+    // HTTP ステータス 401 を検証
+    expect(response.statusCode).toEqual(401);
+    const payload = JSON.parse(response.body);
+    expect(payload.message).toContain("Invalid authorization token");
   });
 
   test("should handle health check event branch when events array is empty", async () => {

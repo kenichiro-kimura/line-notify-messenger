@@ -29,5 +29,6 @@
 ## 使用方法
 
 1. LINE Messaging APIの設定を行い、必要なトークンを取得して、Lambdaの環境変数`LINE_CHANNEL_ACCESS_TOKEN`に設定してください
-2. ボット自体は、何を受け付けても固定のメッセージを返します。
-3. {LINE_BOT_URL}/notify に対して、LINE Notifyと同じPOSTリクエストを送信すると、ボットのLINEアカウントのブロードキャストメッセージとして送信されますので、LINE Notifyで使っていたURLを差し替えてそのまま動きます
+2. Lambdaの環境変数AUTHORIZATION_TOKENに、LINE Notifyで使っていたトークンを設定してください
+3. ボット自体は、何を受け付けても固定のメッセージを返します。
+4. {LINE_BOT_URL}/notify に対して、LINE Notifyと同じPOSTリクエストを送信すると、ボットのLINEアカウントのブロードキャストメッセージとして送信されますので、LINE Notifyで使っていたURLを差し替えてそのまま動きます。この動作にはAuthorizationヘッダが必要です。
