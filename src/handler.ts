@@ -1,28 +1,64 @@
+import { parse } from 'querystring';
 import LineService from './lineService';
+
+const httpInternalServerErrorMessage = (message: string) => {
+    return {
+        statusCode: 500,
+        body: JSON.stringify({ message:message }),
+    };
+};
+
+const httpOkMessage = (message: string) => {
+    return {
+        statusCode: 200,
+        body: JSON.stringify({ message: message }),
+    };
+};
+
+const isNotifyServiceRequest = (path: string,method: string, contentType: string): boolean => {
+    if(path === '/notify' && method === 'POST' && contentType === 'application/x-www-form-urlencoded') {
+        return true;
+    }
+    return false;
+};
+
+const sendBroadcastMessage = async (lineService: LineService,body: string) => {
+    const formData = parse(body);
+    await lineService.broadcastMessage(formData);
+};
+
+const replyDefaultMessage = async (lineService: LineService, body: any) => {
+    const replyToken = body.events[0].replyToken;
+    await lineService.replyMessage(replyToken, 'お送り頂いたメッセージはどこにも送られないのでご注意ください');
+};
 
 export const handler = async (event: any) => {
     console.log('Received event:', JSON.stringify(event, null, 2));
 
-    const body = JSON.parse(event.body);
-    const replyToken = body.events[0].replyToken;
-    const message = body.events[0].message.text;
-
-    // LINE Messaging APIとのインタラクションを行うサービスをインポート
     const lineChannelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
     if (!lineChannelAccessToken) {
-        throw new Error('LINE_CHANNEL_ACCESS_TOKEN is not defined');
+        return httpInternalServerErrorMessage('LINE_CHANNEL_ACCESS_TOKEN is not set');
     }
+
+    /* notify event */
+    const contentType = event.headers?.['content-type'] || event.headers?.['Content-Type'];
     const lineService = new LineService(lineChannelAccessToken);
 
-    // メッセージに応じた処理を実行
-    if (message === 'こんにちは') {
-        await lineService.replyMessage(replyToken, 'こんにちは！');
-    } else {
-        await lineService.replyMessage(replyToken, 'メッセージを受け取りました。');
+    if(isNotifyServiceRequest(event.rawPath, event.requestContext?.http?.method, contentType)) {
+        const body = event.isBase64Encoded === true ? Buffer.from(event.body, 'base64').toString('utf-8') : event.body;
+        await sendBroadcastMessage(lineService,body);
+        return httpOkMessage('Success Notify');
     }
 
-    return {
-        statusCode: 200,
-        body: JSON.stringify({ message: 'Success' }),
-    };
+    const body = JSON.parse(event.body);
+
+    /* health check from LINE */
+    if(body.events.length === 0) {
+        return httpOkMessage('No events');
+    }
+
+    /* reply default message */
+    await replyDefaultMessage(lineService, body);
+
+    return httpOkMessage('Success');
 };
