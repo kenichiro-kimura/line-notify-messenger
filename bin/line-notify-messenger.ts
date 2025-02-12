@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { LambdaDynamoDBStack } from '../lib/lambda-dynamodb-stack';
+import { LambdaStack } from '../lib/lambda-stack';
 
 const app = new cdk.App();
-new LambdaDynamoDBStack(app, 'LambdaDynamoDBStack');
+new LambdaStack(app, 'LambdaStack');
