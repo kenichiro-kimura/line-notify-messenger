@@ -1,6 +1,7 @@
-# my-line-bot
+# line-notify-messenger
 
-このプロジェクトは、Node.jsを使用してLINE Messaging APIを利用したボットを構築するためのものです。AWS Lambdaをデプロイ先として使用します。
+このプロジェクトは、LINE Notifyの代わりに利用できるボットを提供します。Node.jsを使用してLINE Messaging APIを利用してメッセージを送信します。  
+AWS Lambdaをデプロイ先として使用します。  
 
 ## 構成
 
