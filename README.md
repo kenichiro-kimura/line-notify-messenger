@@ -26,6 +26,19 @@ AWS Lambdaをデプロイ先として使用します。
    ```
 
 4. 環境変数`LINE_CHANNEL_ACCESS_TOKEN`に、LINE Messaging APIのチャンネルアクセストークンを設定します。
+
+   bashの場合
+
+   ```bash
+   export LINE_CHANNEL_ACCESS='YOUR_CHANNEL_ACCESS_TOKEN'
+   ```
+
+   PowerShellの場合
+
+   ```powershell
+   $Env:LINE_CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN'
+   ```
+
 5. AWS CDKを使用してスタックをデプロイします。
 
    ```bash
