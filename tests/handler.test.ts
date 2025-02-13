@@ -41,7 +41,7 @@ describe("handler function", () => {
 
   test("should handle notify event branch and call broadcastMessage with parsed form data", async () => {
     const event = {
-      headers: { "content-type": "application/x-www-form-urlencoded", Authorization: "Bearer valid_token" },
+      headers: { "content-type": "application/x-www-form-urlencoded", "authorization": "Bearer valid_token" },
       rawPath: "/notify",
       requestContext: { http: { method: "POST" } },
       // "message=test" を base64 エンコードした文字列
@@ -58,7 +58,7 @@ describe("handler function", () => {
 
   test("should return unauthorized error when AUTHORIZATION_TOKEN is invalid", async () => {
     const event = {
-      headers: { "content-type": "application/x-www-form-urlencoded", Authorization: "Bearer invalid_token" },
+      headers: { "content-type": "application/x-www-form-urlencoded", "authorization": "Bearer invalid_token" },
       rawPath: "/notify",
       requestContext: { http: { method: "POST" } },
       // "message=test" を base64 エンコードした文字列
