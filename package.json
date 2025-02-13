@@ -5,7 +5,7 @@
   "main": "src/handler.ts",
   "scripts": {
     "build": "esbuild src/handler.ts --bundle --outdir=dist --external:node:buffer --external:node:crypto --external:node:stream --format=cjs",
-    "deploy": "cdk deploy",
+    "deploy": "cdk deploy --all",
     "watch": "tsc -w",
     "test": "jest",
     "install-deps": "npm install",
