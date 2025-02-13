@@ -56,6 +56,23 @@ describe("handler function", () => {
     expect(broadcastMessageMock).toHaveBeenCalledWith({ message: "test" });
   });
 
+  test("should handle notify event branch and call broadcastMessage with parsed form data, with multipart form data", async () => {
+    const event = {
+      headers: { "content-type": "multipart/form-data", "authorization": "Bearer valid_token" },
+      rawPath: "/notify",
+      requestContext: { http: { method: "POST" } },
+      // "message=test" を base64 エンコードした文字列
+      body: Buffer.from("message=test").toString("base64"),
+      isBase64Encoded: true
+    };
+
+    await handler(event);
+    // broadcastMessage が 1 回呼ばれていることを検証
+    expect(broadcastMessageMock).toHaveBeenCalledTimes(1);
+    // 送信された引数（querystring.parse により { message: "test" } となることを想定）
+    expect(broadcastMessageMock).toHaveBeenCalledWith({ message: "test" });
+  });
+
   test("should return unauthorized error when AUTHORIZATION_TOKEN is invalid", async () => {
     const event = {
       headers: { "content-type": "application/x-www-form-urlencoded", "authorization": "Bearer invalid_token" },

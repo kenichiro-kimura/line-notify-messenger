@@ -23,7 +23,7 @@ const httpOkMessage = (message: string) => {
 };
 
 const isNotifyServiceRequest = (path: string,method: string, contentType: string): boolean => {
-    if(path === '/notify' && method === 'POST' && contentType === 'application/x-www-form-urlencoded') {
+    if(path === '/notify' && method === 'POST' && ( contentType === 'application/x-www-form-urlencoded' || contentType === 'multipart/form-data')) {
         return true;
     }
     return false;
