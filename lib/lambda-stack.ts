@@ -23,6 +23,7 @@ export class LambdaStack extends cdk.Stack {
         BUCKET_NAME: bucket.bucketName,
         LINE_CHANNEL_ACCESS_TOKEN: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
         AUTHORIZATION_TOKEN: process.env.AUTHORIZATION_TOKEN || '',
+        S3_REGION: bucket.env.region,
       },
       timeout: cdk.Duration.minutes(3),
     });
