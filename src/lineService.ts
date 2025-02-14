@@ -1,15 +1,17 @@
 import * as line from '@line/bot-sdk';
 import { ImageStorage } from '../interfaces/imageStorage';
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { ImageConverter } from '../interfaces/imageConverter';
 import { Jimp } from 'jimp';
 
 class LineService {
     private readonly client: line.messagingApi.MessagingApiClient;
     private readonly imageStorage: ImageStorage;
-    constructor(channelAccessToken: string, imageStorage: ImageStorage) {
-        this.client = new line.messagingApi.MessagingApiClient({ channelAccessToken });
+    private readonly imageConverter: ImageConverter;
+
+    constructor(channelAccessToken: string, imageStorage: ImageStorage, imageConverter: ImageConverter) {
+        this.client = new line.messagingApi.MessagingApiClient({ channelAccessToken });        
         this.imageStorage = imageStorage;
+        this.imageConverter = imageConverter;
     }
 
     public async sendMessage(to: string, message: string): Promise<void> {
@@ -83,19 +85,9 @@ class LineService {
             const originalUrl = await this.imageStorage.uploadImage(originalKey, message.imageFile.content, message.imageFile.contentType);
 
             // jimp により 240x240px 以内にリサイズ（縦横比を維持して内側にフィット）
-            const image = await Jimp.read(originalUrl);
-            const imageWidth = image.width;
-            const imageHeight = image.height;
-            if (imageWidth > 240 || imageHeight > 240) {
-                if (imageWidth > imageHeight) {
-                    image.resize({ w:240 });
-                } else {
-                    image.resize({ h:240 });
-                }
-            }
-            const thumbnailBuffer = await image.getBuffer("image/jpeg");
+            const thumbnailBuffer = await this.imageConverter.resizeImage(originalUrl, 240, 240);
 
-            // サムネイル画像を S3 にアップロード
+            // サムネイル画像をアップロード
             const thumbnailUrl = await this.imageStorage.uploadImage(thumbnailKey, thumbnailBuffer, 'image/jpeg');
 
             broadcastMessage = {

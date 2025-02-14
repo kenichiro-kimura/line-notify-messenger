@@ -1,6 +1,7 @@
 import { parse } from 'querystring';
 import LineService from './lineService';
 import { S3ImageStorage } from './s3ImageStorage';
+import { JimpImageConverter } from './jimpImageConverter';
 
 const multipart = require('aws-lambda-multipart-parser');
 
@@ -58,7 +59,7 @@ export const handler = async (event: any) => {
         return httpInternalServerErrorMessage('BUCKET_NAME or S3_REGION is not set');
     }
 
-    const lineService = new LineService(lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region));
+    const lineService = new LineService(lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter());
 
     if(isNotifyServiceRequest(event.rawPath, event.requestContext?.http?.method, contentType)) {
         const bearerToken = event.headers?.authorization?.split('Bearer ')[1];
