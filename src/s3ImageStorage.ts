@@ -17,7 +17,6 @@ export class S3ImageStorage implements ImageStorage {
 
     async uploadImage(fileName:string, image: Buffer, contentType: string): Promise<string> {
         const s3Client = new S3Client({ region: this.region });
-        const bucketName = process.env.BUCKET_NAME; // BUCKET_NAME はLambdaの環境変数等で設定しておく
 
         // 画像を S3 にアップロード
 
@@ -31,7 +30,7 @@ export class S3ImageStorage implements ImageStorage {
         // 7日間有効な署名付きURL（秒数に換算すると 7*24*60*60）
         const expiresIn = 7 * 24 * 60 * 60;
         const originalUrl = await getSignedUrl(s3Client, new GetObjectCommand({
-            Bucket: bucketName,
+            Bucket: this.bucketName,
             Key: fileName
         }), { expiresIn: expiresIn });
 
