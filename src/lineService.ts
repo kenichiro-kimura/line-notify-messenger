@@ -36,11 +36,11 @@ class LineService {
 
     public async broadcastMessage(message: any): Promise<void> {
         /*
-        以下は line notifyの説明。このうち、imageFileは未対応なので、imageThumbnailとimageFullsizeを使う。
+        以下は line notifyの説明。
         
         message	必須	String	最大 1000文字
-        imageThumbnail	省略可能	HTTPS URL	最大 240×240px / JPEG のみ許可されます
-        imageFullsize	省略可能	HTTPS URL	最大 2048×2048px / JPEG のみ許可されます
+        imageThumbnail	省略可能	HTTPS URL	最大 240×240px / JPEG のみ許可されます(本制限は未実装)
+        imageFullsize	省略可能	HTTPS URL	最大 2048×2048px / JPEG のみ許可されます(本制限は未実装)
         imageFile 	省略可能	File	
                     LINE上の画像サーバーにアップロードします。
                     対応している画像形式は、png, jpegです。
