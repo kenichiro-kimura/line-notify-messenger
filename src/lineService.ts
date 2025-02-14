@@ -1,13 +1,15 @@
 import * as line from '@line/bot-sdk';
+import { ImageStorage } from '../interfaces/imageStorage';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Jimp } from 'jimp';
 
 class LineService {
     private readonly client: line.messagingApi.MessagingApiClient;
-
-    constructor(channelAccessToken: string) {
+    private readonly imageStorage: ImageStorage;
+    constructor(channelAccessToken: string, imageStorage: ImageStorage) {
         this.client = new line.messagingApi.MessagingApiClient({ channelAccessToken });
+        this.imageStorage = imageStorage;
     }
 
     public async sendMessage(to: string, message: string): Promise<void> {
@@ -70,36 +72,16 @@ class LineService {
                 stickerId: message.stickerId
             };
         } else if (message.imageFile) {
-            // imageFile が渡された場合、jimp を使って縮小したサムネイルとオリジナル画像を S3 にアップロードし、署名付きURLを取得する
-            const s3Client = new S3Client({ region: 'ap-northeast-1' });
-            const bucketName = process.env.BUCKET_NAME; // BUCKET_NAME はLambdaの環境変数等で設定しておく
-            if (!bucketName) {
-                throw new Error("BUCKET_NAME environment variable is not set");
-            }
-
+            // imageFile が渡された場合、jimp を使って縮小したサムネイルとオリジナル画像をアップロードし、アクセスするURLを取得する
             // 一意なファイル名用のタイムスタンプ
             const timestamp = Date.now();
             const fileName = message.imageFile.filename.replace(/\./, "_");
             const originalKey = `original/${fileName}-${timestamp}.jpg`;
             const thumbnailKey = `thumbnail/${fileName}-${timestamp}.jpg`;
 
-            // オリジナル画像を S3 にアップロード
+            // オリジナル画像をアップロード
+            const originalUrl = await this.imageStorage.uploadImage(originalKey, message.imageFile.content, message.imageFile.contentType);
 
-            await s3Client.send(new PutObjectCommand({
-                Bucket: bucketName,
-                Key: originalKey,
-                Body: message.imageFile.content,
-                ContentType: message.imageFile.contentType
-            }));
-
-            // 30日間有効な署名付きURL（秒数に換算すると 30*24*60*60）
-            const expiresIn = 7 * 24 * 60 * 60;
-            const originalUrl = await getSignedUrl(s3Client, new GetObjectCommand({
-                Bucket: bucketName,
-                Key: originalKey
-            }), { expiresIn: expiresIn });
-
-            console.log('Original URL:', originalUrl);
             // jimp により 240x240px 以内にリサイズ（縦横比を維持して内側にフィット）
             const image = await Jimp.read(originalUrl);
             const imageWidth = image.width;
@@ -112,19 +94,10 @@ class LineService {
                 }
             }
             const thumbnailBuffer = await image.getBuffer("image/jpeg");
-            // サムネイル画像を S3 にアップロード
-            await s3Client.send(new PutObjectCommand({
-                Bucket: bucketName,
-                Key: thumbnailKey,
-                Body: thumbnailBuffer,
-                ContentType: 'image/jpeg'
-            }));
 
-            const thumbnailUrl = await getSignedUrl(s3Client, new GetObjectCommand({
-                Bucket: bucketName,
-                Key: thumbnailKey
-            }), { expiresIn: expiresIn });
-            console.log('Thumbnail URL:', thumbnailUrl);
+            // サムネイル画像を S3 にアップロード
+            const thumbnailUrl = await this.imageStorage.uploadImage(thumbnailKey, thumbnailBuffer, 'image/jpeg');
+
             broadcastMessage = {
                 type: 'image',
                 originalContentUrl: originalUrl,

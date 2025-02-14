@@ -1,5 +1,7 @@
 import { parse } from 'querystring';
 import LineService from './lineService';
+import { S3ImageStorage } from './s3ImageStorage';
+
 const multipart = require('aws-lambda-multipart-parser');
 
 const httpUnAuthorizedErrorMessage = (message: string) => {
@@ -49,7 +51,14 @@ export const handler = async (event: any) => {
 
     /* notify event */
     const contentType = event.headers?.['content-type'] || event.headers?.['Content-Type'];
-    const lineService = new LineService(lineChannelAccessToken);
+    const bucketName = process.env.BUCKET_NAME;
+    const s3Region = process.env.S3_REGION;
+
+    if (!bucketName || !s3Region) {
+        return httpInternalServerErrorMessage('BUCKET_NAME or S3_REGION is not set');
+    }
+
+    const lineService = new LineService(lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region));
 
     if(isNotifyServiceRequest(event.rawPath, event.requestContext?.http?.method, contentType)) {
         const bearerToken = event.headers?.authorization?.split('Bearer ')[1];
@@ -62,14 +71,9 @@ export const handler = async (event: any) => {
             event.body = Buffer.from(event.body, 'base64').toString('binary');
         }
 
-        let formData;
+        const formData = (contentType.startsWith('multipart/form-data')) ? multipart.parse(event,true) : parse(event.body);
 
-        if (contentType.startsWith('multipart/form-data')) {
-            formData = multipart.parse(event,true);
-        } else {
-            formData = parse(event.body);
-        }
-        await sendBroadcastMessage(lineService,formData,contentType);
+        await sendBroadcastMessage(lineService,formData);
         return httpOkMessage('Success Notify');
     }
 
