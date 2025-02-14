@@ -60,16 +60,16 @@ class LineService {
         */
         let broadcastMessage: line.Message;
         const notificationDisabled = message.notificationDisabled || false;
-        // message.imageFile.contentType が 'image/jpeg' か 'image/png' であることを確認する
-        if (message.imageFile && !['image/jpeg', 'image/png'].includes(message.imageFile.contentType)) {
-            throw new Error('Invalid image file type');
-        }
-        const suffix = message.imageFile.contentType === 'image/jpeg' ? 'jpg' : 'png';
         if (message.imageFile) {
+            // message.imageFile.contentType が 'image/jpeg' か 'image/png' であることを確認する
+            if (!message.imageFile.contentType || !['image/jpeg', 'image/png'].includes(message.imageFile.contentType)) {
+                throw new Error('Invalid image file type');
+            }
             // imageFile が渡された場合、jimp を使って縮小したサムネイルとオリジナル画像をアップロードし、アクセスするURLを取得する
             // 一意なファイル名用のタイムスタンプ
             const timestamp = Date.now();
             const fileName = message.imageFile.filename.replace(/\./, "_");
+            const suffix = message.imageFile.contentType === 'image/jpeg' ? 'jpg' : 'png';
             const originalKey = `original/${fileName}-${timestamp}.${suffix}`;
             const thumbnailKey = `thumbnail/${fileName}-${timestamp}.${suffix}`;
 
