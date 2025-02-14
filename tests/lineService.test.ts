@@ -1,6 +1,4 @@
 import LineService from "../src/lineService";
-import * as line from '@line/bot-sdk';
-
 const pushMessageMock = jest.fn().mockResolvedValue(undefined);
 const replyMessageMock = jest.fn().mockResolvedValue(undefined);
 const broadcastMock = jest.fn().mockResolvedValue(undefined);
@@ -25,7 +23,13 @@ describe("LineService", () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        service = new LineService(dummyToken);
+        const imageStorageMock = {
+            uploadImage: jest.fn().mockResolvedValue('https://example.com/saved-image.jpg')
+        };
+        const imageConverterMock = {
+            resizeImage: jest.fn()
+        };
+        service = new LineService(dummyToken, imageStorageMock, imageConverterMock);
     });
 
     test("sendMessage should call pushMessage with correct arguments", async () => {
@@ -142,6 +146,59 @@ describe("LineService", () => {
         expect(broadcastMock).toHaveBeenCalledTimes(1);
         expect(broadcastMock).toHaveBeenCalledWith({
             messages: [expectedBroadcastContent],
+            notificationDisabled: false
+        });
+    });
+
+    test("broadcastMessage should call broadcast with correct image message when imageFile is provided", async () => {
+        const expectedOriginalUrl = "https://example.com/original.jpg";
+        const expectedThumbnailUrl = "https://example.com/thumbnail.jpg";
+
+        const imageFile = {
+            filename: "test.jpg",
+            content: Buffer.from("test image content"),
+            contentType: "image/jpeg"
+        };
+
+        // uploadImage モック: originalKey が "original/" で始まるとき、originalUrl を返し、
+        // thumbnailKey が "thumbnail/" で始まるとき、thumbnailUrl を返す
+        const imageStorageMock = {
+            uploadImage: jest.fn().mockImplementation((key: string, image: Buffer, contentType: string): Promise<string> => {
+                if (key.startsWith("original/")) {
+                    return Promise.resolve(expectedOriginalUrl);
+                }
+                if (key.startsWith("thumbnail/")) {
+                    return Promise.resolve(expectedThumbnailUrl);
+                }
+                return Promise.resolve("");
+            })
+        };
+
+        // resizeImage モックは、単に Buffer を返す
+        const imageConverterMock = {
+            resizeImage: jest.fn().mockResolvedValue(Buffer.from("resized image content"))
+        };
+
+        // 新たな LineService をインスタンス化
+        service = new LineService(dummyToken, imageStorageMock, imageConverterMock);
+
+        const broadcastContent = {
+            message: "Broadcast message",
+            imageFile: imageFile
+        };
+        await service.broadcastMessage(broadcastContent);
+
+        // uploadImage は元画像とサムネイル画像のアップロードで2回呼ばれるはず
+        expect(imageStorageMock.uploadImage).toHaveBeenCalledTimes(2);
+        // resizeImage が originalUrl, 240, 240, contentType で呼ばれていることを確認
+        expect(imageConverterMock.resizeImage).toHaveBeenCalledWith(expectedOriginalUrl, 240, 240, imageFile.contentType);
+        expect(broadcastMock).toHaveBeenCalledTimes(1);
+        expect(broadcastMock).toHaveBeenCalledWith({
+            messages: [{
+                type: 'image',
+                originalContentUrl: expectedOriginalUrl,
+                previewImageUrl: expectedThumbnailUrl
+            }],
             notificationDisabled: false
         });
     });

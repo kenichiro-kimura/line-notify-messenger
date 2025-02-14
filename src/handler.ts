@@ -1,5 +1,9 @@
 import { parse } from 'querystring';
 import LineService from './lineService';
+import { S3ImageStorage } from './s3ImageStorage';
+import { JimpImageConverter } from './jimpImageConverter';
+
+const multipart = require('aws-lambda-multipart-parser');
 
 const httpUnAuthorizedErrorMessage = (message: string) => {
     return {
@@ -23,14 +27,13 @@ const httpOkMessage = (message: string) => {
 };
 
 const isNotifyServiceRequest = (path: string,method: string, contentType: string): boolean => {
-    if(path === '/notify' && method === 'POST' && contentType === 'application/x-www-form-urlencoded') {
+    if(path === '/notify' && method === 'POST' && ( contentType === 'application/x-www-form-urlencoded' || contentType.startsWith('multipart/form-data'))) {
         return true;
     }
     return false;
 };
 
-const sendBroadcastMessage = async (lineService: LineService,body: string) => {
-    const formData = parse(body);
+const sendBroadcastMessage = async (lineService: LineService,formData: any) => {
     await lineService.broadcastMessage(formData);
 };
 
@@ -49,17 +52,29 @@ export const handler = async (event: any) => {
 
     /* notify event */
     const contentType = event.headers?.['content-type'] || event.headers?.['Content-Type'];
-    const lineService = new LineService(lineChannelAccessToken);
+    const bucketName = process.env.BUCKET_NAME;
+    const s3Region = process.env.S3_REGION;
+
+    if (!bucketName || !s3Region) {
+        return httpInternalServerErrorMessage('BUCKET_NAME or S3_REGION is not set');
+    }
+
+    const lineService = new LineService(lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter());
 
     if(isNotifyServiceRequest(event.rawPath, event.requestContext?.http?.method, contentType)) {
-        const body = event.isBase64Encoded === true ? Buffer.from(event.body, 'base64').toString('utf-8') : event.body;
-        const bearerToken = event.headers?.Authorization?.split('Bearer ')[1];
+        const bearerToken = event.headers?.authorization?.split('Bearer ')[1];
 
         if (!bearerToken || bearerToken !== process.env.AUTHORIZATION_TOKEN) {
             return httpUnAuthorizedErrorMessage('Invalid authorization token');
         }
-    
-        await sendBroadcastMessage(lineService,body);
+
+        if (event.isBase64Encoded === true){
+            event.body = Buffer.from(event.body, 'base64').toString('binary');
+        }
+
+        const formData = (contentType.startsWith('multipart/form-data')) ? multipart.parse(event,true) : parse(event.body);
+
+        await sendBroadcastMessage(lineService,formData);
         return httpOkMessage('Success Notify');
     }
 
