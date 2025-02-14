@@ -1,3 +1,5 @@
 interface ImageStorage {
-    uploadImage(fileName: String, image: Buffer, contentType: string): Promise<string>;
+    uploadImage(fileName: string, image: Buffer, contentType: string): Promise<string>;
 }
+
+export { ImageStorage };
