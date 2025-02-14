@@ -61,19 +61,7 @@ class LineService {
         let broadcastMessage: line.Message;
         const notificationDisabled = message.notificationDisabled || false;
 
-        if (message.imageThumbnail && message.imageFullsize) {
-            broadcastMessage = {
-                type: 'image',
-                originalContentUrl: message.imageFullsize,
-                previewImageUrl: message.imageThumbnail
-            };
-        } else if (message.stickerPackageId && message.stickerId) {
-            broadcastMessage = {
-                type: 'sticker',
-                packageId: message.stickerPackageId,
-                stickerId: message.stickerId
-            };
-        } else if (message.imageFile) {
+        if (message.imageFile) {
             // imageFile が渡された場合、jimp を使って縮小したサムネイルとオリジナル画像をアップロードし、アクセスするURLを取得する
             // 一意なファイル名用のタイムスタンプ
             const timestamp = Date.now();
@@ -94,6 +82,18 @@ class LineService {
                 type: 'image',
                 originalContentUrl: originalUrl,
                 previewImageUrl: thumbnailUrl
+            };
+        } else if (message.imageThumbnail && message.imageFullsize) {
+            broadcastMessage = {
+                type: 'image',
+                originalContentUrl: message.imageFullsize,
+                previewImageUrl: message.imageThumbnail
+            };
+        } else if (message.stickerPackageId && message.stickerId) {
+            broadcastMessage = {
+                type: 'sticker',
+                packageId: message.stickerPackageId,
+                stickerId: message.stickerId
             };
         } else {
             broadcastMessage = {
