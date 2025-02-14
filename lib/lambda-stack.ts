@@ -22,8 +22,13 @@ export class LambdaStack extends cdk.Stack {
       environment: {
         BUCKET_NAME: bucket.bucketName,
         LINE_CHANNEL_ACCESS_TOKEN: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
+        AUTHORIZATION_TOKEN: process.env.AUTHORIZATION_TOKEN || '',
       },
+      timeout: cdk.Duration.minutes(3),
     });
+
+    // S3バケットへの読み書き権限を付与
+    bucket.grantReadWrite(myFunction);
 
     // Lambda Function URL の作成
     const functionUrl = myFunction.addFunctionUrl({
