@@ -39,6 +39,20 @@ AWS Lambdaをデプロイ先として使用します。
    $Env:LINE_CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN'
    ```
 
+5. 環境変数`AUTHORIZATION_TOKEN`に、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
+
+   bashの場合
+
+   ```bash
+   export AUTHORIZATION_TOKEN='YOUR_AUTHORIZATION_TOKEN'
+   ```
+
+   PowerShellの場合
+
+   ```powershell
+   $Env:AUTHORIZATION_TOKEN = 'YOUR_AUTHORIZATION_TOKEN'
+   ```
+
 5. AWS CDKを使用してスタックをデプロイします。
 
    ```bash
