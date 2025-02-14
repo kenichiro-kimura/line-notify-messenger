@@ -41,14 +41,14 @@ class LineService {
         message	必須	String	最大 1000文字
         imageThumbnail	省略可能	HTTPS URL	最大 240×240px / JPEG のみ許可されます
         imageFullsize	省略可能	HTTPS URL	最大 2048×2048px / JPEG のみ許可されます
-        imageFile(未対応) 	省略可能	File	
+        imageFile 	省略可能	File	
                     LINE上の画像サーバーにアップロードします。
                     対応している画像形式は、png, jpegです。
                     imageThumbnail/imageFullsizeと同時に指定された場合は、imageFileが優先されます。
 
-        1時間にuploadできる量に制限があります。
-        詳しくは、API Rate Limitの項を見てください。
-
+                    (*)以下のRate Limitは現在は未実装
+                    1時間にuploadできる量に制限があります。
+                    詳しくは、API Rate Limitの項を見てください。
         stickerPackageId	省略可能	Number	パッケージ識別子。
                 Stickerの識別子は以下を参照ください。
                 https://developers.line.biz/ja/docs/messaging-api/sticker-list/
@@ -60,23 +60,27 @@ class LineService {
         */
         let broadcastMessage: line.Message;
         const notificationDisabled = message.notificationDisabled || false;
-
+        // message.imageFile.contentType が 'image/jpeg' か 'image/png' であることを確認する
+        if (message.imageFile && !['image/jpeg', 'image/png'].includes(message.imageFile.contentType)) {
+            throw new Error('Invalid image file type');
+        }
+        const suffix = message.imageFile.contentType === 'image/jpeg' ? 'jpg' : 'png';
         if (message.imageFile) {
             // imageFile が渡された場合、jimp を使って縮小したサムネイルとオリジナル画像をアップロードし、アクセスするURLを取得する
             // 一意なファイル名用のタイムスタンプ
             const timestamp = Date.now();
             const fileName = message.imageFile.filename.replace(/\./, "_");
-            const originalKey = `original/${fileName}-${timestamp}.jpg`;
-            const thumbnailKey = `thumbnail/${fileName}-${timestamp}.jpg`;
+            const originalKey = `original/${fileName}-${timestamp}.${suffix}`;
+            const thumbnailKey = `thumbnail/${fileName}-${timestamp}.${suffix}`;
 
             // オリジナル画像をアップロード
             const originalUrl = await this.imageStorage.uploadImage(originalKey, message.imageFile.content, message.imageFile.contentType);
 
             // jimp により 240x240px 以内にリサイズ（縦横比を維持して内側にフィット）
-            const thumbnailBuffer = await this.imageConverter.resizeImage(originalUrl, 240, 240);
+            const thumbnailBuffer = await this.imageConverter.resizeImage(originalUrl, 240, 240, message.imageFile.contentType);
 
             // サムネイル画像をアップロード
-            const thumbnailUrl = await this.imageStorage.uploadImage(thumbnailKey, thumbnailBuffer, 'image/jpeg');
+            const thumbnailUrl = await this.imageStorage.uploadImage(thumbnailKey, thumbnailBuffer, message.imageFile.contentType);
 
             broadcastMessage = {
                 type: 'image',

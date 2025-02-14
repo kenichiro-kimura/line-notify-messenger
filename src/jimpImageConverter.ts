@@ -2,7 +2,7 @@ import { ImageConverter } from '../interfaces/imageConverter';
 import { Jimp } from 'jimp';
     
 export class JimpImageConverter implements ImageConverter {
-    async resizeImage(url: string, width: number, height: number): Promise<Buffer> {
+    async resizeImage(url: string, width: number, height: number, contentType: string): Promise<Buffer> {
         const image = await Jimp.read(url);
         const imageWidth = image.width;
         const imageHeight = image.height;
@@ -13,6 +13,6 @@ export class JimpImageConverter implements ImageConverter {
                 image.resize({ h:height });
             }
         }
-        return await image.getBuffer("image/jpeg");
+        return await image.getBuffer(contentType);
     }
 }
