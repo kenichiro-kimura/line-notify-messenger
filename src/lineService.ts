@@ -1,4 +1,7 @@
 import * as line from '@line/bot-sdk';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Jimp } from 'jimp';
 
 class LineService {
     private readonly client: line.messagingApi.MessagingApiClient;
@@ -53,6 +56,7 @@ class LineService {
         */
         let broadcastMessage: line.Message;
         const notificationDisabled = message.notificationDisabled || false;
+
         if (message.imageThumbnail && message.imageFullsize) {
             broadcastMessage = {
                 type: 'image',
@@ -64,6 +68,67 @@ class LineService {
                 type: 'sticker',
                 packageId: message.stickerPackageId,
                 stickerId: message.stickerId
+            };
+        } else if (message.imageFile) {
+            // imageFile が渡された場合、jimp を使って縮小したサムネイルとオリジナル画像を S3 にアップロードし、署名付きURLを取得する
+            const s3Client = new S3Client({ region: 'ap-northeast-1' });
+            const bucketName = process.env.BUCKET_NAME; // BUCKET_NAME はLambdaの環境変数等で設定しておく
+            if (!bucketName) {
+                throw new Error("BUCKET_NAME environment variable is not set");
+            }
+
+            // 一意なファイル名用のタイムスタンプ
+            const timestamp = Date.now();
+            const fileName = message.imageFile.filename.replace(/\./, "_");
+            const originalKey = `original/${fileName}-${timestamp}.jpg`;
+            const thumbnailKey = `thumbnail/${fileName}-${timestamp}.jpg`;
+
+            // オリジナル画像を S3 にアップロード
+
+            await s3Client.send(new PutObjectCommand({
+                Bucket: bucketName,
+                Key: originalKey,
+                Body: message.imageFile.content,
+                ContentType: message.imageFile.contentType
+            }));
+
+            // 30日間有効な署名付きURL（秒数に換算すると 30*24*60*60）
+            const expiresIn = 7 * 24 * 60 * 60;
+            const originalUrl = await getSignedUrl(s3Client, new GetObjectCommand({
+                Bucket: bucketName,
+                Key: originalKey
+            }), { expiresIn: expiresIn });
+
+            console.log('Original URL:', originalUrl);
+            // jimp により 240x240px 以内にリサイズ（縦横比を維持して内側にフィット）
+            const image = await Jimp.read(originalUrl);
+            const imageWidth = image.width;
+            const imageHeight = image.height;
+            if (imageWidth > 240 || imageHeight > 240) {
+                if (imageWidth > imageHeight) {
+                    image.resize({ w:240 });
+                } else {
+                    image.resize({ h:240 });
+                }
+            }
+            const thumbnailBuffer = await image.getBuffer("image/jpeg");
+            // サムネイル画像を S3 にアップロード
+            await s3Client.send(new PutObjectCommand({
+                Bucket: bucketName,
+                Key: thumbnailKey,
+                Body: thumbnailBuffer,
+                ContentType: 'image/jpeg'
+            }));
+
+            const thumbnailUrl = await getSignedUrl(s3Client, new GetObjectCommand({
+                Bucket: bucketName,
+                Key: thumbnailKey
+            }), { expiresIn: expiresIn });
+            console.log('Thumbnail URL:', thumbnailUrl);
+            broadcastMessage = {
+                type: 'image',
+                originalContentUrl: originalUrl,
+                previewImageUrl: thumbnailUrl
             };
         } else {
             broadcastMessage = {

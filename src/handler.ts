@@ -1,5 +1,6 @@
 import { parse } from 'querystring';
 import LineService from './lineService';
+const multipart = require('aws-lambda-multipart-parser');
 
 const httpUnAuthorizedErrorMessage = (message: string) => {
     return {
@@ -23,14 +24,13 @@ const httpOkMessage = (message: string) => {
 };
 
 const isNotifyServiceRequest = (path: string,method: string, contentType: string): boolean => {
-    if(path === '/notify' && method === 'POST' && ( contentType === 'application/x-www-form-urlencoded' || contentType === 'multipart/form-data')) {
+    if(path === '/notify' && method === 'POST' && ( contentType === 'application/x-www-form-urlencoded' || contentType.startsWith('multipart/form-data'))) {
         return true;
     }
     return false;
 };
 
-const sendBroadcastMessage = async (lineService: LineService,body: string) => {
-    const formData = parse(body);
+const sendBroadcastMessage = async (lineService: LineService,formData: any) => {
     await lineService.broadcastMessage(formData);
 };
 
@@ -52,14 +52,24 @@ export const handler = async (event: any) => {
     const lineService = new LineService(lineChannelAccessToken);
 
     if(isNotifyServiceRequest(event.rawPath, event.requestContext?.http?.method, contentType)) {
-        const body = event.isBase64Encoded === true ? Buffer.from(event.body, 'base64').toString('utf-8') : event.body;
         const bearerToken = event.headers?.authorization?.split('Bearer ')[1];
 
         if (!bearerToken || bearerToken !== process.env.AUTHORIZATION_TOKEN) {
             return httpUnAuthorizedErrorMessage('Invalid authorization token');
         }
-    
-        await sendBroadcastMessage(lineService,body);
+
+        if (event.isBase64Encoded === true){
+            event.body = Buffer.from(event.body, 'base64').toString('binary');
+        }
+
+        let formData;
+
+        if (contentType.startsWith('multipart/form-data')) {
+            formData = multipart.parse(event,true);
+        } else {
+            formData = parse(event.body);
+        }
+        await sendBroadcastMessage(lineService,formData,contentType);
         return httpOkMessage('Success Notify');
     }
 
