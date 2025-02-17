@@ -1,14 +1,13 @@
 import * as line from '@line/bot-sdk';
-import { ImageStorage } from '../interfaces/imageStorage';
-import { ImageConverter } from '../interfaces/imageConverter';
-import { Jimp } from 'jimp';
+import { IImageStorage } from './interfaces/imageStorage';
+import { IImageConverter } from './interfaces/imageConverter';
 
 class LineService {
     private readonly client: line.messagingApi.MessagingApiClient;
-    private readonly imageStorage: ImageStorage;
-    private readonly imageConverter: ImageConverter;
+    private readonly imageStorage: IImageStorage;
+    private readonly imageConverter: IImageConverter;
 
-    constructor(channelAccessToken: string, imageStorage: ImageStorage, imageConverter: ImageConverter) {
+    constructor(channelAccessToken: string, imageStorage: IImageStorage, imageConverter: IImageConverter) {
         this.client = new line.messagingApi.MessagingApiClient({ channelAccessToken });        
         this.imageStorage = imageStorage;
         this.imageConverter = imageConverter;

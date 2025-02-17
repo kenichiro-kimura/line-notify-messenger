@@ -1,4 +1,4 @@
-import { IImageConverter } from '../interfaces/imageConverter';
+import { IImageConverter } from './interfaces/imageConverter';
 import { Jimp } from 'jimp';
     
 export class JimpImageConverter implements IImageConverter {
