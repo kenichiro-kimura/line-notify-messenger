@@ -4,7 +4,7 @@
   "description": "A LINE Messaging API bot like LINE Notify service",
   "main": "src/handler.ts",
   "scripts": {
-    "build": "esbuild src/handler.ts --bundle --outdir=dist --external:node:buffer --external:node:crypto --external:node:stream --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:fs --external:stream --format=cjs",
+    "build": "esbuild src/lambdahandler.ts --bundle --outdir=dist --external:node:buffer --external:node:crypto --external:node:stream --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:fs --external:stream --format=cjs",
     "deploy": "cdk deploy *",
     "watch": "tsc -w",
     "test": "jest",
