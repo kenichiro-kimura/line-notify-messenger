@@ -7,6 +7,9 @@ AWS Lambdaをデプロイ先として使用します。
 
 - `src/handler.ts`: AWS Lambdaのエントリポイント。LINE Messaging APIからのイベントを処理する関数を定義しています。
 - `src/lineService.ts`: LINE Messaging APIとのインタラクションを管理するサービスクラスを定義しています。メッセージの送信や受信を行うメソッドが含まれています。
+- `src/s3ImageStorage.ts`: S3に画像をアップロードするサービスクラスを定義しています。画像のアップロードやURLの取得を行うメソッドが含まれています。
+- `src/jimpImageProcessor.ts`: Jimpを使用して画像を処理するサービスクラスを定義しています。画像のリサイズやフィルター処理を行うメソッドが含まれています。
+- `src/interfaces`: インターフェースを定義するディレクトリ。型定義を分離して管理します。
 - `bin/line-notify-messenger.ts`: AWS CDKアプリケーションのエントリポイント。スタックを作成し、デプロイするための設定を行います。
 - `lib/lambda-stack.ts`: AWSリソースを定義するCDKスタック。AWS Lambda関数の設定が記述されています。
 - `tsconfig.json`: TypeScriptのコンパイル設定を含むファイル。コンパイラオプションやコンパイル対象のファイルを指定します。
