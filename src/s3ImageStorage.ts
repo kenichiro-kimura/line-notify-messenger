@@ -1,8 +1,8 @@
-import { ImageStorage } from '../interfaces/imageStorage';
+import { IImageStorage } from './interfaces/imageStorage';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-export class S3ImageStorage implements ImageStorage {
+export class S3ImageStorage implements IImageStorage {
     bucketName: string;
     region: string;
 
