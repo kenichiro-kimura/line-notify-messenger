@@ -6,6 +6,13 @@ import { JimpImageConverter } from "../jimpImageConverter";
 
 const multipart = require('aws-lambda-multipart-parser');
 
+const httpInvalidRequestErrorMessage = (message: string) => {
+    return {
+        status: 400,
+        body: message
+    };
+};
+
 const httpUnAuthorizedErrorMessage = (message: string) => {
     return {
         status: 401,
@@ -52,29 +59,37 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
         return  httpInternalServerErrorMessage('LINE_CHANNEL_ACCESS_TOKEN is not set');
     }
 
-    const contentType = request.headers['content-type'] || request.headers['Content-Type'];
-    const blobName = process.env.BLOB_NAME;
+    const contentType = request.headers.get('content-type') || request.headers.get('Content-Type');
+    const blobName = process.env.blobName;
+    const blobConnectionString = process.env.BlobConnectionString;
 
-    if (!blobName) {
-        return httpInternalServerErrorMessage('BLOB_NAME is not set');
+    if (!blobName || !blobConnectionString) {
+        return httpInternalServerErrorMessage('BlobName or BlobConnectionString is not set');
     }
 
     const lineService = new LineService(
         lineChannelAccessToken,
-        new BlobImageStorage(blobName),
+        new BlobImageStorage(blobConnectionString,blobName),
         new JimpImageConverter()
     );
 
     // notify イベントの場合
-    if (isNotifyServiceRequest(request.url || "", request.method, contentType)) {
-        const bearerToken = request.headers['Authorization'] && request.headers['Authorization'].split('Bearer ')[1];
+    if (isNotifyServiceRequest(request.url?.split('api/HttpTrigger')[1] || "", request.method, contentType)) {
+        const bearerToken = request.headers.get('Authorization')?.split('Bearer ')[1];
         if (!bearerToken || bearerToken !== process.env.AUTHORIZATION_TOKEN) {
             return httpUnAuthorizedErrorMessage('Invalid authorization token');
         }
 
-        let formData: any;
-        if (contentType.startsWith('multipart/form-data')) {
-            formData = await request.formData();
+        let formData: any = {};
+        if (contentType?.startsWith('multipart/form-data')) {
+            const rawFormData = await request.formData();
+            formData.message = rawFormData.get('message');
+            const imageFile : any = rawFormData.get('imageFile');
+            formData.imageFile = {
+                'filename': imageFile.name,
+                'contentType': imageFile.type,
+                'content': Buffer.from(await imageFile.arrayBuffer())
+            }
         } else {
             formData = await request.json();
         }
@@ -88,7 +103,7 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
     try {
         jsonBody = JSON.parse(body);
     } catch (error) {
-        return httpOkMessage('Success');
+        return httpInvalidRequestErrorMessage('Invalid request body: ' + error);
     }
 
     // LINE のヘルスチェックイベントの場合
@@ -103,6 +118,12 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
 
 app.http('HttpTrigger', {
     methods: ['GET', 'POST'],
+    authLevel: 'anonymous',
+    handler: HttpTrigger
+});
+app.http('HttpTriggerNotify', {
+    methods: ['GET', 'POST'],
+    route: 'HttpTrigger/notify',
     authLevel: 'anonymous',
     handler: HttpTrigger
 });
