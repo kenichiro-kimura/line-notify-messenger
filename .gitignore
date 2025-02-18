@@ -19,7 +19,6 @@ yarn-error.log*
 .DS_Store
 
 # エディタ設定 (Visual Studio Code)
-.vscode/
 
 # Azurite artifacts
 __blobstorage__
