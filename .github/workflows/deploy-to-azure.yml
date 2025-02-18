@@ -32,10 +32,9 @@ jobs:
         shell: bash
         run: |
           npm install
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          cd ./${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           npm install
           npm run build
-          popd
 
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
