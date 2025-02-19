@@ -64,6 +64,6 @@ jobs:
         uses: Azure/functions-action@v1
         id: fa
         with:
-          app-name: 'func-kkimura-linenotify-20250218'
+          app-name: $${{ env.FUCTION_NAME}}
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
           sku: 'flexconsumption'
