@@ -33,10 +33,10 @@ jobs:
           npm install
           npm run build
 
-          - name: Zip artifact for deployment
-          run: |
-            cd functions
-            zip ../release.zip ./* -r
+      - name: Zip artifact for deployment
+        run: |
+          cd functions
+          zip ../release.zip ./* -r
   
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
