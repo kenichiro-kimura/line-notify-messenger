@@ -2,8 +2,8 @@ name: Build and Deploy Bicep to GitHub Pages
 
 on:
   push:
-#    paths:
-#      - 'bicep/**/*.bicep'
+    paths:
+      - 'bicep/**/*.bicep'
   workflow_dispatch:
 
 jobs:

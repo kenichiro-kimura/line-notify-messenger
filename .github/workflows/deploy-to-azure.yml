@@ -1,9 +1,6 @@
 name: Build and deploy Node.js project to Azure Function App
 
 on:
-  push:
-    branches:
-      - 4-feature-azure
   workflow_dispatch:
 
 env:
