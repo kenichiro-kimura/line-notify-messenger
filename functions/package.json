@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/src/functions/*.js",
   "scripts": {
-    "build": "esbuild ../src/functions/HttpTrigger.ts --bundle --outdir=dist/src/functions/ --external:node:buffer --external:node:crypto --external:node:stream --external:fs --external:stream --external:@azure/functions-core --platform=node --format=cjs",
+    "build": "esbuild ../src/functions/HttpTrigger.ts --bundle --outdir=dist/src/functions/ --external:node:buffer --external:node:crypto --external:node:stream --external:fs --external:stream --external:@azure/functions-core --external:@azure/storage-blob --external:@line/bot-sdk --external:jimp --platform=node --format=cjs",
     "watch": "tsc -w",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
