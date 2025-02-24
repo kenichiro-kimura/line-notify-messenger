@@ -6,25 +6,44 @@ on:
 #      - 'bicep/**/*.bicep'
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pages: write
-
 jobs:
-  build-and-deploy:
+  # Build job
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: make deploy directory
-        run: mkdir -p deploy  
-      - name: Bicep Build
-        uses: Azure/bicep-build-action@v1.0.0
-        with:
-            bicepFilePath: bicep/main.bicep
-            outputFilePath: deploy/azuredeploy.json
+        - name: Checkout repository
+          uses: actions/checkout@v4
+        - name: make deploy directory
+          run: mkdir -p deploy  
+        - name: Bicep Build
+          uses: Azure/bicep-build-action@v1.0.0
+          with:
+              bicepFilePath: bicep/main.bicep
+              outputFilePath: deploy/azuredeploy.json
+        - name: upload pages artifact
+          id: upload
+          uses: actions/upload-pages-artifact@v3
+          with:
+            path: deploy/
+
+  # Deploy job
+  deploy:
+    # Add a dependency to the build job
+    needs: build
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write
+      id-token: write
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.upload.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
