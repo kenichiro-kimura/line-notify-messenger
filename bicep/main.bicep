@@ -103,7 +103,7 @@ module flexFunction 'core/host/function.bicep' = {
             value: 'upload'
         }
         {
-            name: 'AZURE_STORAGE_CONNECTION_STRING'
+            name: 'BLOB_CONNECTION_STRING'
             value: publicStorage.outputs.connectionString
         }
     ]
