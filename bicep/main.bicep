@@ -82,6 +82,9 @@ module publicStorage 'core/storage/storage-account.bicep' = {
 module flexFunction 'core/host/function.bicep' = {
   name: 'functionapp'
   scope: rg
+  dependsOn: [
+    publicStorage
+  ]
   params: {
     location: location
     tags: tags
@@ -98,6 +101,10 @@ module flexFunction 'core/host/function.bicep' = {
         {
             name: 'BLOB_NAME'
             value: 'upload'
+        }
+        {
+            name: 'AZURE_STORAGE_CONNECTION_STRING'
+            value: publicStorage.outputs.connectionString
         }
     ]
   }
