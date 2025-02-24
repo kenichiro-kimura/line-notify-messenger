@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "10923820454500746712"
+      "templateHash": "15869444968894212269"
     }
   },
   "parameters": {
@@ -35,6 +35,20 @@
       "minLength": 1,
       "metadata": {
         "description": "Primary location for all resources"
+      }
+    },
+    "lineChannelAccessToken": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "LINE CHANNEL ACCESS TOKEN"
+      }
+    },
+    "authorizationToken": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "LINE CHANNEL ACCESS TOKEN"
       }
     }
   },
@@ -469,7 +483,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "4521553314429405231"
+              "templateHash": "8344049509775944100"
             }
           },
           "parameters": {
@@ -617,6 +631,10 @@
             "storageId": {
               "type": "string",
               "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+            },
+            "connectionString": {
+              "type": "string",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix={2}', parameters('name'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), '2022-05-01').keys[0].value, environment().suffixes.storage)]"
             }
           }
         }
@@ -651,6 +669,9 @@
                 "name": "upload"
               }
             ]
+          },
+          "allowSharedKeyAccess": {
+            "value": true
           }
         },
         "template": {
@@ -660,7 +681,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "4521553314429405231"
+              "templateHash": "8344049509775944100"
             }
           },
           "parameters": {
@@ -808,6 +829,10 @@
             "storageId": {
               "type": "string",
               "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+            },
+            "connectionString": {
+              "type": "string",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix={2}', parameters('name'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), '2022-05-01').keys[0].value, environment().suffixes.storage)]"
             }
           }
         }
@@ -863,6 +888,18 @@
               {
                 "name": "BLOB_NAME",
                 "value": "upload"
+              },
+              {
+                "name": "BLOB_CONNECTION_STRING",
+                "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'publicStorage'), '2022-09-01').outputs.connectionString.value]"
+              },
+              {
+                "name": "LINE_CHANNEL_ACCESS_TOKEN",
+                "value": "[parameters('lineChannelAccessToken')]"
+              },
+              {
+                "name": "AUTHORIZATION_TOKEN",
+                "value": "[parameters('authorizationToken')]"
               }
             ]
           }
@@ -999,6 +1036,7 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'monitoring')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'publicStorage')]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName'))))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'storage')]"
       ]

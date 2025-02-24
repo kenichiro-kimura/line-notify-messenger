@@ -8,6 +8,12 @@ param environmentName string
 @description('Primary location for all resources')
 @allowed(['australiaeast', 'eastasia', 'eastus', 'eastus2', 'northeurope', 'southcentralus', 'southeastasia', 'swedencentral', 'uksouth', 'westus2', 'eastus2euap'])
 param location string 
+@minLength(1)
+@description('LINE CHANNEL ACCESS TOKEN')
+param lineChannelAccessToken string
+@minLength(1)
+@description('LINE CHANNEL ACCESS TOKEN')
+param authorizationToken string
 var resourceGroupName = ''
 var maximumInstanceCount = 100
 var instanceMemoryMB = 2048
@@ -75,6 +81,7 @@ module publicStorage 'core/storage/storage-account.bicep' = {
     location: location
     allowBlobPublicAccess: true
     containers: [{name: 'upload'}]
+    allowSharedKeyAccess: true
   }
 }
 
@@ -82,9 +89,6 @@ module publicStorage 'core/storage/storage-account.bicep' = {
 module flexFunction 'core/host/function.bicep' = {
   name: 'functionapp'
   scope: rg
-  dependsOn: [
-    publicStorage
-  ]
   params: {
     location: location
     tags: tags
@@ -105,6 +109,14 @@ module flexFunction 'core/host/function.bicep' = {
         {
             name: 'BLOB_CONNECTION_STRING'
             value: publicStorage.outputs.connectionString
+        }
+        {
+            name: 'LINE_CHANNEL_ACCESS_TOKEN'
+            value: lineChannelAccessToken
+        }
+        {
+            name: 'AUTHORIZATION_TOKEN'
+            value: authorizationToken
         }
     ]
   }
