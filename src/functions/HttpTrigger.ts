@@ -92,7 +92,10 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
                 'content': Buffer.from(await imageFile.arrayBuffer())
             }
         } else {
-            formData = await request.json();
+            let originalFormData = await request.formData();
+            originalFormData.forEach((value, key) => {
+                formData[key] = value;
+            });
         }
 
         await sendBroadcastMessage(lineService, formData);
