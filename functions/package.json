@@ -12,7 +12,10 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
-    "@azure/functions": "^4.0.0"
+    "@azure/functions": "^4.0.0",
+    "@azure/storage-blob": "^12.26.0",
+    "jimp": "^1.6.0",
+    "@line/bot-sdk": "^9.5.3"
   },
   "devDependencies": {
     "azure-functions-core-tools": "^4.x",
