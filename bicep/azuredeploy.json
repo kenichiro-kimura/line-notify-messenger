@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "4683878272083320830"
+      "templateHash": "10923820454500746712"
     }
   },
   "parameters": {
@@ -36,23 +36,6 @@
       "metadata": {
         "description": "Primary location for all resources"
       }
-    },
-    "resourceGroupName": {
-      "type": "string"
-    },
-    "maximumInstanceCount": {
-      "type": "int",
-      "defaultValue": 100,
-      "minValue": 40,
-      "maxValue": 1000
-    },
-    "instanceMemoryMB": {
-      "type": "int",
-      "defaultValue": 2048,
-      "allowedValues": [
-        2048,
-        4096
-      ]
     }
   },
   "variables": {
@@ -191,6 +174,9 @@
       "webSitesFunctions": "func-",
       "webStaticSites": "stapp-"
     },
+    "resourceGroupName": "",
+    "maximumInstanceCount": 100,
+    "instanceMemoryMB": 2048,
     "appInsightsLocation": "",
     "functionPlanName": "",
     "functionAppName": "",
@@ -201,7 +187,7 @@
     "functionAppRuntimeVersion": "20",
     "abbrs": "[variables('$fxv#0')]",
     "resourceToken": "[toLower(uniqueString(subscription().id, parameters('environmentName'), parameters('location')))]",
-    "appName": "[if(not(empty(variables('functionAppName'))), variables('functionAppName'), format('{0}{1}', variables('abbrs').webSitesFunctions, variables('resourceToken')))]",
+    "appName": "[if(not(empty(variables('functionAppName'))), variables('functionAppName'), format('{0}{1}', variables('abbrs').webSitesFunctions, parameters('environmentName')))]",
     "deploymentStorageContainerName": "[format('app-package-{0}-{1}', take(variables('appName'), 32), take(variables('resourceToken'), 7))]",
     "tags": {
       "azd-env-name": "[parameters('environmentName')]"
@@ -213,7 +199,7 @@
     {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2022-09-01",
-      "name": "[if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))]",
+      "name": "[if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]"
     },
@@ -221,7 +207,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "monitoring",
-      "resourceGroup": "[if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))]",
+      "resourceGroup": "[if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -234,8 +220,8 @@
           "tags": {
             "value": "[variables('tags')]"
           },
-          "logAnalyticsName": "[if(not(empty(variables('logAnalyticsName'))), createObject('value', variables('logAnalyticsName')), createObject('value', format('{0}{1}', variables('abbrs').operationalInsightsWorkspaces, variables('resourceToken'))))]",
-          "applicationInsightsName": "[if(not(empty(variables('applicationInsightsName'))), createObject('value', variables('applicationInsightsName')), createObject('value', format('{0}{1}', variables('abbrs').insightsComponents, variables('resourceToken'))))]"
+          "logAnalyticsName": "[if(not(empty(variables('logAnalyticsName'))), createObject('value', variables('logAnalyticsName')), createObject('value', format('{0}{1}', variables('abbrs').operationalInsightsWorkspaces, parameters('environmentName'))))]",
+          "applicationInsightsName": "[if(not(empty(variables('applicationInsightsName'))), createObject('value', variables('applicationInsightsName')), createObject('value', format('{0}{1}', variables('abbrs').insightsComponents, parameters('environmentName'))))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -447,14 +433,14 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName'))))]"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName'))))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "storage",
-      "resourceGroup": "[if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))]",
+      "resourceGroup": "[if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -636,14 +622,14 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName'))))]"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName'))))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "publicStorage",
-      "resourceGroup": "[if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))]",
+      "resourceGroup": "[if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -827,14 +813,14 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName'))))]"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName'))))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "functionapp",
-      "resourceGroup": "[if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))]",
+      "resourceGroup": "[if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -847,15 +833,15 @@
           "tags": {
             "value": "[variables('tags')]"
           },
-          "planName": "[if(not(empty(variables('functionPlanName'))), createObject('value', variables('functionPlanName')), createObject('value', format('{0}{1}', variables('abbrs').webServerFarms, variables('resourceToken'))))]",
+          "planName": "[if(not(empty(variables('functionPlanName'))), createObject('value', variables('functionPlanName')), createObject('value', format('{0}{1}', variables('abbrs').webServerFarms, parameters('environmentName'))))]",
           "appName": {
             "value": "[variables('appName')]"
           },
           "applicationInsightsName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'monitoring'), '2022-09-01').outputs.applicationInsightsName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'monitoring'), '2022-09-01').outputs.applicationInsightsName.value]"
           },
           "storageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'storage'), '2022-09-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'storage'), '2022-09-01').outputs.name.value]"
           },
           "deploymentStorageContainerName": {
             "value": "[variables('deploymentStorageContainerName')]"
@@ -867,10 +853,10 @@
             "value": "[variables('functionAppRuntimeVersion')]"
           },
           "maximumInstanceCount": {
-            "value": "[parameters('maximumInstanceCount')]"
+            "value": "[variables('maximumInstanceCount')]"
           },
           "instanceMemoryMB": {
-            "value": "[parameters('instanceMemoryMB')]"
+            "value": "[variables('instanceMemoryMB')]"
           },
           "customAppSettings": {
             "value": [
@@ -1012,9 +998,9 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'monitoring')]",
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName'))))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(parameters('resourceGroupName'))), parameters('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'storage')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'monitoring')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName'))))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, if(not(empty(variables('resourceGroupName'))), variables('resourceGroupName'), format('{0}{1}', variables('abbrs').resourcesResourceGroups, parameters('environmentName')))), 'Microsoft.Resources/deployments', 'storage')]"
       ]
     }
   ]

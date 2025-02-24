@@ -8,12 +8,9 @@ param environmentName string
 @description('Primary location for all resources')
 @allowed(['australiaeast', 'eastasia', 'eastus', 'eastus2', 'northeurope', 'southcentralus', 'southeastasia', 'swedencentral', 'uksouth', 'westus2', 'eastus2euap'])
 param location string 
-param resourceGroupName string
-@minValue(40)
-@maxValue(1000)
-param maximumInstanceCount int = 100
-@allowed([2048,4096])
-param instanceMemoryMB int = 2048
+var resourceGroupName = ''
+var maximumInstanceCount = 100
+var instanceMemoryMB = 2048
 var appInsightsLocation = ''
 var functionPlanName = ''
 var functionAppName = ''
@@ -27,7 +24,7 @@ var abbrs = loadJsonContent('./abbreviations.json')
 // Generate a unique token to be used in naming resources.
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 // Generate a unique function app name if one is not provided.
-var appName = !empty(functionAppName) ? functionAppName : '${abbrs.webSitesFunctions}${resourceToken}'
+var appName = !empty(functionAppName) ? functionAppName : '${abbrs.webSitesFunctions}${environmentName}'
 // Generate a unique container name that will be used for deployments.
 var deploymentStorageContainerName = 'app-package-${take(appName, 32)}-${take(resourceToken, 7)}'
 // tags that should be applied to all resources.
@@ -53,8 +50,8 @@ module monitoring './core/monitor/monitoring.bicep' = {
   params: {
     location: monitoringLocation
     tags: tags
-    logAnalyticsName: !empty(logAnalyticsName) ? logAnalyticsName : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
-    applicationInsightsName: !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
+    logAnalyticsName: !empty(logAnalyticsName) ? logAnalyticsName : '${abbrs.operationalInsightsWorkspaces}${environmentName}'
+    applicationInsightsName: !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${environmentName}'
   }
 }
 
@@ -88,7 +85,7 @@ module flexFunction 'core/host/function.bicep' = {
   params: {
     location: location
     tags: tags
-    planName: !empty(functionPlanName) ? functionPlanName : '${abbrs.webServerFarms}${resourceToken}'
+    planName: !empty(functionPlanName) ? functionPlanName : '${abbrs.webServerFarms}${environmentName}'
     appName: appName
     applicationInsightsName: monitoring.outputs.applicationInsightsName
     storageAccountName: storage.outputs.name
