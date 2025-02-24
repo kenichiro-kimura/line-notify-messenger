@@ -8,22 +8,20 @@ param environmentName string
 @description('Primary location for all resources')
 @allowed(['australiaeast', 'eastasia', 'eastus', 'eastus2', 'northeurope', 'southcentralus', 'southeastasia', 'swedencentral', 'uksouth', 'westus2', 'eastus2euap'])
 param location string 
-param appInsightsLocation string = ''
-param resourceGroupName string = ''
-param functionPlanName string = ''
-param functionAppName string = ''
-param storageAccountName string = ''
-param logAnalyticsName string = ''
-param applicationInsightsName string = ''
-@allowed(['dotnet-isolated','python','java', 'node', 'powerShell'])
-param functionAppRuntime string = 'node'
-@allowed(['3.10','3.11', '7.4', '8.0', '9.0', '10', '11', '17', '20'])
-param functionAppRuntimeVersion string = '20'
+param resourceGroupName string
 @minValue(40)
 @maxValue(1000)
 param maximumInstanceCount int = 100
 @allowed([2048,4096])
 param instanceMemoryMB int = 2048
+var appInsightsLocation = ''
+var functionPlanName = ''
+var functionAppName = ''
+var storageAccountName = ''
+var logAnalyticsName = ''
+var applicationInsightsName = ''
+var functionAppRuntime = 'node'
+var functionAppRuntimeVersion = '20'
 
 var abbrs = loadJsonContent('./abbreviations.json')
 // Generate a unique token to be used in naming resources.

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "391614140408301096"
+      "templateHash": "4683878272083320830"
     }
   },
   "parameters": {
@@ -37,59 +37,8 @@
         "description": "Primary location for all resources"
       }
     },
-    "appInsightsLocation": {
-      "type": "string",
-      "defaultValue": ""
-    },
     "resourceGroupName": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "functionPlanName": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "functionAppName": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "storageAccountName": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "logAnalyticsName": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "applicationInsightsName": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "functionAppRuntime": {
-      "type": "string",
-      "defaultValue": "node",
-      "allowedValues": [
-        "dotnet-isolated",
-        "python",
-        "java",
-        "node",
-        "powerShell"
-      ]
-    },
-    "functionAppRuntimeVersion": {
-      "type": "string",
-      "defaultValue": "20",
-      "allowedValues": [
-        "3.10",
-        "3.11",
-        "7.4",
-        "8.0",
-        "9.0",
-        "10",
-        "11",
-        "17",
-        "20"
-      ]
+      "type": "string"
     },
     "maximumInstanceCount": {
       "type": "int",
@@ -242,15 +191,23 @@
       "webSitesFunctions": "func-",
       "webStaticSites": "stapp-"
     },
+    "appInsightsLocation": "",
+    "functionPlanName": "",
+    "functionAppName": "",
+    "storageAccountName": "",
+    "logAnalyticsName": "",
+    "applicationInsightsName": "",
+    "functionAppRuntime": "node",
+    "functionAppRuntimeVersion": "20",
     "abbrs": "[variables('$fxv#0')]",
     "resourceToken": "[toLower(uniqueString(subscription().id, parameters('environmentName'), parameters('location')))]",
-    "appName": "[if(not(empty(parameters('functionAppName'))), parameters('functionAppName'), format('{0}{1}', variables('abbrs').webSitesFunctions, variables('resourceToken')))]",
+    "appName": "[if(not(empty(variables('functionAppName'))), variables('functionAppName'), format('{0}{1}', variables('abbrs').webSitesFunctions, variables('resourceToken')))]",
     "deploymentStorageContainerName": "[format('app-package-{0}-{1}', take(variables('appName'), 32), take(variables('resourceToken'), 7))]",
     "tags": {
       "azd-env-name": "[parameters('environmentName')]"
     },
-    "monitoringLocation": "[if(not(empty(parameters('appInsightsLocation'))), parameters('appInsightsLocation'), parameters('location'))]",
-    "publicStorageName": "[if(not(empty(parameters('storageAccountName'))), parameters('storageAccountName'), format('{0}{1}pub', variables('abbrs').storageStorageAccounts, variables('resourceToken')))]"
+    "monitoringLocation": "[if(not(empty(variables('appInsightsLocation'))), variables('appInsightsLocation'), parameters('location'))]",
+    "publicStorageName": "[if(not(empty(variables('storageAccountName'))), variables('storageAccountName'), format('{0}{1}pub', variables('abbrs').storageStorageAccounts, variables('resourceToken')))]"
   },
   "resources": [
     {
@@ -277,8 +234,8 @@
           "tags": {
             "value": "[variables('tags')]"
           },
-          "logAnalyticsName": "[if(not(empty(parameters('logAnalyticsName'))), createObject('value', parameters('logAnalyticsName')), createObject('value', format('{0}{1}', variables('abbrs').operationalInsightsWorkspaces, variables('resourceToken'))))]",
-          "applicationInsightsName": "[if(not(empty(parameters('applicationInsightsName'))), createObject('value', parameters('applicationInsightsName')), createObject('value', format('{0}{1}', variables('abbrs').insightsComponents, variables('resourceToken'))))]"
+          "logAnalyticsName": "[if(not(empty(variables('logAnalyticsName'))), createObject('value', variables('logAnalyticsName')), createObject('value', format('{0}{1}', variables('abbrs').operationalInsightsWorkspaces, variables('resourceToken'))))]",
+          "applicationInsightsName": "[if(not(empty(variables('applicationInsightsName'))), createObject('value', variables('applicationInsightsName')), createObject('value', format('{0}{1}', variables('abbrs').insightsComponents, variables('resourceToken'))))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -510,7 +467,7 @@
           "tags": {
             "value": "[variables('tags')]"
           },
-          "name": "[if(not(empty(parameters('storageAccountName'))), createObject('value', parameters('storageAccountName')), createObject('value', format('{0}{1}', variables('abbrs').storageStorageAccounts, variables('resourceToken'))))]",
+          "name": "[if(not(empty(variables('storageAccountName'))), createObject('value', variables('storageAccountName')), createObject('value', format('{0}{1}', variables('abbrs').storageStorageAccounts, variables('resourceToken'))))]",
           "containers": {
             "value": [
               {
@@ -890,7 +847,7 @@
           "tags": {
             "value": "[variables('tags')]"
           },
-          "planName": "[if(not(empty(parameters('functionPlanName'))), createObject('value', parameters('functionPlanName')), createObject('value', format('{0}{1}', variables('abbrs').webServerFarms, variables('resourceToken'))))]",
+          "planName": "[if(not(empty(variables('functionPlanName'))), createObject('value', variables('functionPlanName')), createObject('value', format('{0}{1}', variables('abbrs').webServerFarms, variables('resourceToken'))))]",
           "appName": {
             "value": "[variables('appName')]"
           },
@@ -904,10 +861,10 @@
             "value": "[variables('deploymentStorageContainerName')]"
           },
           "functionAppRuntime": {
-            "value": "[parameters('functionAppRuntime')]"
+            "value": "[variables('functionAppRuntime')]"
           },
           "functionAppRuntimeVersion": {
-            "value": "[parameters('functionAppRuntimeVersion')]"
+            "value": "[variables('functionAppRuntimeVersion')]"
           },
           "maximumInstanceCount": {
             "value": "[parameters('maximumInstanceCount')]"
