@@ -12,14 +12,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-    steps:
       - name: Bicep Build
         uses: Azure/bicep-build-action@v1.0.0
         with:
             bicepFilePath: bicep/main.bicep
             outputFilePath: deploy/azuredeploy.json
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
