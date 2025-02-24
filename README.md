@@ -20,6 +20,8 @@ AWS Lambdaをデプロイ先として使用します。
 
 ## セットアップ手順
 
+### 共通
+
 1. LINE Messaging APIの設定を行い、チャンネルアクセストークン(長期)を取得してください
 2. リポジトリをクローンします。
 3. 必要な依存関係をインストールします。
@@ -28,7 +30,9 @@ AWS Lambdaをデプロイ先として使用します。
    npm install
    ```
 
-4. 環境変数`LINE_CHANNEL_ACCESS_TOKEN`に、LINE Messaging APIのチャンネルアクセストークンを設定します。
+### AWS
+
+1. 環境変数`LINE_CHANNEL_ACCESS_TOKEN`に、LINE Messaging APIのチャンネルアクセストークンを設定します。
 
    bashの場合
 
@@ -42,7 +46,7 @@ AWS Lambdaをデプロイ先として使用します。
    $Env:LINE_CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN'
    ```
 
-5. 環境変数`AUTHORIZATION_TOKEN`に、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
+2. 環境変数`AUTHORIZATION_TOKEN`に、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
 
    bashの場合
 
@@ -56,11 +60,35 @@ AWS Lambdaをデプロイ先として使用します。
    $Env:AUTHORIZATION_TOKEN = 'YOUR_AUTHORIZATION_TOKEN'
    ```
 
-5. AWS CDKを使用してスタックをデプロイします。
+3. AWS CDKを使用してスタックをデプロイします。
 
    ```bash
    npm run deploy
    ```
+
+### Azure (GitHub Actionsでデプロイする場合)
+
+1. 以下のボタンを押して環境を構築します。lineAccessTokenとauthorizedTokenには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
+
+   [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fkenichiro-kimura.github.io%2Fline-notify-messenger%2Fazuredeploy.json)
+
+2. 本リポジトリをForkします。
+
+3. 構築した環境のAzure Functionsから発行プロファイルを取得して、ForkしたリポジトリのGitHub ActionsのSecret `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` に登録します。
+
+4. 同じくForkしたリポジトリのActionsのVariables `FUNCTION_NAME` に、Azure Functionsの関数名を登録します。
+
+5. `Build and deploy Node.js project to Azure Function App`ワークフローを実行します
+
+### Azure (VSCodeでデプロイする場合)
+
+1. 以下のボタンを押して環境を構築します。lineAccessTokenとauthorizedTokenには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
+
+   [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fkenichiro-kimura.github.io%2Fline-notify-messenger%2Fazuredeploy.json)
+
+2. 本リポジトリをクローンし、VSCodeで開きます。
+
+3. [「コード プロジェクトをデプロイする」](https://learn.microsoft.com/ja-jp/azure/azure-functions/flex-consumption-how-to?tabs=azure-cli%2Cvs-code-publish&pivots=programming-language-javascript#deploy-your-code-project)に従ってデプロイします。
 
 ## 使用方法
 
