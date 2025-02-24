@@ -17,7 +17,7 @@ export class LambdaStack extends cdk.Stack {
     // Lambda関数の作成
     const myFunction = new lambda.Function(this, 'LineNotifyMessenger', {
       runtime: lambda.Runtime.NODEJS_22_X,
-      handler: 'handler.handler',
+      handler: 'lambdahandler.handler',
       code: lambda.Code.fromAsset('dist'),
       environment: {
         BUCKET_NAME: bucket.bucketName,
