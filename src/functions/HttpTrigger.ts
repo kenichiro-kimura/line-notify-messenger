@@ -1,10 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { parse } from "querystring";
 import LineService from "../lineService";
 import { BlobImageStorage } from "../blobImageStorage";
 import { JimpImageConverter } from "../jimpImageConverter";
-
-const multipart = require('aws-lambda-multipart-parser');
 
 const httpInvalidRequestErrorMessage = (message: string) => {
     return {
@@ -59,12 +56,16 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
         return  httpInternalServerErrorMessage('LINE_CHANNEL_ACCESS_TOKEN is not set');
     }
 
-    const contentType = request.headers.get('content-type') || request.headers.get('Content-Type');
-    const blobName = process.env.blobName;
-    const blobConnectionString = process.env.BlobConnectionString;
+    const contentType = request.headers.get('content-type') || request.headers.get('Content-Type') || "";
+    const blobName = process.env.BLOB_NAME;
+    const blobConnectionString = process.env.BLOB_CONNECTION_STRING;
 
-    if (!blobName || !blobConnectionString) {
-        return httpInternalServerErrorMessage('BlobName or BlobConnectionString is not set');
+    if (!blobName) {
+        return httpInternalServerErrorMessage('BLOB_NAME is not set');
+    }
+
+    if (!blobConnectionString) {
+        return httpInternalServerErrorMessage('BLOB_CONNECTION_STRING is not set');
     }
 
     const lineService = new LineService(
