@@ -9,6 +9,8 @@ AWS Lambdaをデプロイ先として使用します。
 - `src/lineService.ts`: LINE Messaging APIとのインタラクションを管理するサービスクラスを定義しています。メッセージの送信や受信を行うメソッドが含まれています。
 - `src/s3ImageStorage.ts`: S3に画像をアップロードするサービスクラスを定義しています。画像のアップロードやURLの取得を行うメソッドが含まれています。
 - `src/jimpImageProcessor.ts`: Jimpを使用して画像を処理するサービスクラスを定義しています。画像のリサイズやフィルター処理を行うメソッドが含まれています。
+- `src/blobStorage.ts`: Azure Blob Storageに画像をアップロードするサービスクラスを定義しています。画像のアップロードやURLの取得を行うメソッドが含まれています。
+- `src/functions/handler.ts`: Azure Functionsのエントリポイント。LINE Messaging APIからのイベントを処理する関数を定義しています。
 - `src/interfaces`: インターフェースを定義するディレクトリ。型定義を分離して管理します。
 - `bin/line-notify-messenger.ts`: AWS CDKアプリケーションのエントリポイント。スタックを作成し、デプロイするための設定を行います。
 - `lib/lambda-stack.ts`: AWSリソースを定義するCDKスタック。AWS Lambda関数の設定が記述されています。
@@ -17,6 +19,8 @@ AWS Lambdaをデプロイ先として使用します。
 - `tests/`: テストファイルを格納するディレクトリ。Jestを使用してテストを実行します。
 - `jest.config.js`: Jestの設定ファイル。テストの設定を記述します。
 - `cdk.json`: CDKアプリケーションの設定ファイル。アプリケーションのエントリポイントやスタックの設定を記述します。
+- `bicep/`: Azureリソースを定義するBicepファイルを格納するディレクトリ。
+- `functions/`: Azure Functionsのプロジェクトファイルを格納するディレクトリ。
 
 ## セットアップ手順
 
