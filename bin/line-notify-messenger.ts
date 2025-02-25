@@ -5,7 +5,7 @@ import { LambdaStack } from '../lib/lambda-stack';
 
 const app = new cdk.App();
 
-const s3Stack = new S3Stack(app, 'S3Stack');
-new LambdaStack(app, 'LambdaStack', {
+const s3Stack = new S3Stack(app, 'LineNotifyMessangerS3Stack');
+new LambdaStack(app, 'LineNotifyMessengerLambdaStack', {
   bucket: s3Stack.bucket,
 });

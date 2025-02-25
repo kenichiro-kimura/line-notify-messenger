@@ -61,15 +61,15 @@ export const handler = async (event: any) => {
 
     const lineService = new LineService(lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter());
 
+    if (event.isBase64Encoded === true){
+        event.body = Buffer.from(event.body, 'base64').toString('binary');
+    }
+
     if(isNotifyServiceRequest(event.rawPath, event.requestContext?.http?.method, contentType)) {
         const bearerToken = event.headers?.authorization?.split('Bearer ')[1];
 
         if (!bearerToken || bearerToken !== process.env.AUTHORIZATION_TOKEN) {
             return httpUnAuthorizedErrorMessage('Invalid authorization token');
-        }
-
-        if (event.isBase64Encoded === true){
-            event.body = Buffer.from(event.body, 'base64').toString('binary');
         }
 
         const formData = (contentType.startsWith('multipart/form-data')) ? multipart.parse(event,true) : parse(event.body);
