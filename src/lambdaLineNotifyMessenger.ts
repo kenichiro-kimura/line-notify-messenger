@@ -50,11 +50,11 @@ export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
         return this.event.headers?.authorization?.split('Bearer ')[1] || "";
     }
 
-    public getFormData(): any {
-        return (this.getContentType().startsWith('multipart/form-data')) ? multipart.parse(this.event,true) : parse(this.getBody());
+    public async getFormDataAsync(): Promise<any> {
+        return (this.getContentType().startsWith('multipart/form-data')) ? multipart.parse(this.event,true) : parse(await this.getBodyAsync());
     }
 
-    public getBody(): string {
+    public async getBodyAsync(): Promise<string> {
         return this.event.body;
     }
 }

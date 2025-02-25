@@ -6,6 +6,6 @@ export interface ILineNotifyMessenger {
     getHttpMethod(): string;
     getContentType(): string;
     getBearerToken(): string;
-    getFormData(): any;
-    getBody(): string;
+    getFormData(): Promise<any>;
+    getBody(): Promise<string>;
 }

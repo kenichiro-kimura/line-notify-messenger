@@ -40,13 +40,13 @@ export class LineNotifyMessengerApp {
                 return this.messenger.httpUnAuthorizedErrorMessage('Invalid authorization token');
             }
     
-            const formData = this.messenger.getFormData();
+            const formData = await this.messenger.getFormDataAsync();
     
             await this.sendBroadcastMessage(formData);
             return this.messenger.httpOkMessage('Success Notify');
         }
     
-        const body = JSON.parse(this.messenger.getBody());
+        const body = JSON.parse(await this.messenger.getBodyAsync());
     
         /* health check from LINE */
         if(body.events.length === 0) {
