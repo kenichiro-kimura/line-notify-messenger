@@ -8,6 +8,7 @@ src/**/*.js.map
 
 # AWS CDK の出力先
 cdk.out/
+cdk.context.json
 
 # ログファイル
 npm-debug.log*
