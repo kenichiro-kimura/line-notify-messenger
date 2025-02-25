@@ -53,8 +53,8 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
 
     public async getFormDataAsync(): Promise<any> {
         let formData: any = {};
+        const rawFormData = await this.request.formData();
         if (this.getContentType().startsWith('multipart/form-data')) {
-            const rawFormData = await this.request.formData();
             formData.message = rawFormData.get('message');
             const imageFile : any = rawFormData.get('imageFile');
             formData.imageFile = {
@@ -63,8 +63,7 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
                 'content': Buffer.from(imageFile.arrayBuffer())
             }
         } else {
-            let originalFormData = this.request.formData();
-            originalFormData.forEach((value, key) => {
+            rawFormData.forEach((value, key) => {
                 formData[key] = value;
             });
         }
