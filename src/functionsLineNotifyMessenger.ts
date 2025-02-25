@@ -60,7 +60,7 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
             formData.imageFile = {
                 'filename': imageFile.name,
                 'contentType': imageFile.type,
-                'content': Buffer.from(imageFile.arrayBuffer())
+                'content': Buffer.from(await imageFile.arrayBuffer())
             }
         } else {
             rawFormData.forEach((value, key) => {
