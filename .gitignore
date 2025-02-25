@@ -3,9 +3,12 @@ node_modules/
 
 # TypeScript のコンパイル成果物
 dist/
+src/**/*.js
+src/**/*.js.map
 
 # AWS CDK の出力先
 cdk.out/
+cdk.context.json
 
 # ログファイル
 npm-debug.log*

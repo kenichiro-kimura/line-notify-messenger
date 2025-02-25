@@ -5,22 +5,33 @@ AWS Lambdaをデプロイ先として使用します。
 
 ## 構成
 
-- `src/handler.ts`: AWS Lambdaのエントリポイント。LINE Messaging APIからのイベントを処理する関数を定義しています。
-- `src/lineService.ts`: LINE Messaging APIとのインタラクションを管理するサービスクラスを定義しています。メッセージの送信や受信を行うメソッドが含まれています。
-- `src/s3ImageStorage.ts`: S3に画像をアップロードするサービスクラスを定義しています。画像のアップロードやURLの取得を行うメソッドが含まれています。
-- `src/jimpImageProcessor.ts`: Jimpを使用して画像を処理するサービスクラスを定義しています。画像のリサイズやフィルター処理を行うメソッドが含まれています。
-- `src/blobStorage.ts`: Azure Blob Storageに画像をアップロードするサービスクラスを定義しています。画像のアップロードやURLの取得を行うメソッドが含まれています。
-- `src/functions/handler.ts`: Azure Functionsのエントリポイント。LINE Messaging APIからのイベントを処理する関数を定義しています。
-- `src/interfaces`: インターフェースを定義するディレクトリ。型定義を分離して管理します。
-- `bin/line-notify-messenger.ts`: AWS CDKアプリケーションのエントリポイント。スタックを作成し、デプロイするための設定を行います。
-- `lib/lambda-stack.ts`: AWSリソースを定義するCDKスタック。AWS Lambda関数の設定が記述されています。
-- `tsconfig.json`: TypeScriptのコンパイル設定を含むファイル。コンパイラオプションやコンパイル対象のファイルを指定します。
-- `package.json`: npmの設定ファイル。プロジェクトの依存関係やスクリプトをリストしています。
-- `tests/`: テストファイルを格納するディレクトリ。Jestを使用してテストを実行します。
-- `jest.config.js`: Jestの設定ファイル。テストの設定を記述します。
-- `cdk.json`: CDKアプリケーションの設定ファイル。アプリケーションのエントリポイントやスタックの設定を記述します。
-- `bicep/`: Azureリソースを定義するBicepファイルを格納するディレクトリ。
-- `functions/`: Azure Functionsのプロジェクトファイルを格納するディレクトリ。
+- ハンドラー
+  - `src/lambdahandler.ts`: AWS Lambdaのエントリポイント。
+  - `src/functions/handler.ts`: Azure Functionsのエントリポイント。
+- メインロジック
+  - `src/lineNotifyMessengerApp.ts`: LINE Messaging APIからのイベントやHTTPリクエストを処理するロジックを実装しています。
+- 実行環境特有のロジック
+  - `src/lambdaLineNotifyMessenger.ts`: ILineNotifyMessengerを実装したクラス。AWS Lambda固有のロジックを実装しています。
+  - `src/functionsLineNotifyMessenger.ts`: ILineNotifyMessengerを実装したクラス。Azure Functions固有のロジックを実装しています。
+- LINE Messaging API関連
+  - `src/lineService.ts`: LINE Messaging APIとのインタラクションを管理するサービスクラスを定義しています。メッセージの送信や受信を行うメソッドが含まれています。
+- 画像保存
+  - `src/s3ImageStorage.ts`: IImageStorageを実装したクラス。Amazon S3に画像をアップロードするサービスクラスを定義しています。
+  - `src/blobStorage.ts`: IImageStorageを実装したクラス。Azure Blob Storageに画像をアップロードするサービスクラスを定義しています。
+- 画像サイズ変更
+  - `src/jimpImageProcessor.ts`: IImageProcessorを実装したクラス。Jimpを使用して画像を処理するサービスクラスを定義しています。
+- IaC
+  - `bin/line-notify-messenger.ts`: AWS CDKアプリケーションのエントリポイント。スタックを作成し、デプロイするための設定を行います。
+  - `lib/lambda-stack.ts`: AWSリソースを定義するCDKスタック。AWS Lambda関数の設定が記述されています。
+  - `cdk.json`: CDKアプリケーションの設定ファイル。アプリケーションのエントリポイントやスタックの設定を記述します。
+  - `bicep/`: Azureリソースを定義するBicepファイルを格納するディレクトリ。
+- その他
+  - `src/interfaces`: インターフェースを定義するディレクトリ。
+  - `functions/`: Azure Functionsのプロジェクトファイルを格納するディレクトリ。
+  - `tests/`: テストファイルを格納するディレクトリ。Jestを使用してテストを実行します。
+  - `tsconfig.json`: TypeScriptのコンパイル設定を含むファイル。コンパイラオプションやコンパイル対象のファイルを指定します。
+  - `package.json`: npmの設定ファイル。プロジェクトの依存関係やスクリプトをリストしています。
+  - `jest.config.js`: Jestの設定ファイル。テストの設定を記述します。
 
 ## セットアップ手順
 
