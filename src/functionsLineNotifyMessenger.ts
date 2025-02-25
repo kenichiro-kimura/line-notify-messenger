@@ -7,13 +7,6 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
         this.request = request;
     }
 
-    public httpInvalidRequestErrorMessage(message: string): any {
-        return {
-            status: 400,
-            body: message
-        };
-    };
-
     public httpUnAuthorizedErrorMessage (message: string): any {
         return {
             status: 401,
@@ -63,7 +56,7 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
                 'content': Buffer.from(await imageFile.arrayBuffer())
             }
         } else {
-            rawFormData.forEach((value, key) => {
+            rawFormData.forEach((value: FormDataEntryValue, key: string) => {
                 formData[key] = value;
             });
         }
