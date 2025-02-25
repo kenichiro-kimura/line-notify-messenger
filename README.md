@@ -34,6 +34,12 @@ AWS Lambdaをデプロイ先として使用します。
    npm install
    ```
 
+4. ビルドします
+
+   ```bash
+   npm run build
+   ```
+
 ### AWS
 
 1. 環境変数`LINE_CHANNEL_ACCESS_TOKEN`に、LINE Messaging APIのチャンネルアクセストークンを設定します。
@@ -72,7 +78,7 @@ AWS Lambdaをデプロイ先として使用します。
 
 ### Azure (GitHub Actionsでデプロイする場合)
 
-1. 以下のボタンを押して環境を構築します。lineAccessTokenとauthorizedTokenには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
+1. 以下のボタンを押して環境を構築します。LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
 
    [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fkenichiro-kimura.github.io%2Fline-notify-messenger%2Fazuredeploy.json)
 
@@ -86,7 +92,7 @@ AWS Lambdaをデプロイ先として使用します。
 
 ### Azure (VSCodeでデプロイする場合)
 
-1. 以下のボタンを押して環境を構築します。lineAccessTokenとauthorizedTokenには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
+1. 以下のボタンを押して環境を構築します。LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
 
    [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fkenichiro-kimura.github.io%2Fline-notify-messenger%2Fazuredeploy.json)
 
