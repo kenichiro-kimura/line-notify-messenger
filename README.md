@@ -1,7 +1,7 @@
 # line-notify-messenger
 
 このプロジェクトは、LINE Notifyの代わりに利用できるボットを提供します。Node.jsを使用してLINE Messaging APIを利用してメッセージを送信します。  
-AWS Lambdaをデプロイ先として使用します。  
+AWS LambdaまたはAzure Functionsをデプロイ先として使用します。  
 
 ## 構成
 
