@@ -1,18 +1,5 @@
 import { BlobImageStorage } from '../src/blobImageStorage';
-import { BlobServiceClient, ContainerClient, StorageSharedKeyCredential, generateBlobSASQueryParameters, BlobSASPermissions } from '@azure/storage-blob';
-
-const mockBlobServiceClient = jest.fn().mockResolvedValue(
-    {
-        getContainerClient: jest.fn(),
-        createIfNotExists: jest.fn(),
-    });
-
-jest.mock('@azure/storage-blob', () => ({
-    BlobServiceClient: mockBlobServiceClient,
-    ContainerClient: jest.fn(),
-    StorageSharedKeyCredential: jest.fn(),
-    generateBlobSASQueryParameters: jest.fn(),
-}));
+import { BlobServiceClient, ContainerClient, StorageSharedKeyCredential, BlobSASPermissions } from '@azure/storage-blob';
 
 describe('BlobImageStorage', () => {
     const connectionString = 'AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;';
@@ -30,13 +17,26 @@ describe('BlobImageStorage', () => {
     it('should upload image and return SAS URL', async () => {
         const mockUploadData = jest.fn();
         const mockCreateIfNotExists = jest.fn();
-        const mockGenerateBlobSASQueryParameters = generateBlobSASQueryParameters as jest.Mock;
-        const mockGetBlockBlobClient = jest.fn().mockReturnValue({ uploadData: mockUploadData });
+        const mockGetBlockBlobClient = jest.fn().mockImplementation(() => {
+            return {
+                uploadData: mockUploadData,
+                url: 'blob-url'
+            };
+        });
+        BlobServiceClient.fromConnectionString = jest.fn().mockImplementation(() => {
+            return {
+                getContainerClient: jest.fn()
+            };
+        }) as jest.Mock<BlobServiceClient>;
+
+        BlobServiceClient.prototype.getContainerClient = jest.fn() as jest.Mock<ContainerClient>;        
+        const mockGenerateBlobSASQueryParameters = jest.fn().mockImplementation(() => {
+            return { toString: () => 'sas-token' };
+        });
         ContainerClient.prototype.createIfNotExists = mockCreateIfNotExists;
         ContainerClient.prototype.getBlockBlobClient = mockGetBlockBlobClient;
-
-        const sasUrl = 'https://sas-url.com';
-        mockGenerateBlobSASQueryParameters.mockReturnValue({ toString: () => 'sas-token' });
+        
+        jest.spyOn(require('@azure/storage-blob'), 'generateBlobSASQueryParameters').mockImplementation(mockGenerateBlobSASQueryParameters);
 
         const result = await blobImageStorage.uploadImage(fileName, image, contentType);
 
