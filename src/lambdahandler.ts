@@ -12,14 +12,14 @@ export const handler = async (event: any) => {
 
     const lineChannelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
     if (!lineChannelAccessToken) {
-        return messenger.httpInternalServerErrorMessage('LINE_CHANNEL_ACCESS_TOKEN is not set');
+        throw new Error('LINE_CHANNEL_ACCESS_TOKEN is not set');
     }
 
     const bucketName = process.env.BUCKET_NAME;
     const s3Region = process.env.S3_REGION;
 
     if (!bucketName || !s3Region) {
-        return messenger.httpInternalServerErrorMessage('BUCKET_NAME or S3_REGION is not set');
+        throw new Error('BUCKET_NAME or S3_REGION is not set');
     }
 
     const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter());

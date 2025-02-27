@@ -11,14 +11,14 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
 
     const lineChannelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
     if (!lineChannelAccessToken) {
-        return messenger.httpInternalServerErrorMessage('LINE_CHANNEL_ACCESS_TOKEN is not set');
+        throw new Error('LINE_CHANNEL_ACCESS_TOKEN is not set');
     }
 
     const blobName = process.env.BLOB_NAME;
     const blobConnectionString = process.env.BLOB_CONNECTION_STRING;
 
     if (!blobName || !blobConnectionString) {
-        return messenger.httpInternalServerErrorMessage('BLOB_NAME or BLOB_CONNECTION_STRING is not set');
+        throw new Error('BLOB_NAME or BLOB_CONNECTION_STRING is not set');
     }
 
     const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new BlobImageStorage(blobConnectionString,blobName), new JimpImageConverter());

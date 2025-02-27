@@ -32,40 +32,37 @@ describe("HttpTrigger function", () => {
     process.env = ORIGINAL_ENV;
   });
 
-  test("should return internal server error when LINE_CHANNEL_ACCESS_TOKEN is not set", async () => {
+  test("should throw error when LINE_CHANNEL_ACCESS_TOKEN is not set", async () => {
     delete process.env.LINE_CHANNEL_ACCESS_TOKEN;
     const request = {} as HttpRequest;
     const context = { 
       log: jest.fn(),
     } as unknown as InvocationContext;
-    const response = await HttpTrigger(request,context);
-    // HTTP ステータス 500 を検証
-    expect(response.status).toEqual(500);
-    expect(response.body).toContain("LINE_CHANNEL_ACCESS_TOKEN is not set");
+
+    // 例外が投げられることを検証
+    await expect(HttpTrigger(request,context)).rejects.toThrow("LINE_CHANNEL_ACCESS_TOKEN is not set");
   });
 
-  test("should return internal server error when BLOB_NAME is not set", async () => {
+  test("should throw error when BLOB_NAME is not set", async () => {
     delete process.env.BLOB_NAME;
     const request = {} as HttpRequest;
     const context = { 
       log: jest.fn(),
     } as unknown as InvocationContext;
-    const response = await HttpTrigger(request,context);
-    // HTTP ステータス 500 を検証
-    expect(response.status).toEqual(500);
-    expect(response.body).toContain("BLOB_NAME or BLOB_CONNECTION_STRING is not set");
+
+    // 例外が投げられることを検証
+    await expect(HttpTrigger(request,context)).rejects.toThrow("BLOB_NAME or BLOB_CONNECTION_STRING is not set");
   });
 
-  test("should return internal server error when BLOB_CONNECTION_STRING is not set", async () => {
+  test("should throw error when BLOB_CONNECTION_STRING is not set", async () => {
     delete process.env.BLOB_CONNECTION_STRING;
     const request = {} as HttpRequest;
     const context = { 
       log: jest.fn(),
     } as unknown as InvocationContext;
-    const response = await HttpTrigger(request,context);
-    // HTTP ステータス 500 を検証
-    expect(response.status).toEqual(500);
-    expect(response.body).toContain("BLOB_NAME or BLOB_CONNECTION_STRING is not set");
+
+    // 例外が投げられることを検証
+    await expect(HttpTrigger(request,context)).rejects.toThrow("BLOB_NAME or BLOB_CONNECTION_STRING is not set");
   });
 
   test("should handle notify event branch and call broadcastMessage with parsed form data", async () => {

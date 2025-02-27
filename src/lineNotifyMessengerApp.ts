@@ -12,6 +12,18 @@ export class LineNotifyMessengerApp {
         this.lineService = new LineService(lineChannelAccessToken, imageStorage, imageConverter);
     }
 
+    private httpUnAuthorizedErrorMessage = (message: string): any => {
+        return this.messenger.buildHttpResponse(401, message);
+    }
+
+    private httpInternalServerErrorMessage = (message: string): any => {
+        return this.messenger.buildHttpResponse(500, message);
+    }
+    
+    private httpOkMessage = (message: string): any => {
+        return this.messenger.buildHttpResponse(200, message);
+    }
+
     private isNotifyServiceRequest = () => {
         const path = this.messenger.getRequestPath();
         const method = this.messenger.getHttpMethod();
@@ -37,26 +49,26 @@ export class LineNotifyMessengerApp {
             const bearerToken = this.messenger.getBearerToken();
     
             if (!bearerToken || bearerToken !== process.env.AUTHORIZATION_TOKEN) {
-                return this.messenger.httpUnAuthorizedErrorMessage('Invalid authorization token');
+                return this.httpUnAuthorizedErrorMessage('Invalid authorization token');
             }
     
             const formData = await this.messenger.getFormDataAsync();
     
             await this.sendBroadcastMessage(formData);
-            return this.messenger.httpOkMessage('Success Notify');
+            return this.httpOkMessage('Success Notify');
         }
     
         const body = JSON.parse(await this.messenger.getBodyAsync());
     
         /* health check from LINE */
         if(body.events.length === 0) {
-            return this.messenger.httpOkMessage('No events');
+            return this.httpOkMessage('No events');
         }
     
         /* reply default message */
         await this.replyDefaultMessage(body);
     
-        return this.messenger.httpOkMessage('Success');
+        return this.httpOkMessage('Success');
     };
         
 }

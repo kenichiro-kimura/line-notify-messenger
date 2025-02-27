@@ -27,17 +27,14 @@ describe("handler function", () => {
     process.env = ORIGINAL_ENV;
   });
 
-  test("should return internal server error when LINE_CHANNEL_ACCESS_TOKEN is not set", async () => {
+  test("should throw error when LINE_CHANNEL_ACCESS_TOKEN is not set", async () => {
     delete process.env.LINE_CHANNEL_ACCESS_TOKEN;
     const event = {
       body: "{}"
     };
 
-    const response = await handler(event);
-    // HTTP ステータス 500 を検証
-    expect(response.statusCode).toEqual(500);
-    const payload = JSON.parse(response.body);
-    expect(payload.message).toContain("LINE_CHANNEL_ACCESS_TOKEN is not set");
+    // 例外が投げられることを検証
+    await expect(handler(event)).rejects.toThrow("LINE_CHANNEL_ACCESS_TOKEN is not set");
   });
 
   test("should handle notify event branch and call broadcastMessage with parsed form data", async () => {
