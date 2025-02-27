@@ -1,9 +1,8 @@
 export interface ILineNotifyMessenger {
     buildHttpResponse(status: number, body: string): any;
-    getRequestPath(): string;
+    getHttpRequestPath(): string;
     getHttpMethod(): string;
-    getContentType(): string;
-    getBearerToken(): string;
-    getFormDataAsync(): Promise<any>;
-    getBodyAsync(): Promise<string>;
+    getHttpHeader(name: string): string;
+    getHttpFormDataAsync(): Promise<any>;
+    getHttpBodyAsync(): Promise<string>;
 }
