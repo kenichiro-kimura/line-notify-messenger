@@ -7,25 +7,11 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
         this.request = request;
     }
 
-    public httpUnAuthorizedErrorMessage (message: string): any {
+    public buildHttpResponse (status: number, message: string): any {
         return {
-            status: 401,
+            status: status,
             body: message
         };    
-    };
-
-    public httpInternalServerErrorMessage(message: string): any {
-        return {
-            status: 500,
-            body: message
-        };
-    };
-
-    public httpOkMessage(message: string): any {
-        return {
-            status: 200,
-            body: message
-        };
     };
 
     public getRequestPath(): string {

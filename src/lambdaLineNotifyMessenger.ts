@@ -13,23 +13,9 @@ export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
         }
     }
 
-    public httpUnAuthorizedErrorMessage (message: string): any {
+    public buildHttpResponse (status: number, message: string): any {
         return {
-            statusCode: 401,
-            body: JSON.stringify({ message: message }),
-        };
-    };
-
-    public httpInternalServerErrorMessage(message: string): any {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ message:message }),
-        };
-    };
-
-    public httpOkMessage(message: string): any {
-        return {
-            statusCode: 200,
+            statusCode: status,
             body: JSON.stringify({ message: message }),
         };
     };

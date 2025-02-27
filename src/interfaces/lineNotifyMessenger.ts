@@ -1,7 +1,5 @@
 export interface ILineNotifyMessenger {
-    httpUnAuthorizedErrorMessage(message: string): any;
-    httpInternalServerErrorMessage(message: string): any;
-    httpOkMessage(message: string): any;
+    buildHttpResponse(status: number, body: string): any;
     getRequestPath(): string;
     getHttpMethod(): string;
     getContentType(): string;
