@@ -1,9 +1,8 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { S3ImageStorage } from './s3ImageStorage';
 import { JimpImageConverter } from './jimpImageConverter';
 import { LambdaLineNotifyMessenger } from './lambdaLineNotifyMessenger';
 import { LineNotifyMessengerApp } from './lineNotifyMessengerApp';
-
-const multipart = require('aws-lambda-multipart-parser');
 
 export const handler = async (event: any) => {
     console.log('Received event:', JSON.stringify(event, null, 2));

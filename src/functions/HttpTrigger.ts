@@ -24,7 +24,7 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
     const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new BlobImageStorage(blobConnectionString,blobName), new JimpImageConverter());
 
     return await app.processRequest();
-};
+}
 
 app.http('HttpTrigger', {
     methods: ['GET', 'POST'],

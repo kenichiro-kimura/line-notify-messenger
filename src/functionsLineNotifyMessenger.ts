@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { ILineNotifyMessenger } from './interfaces/lineNotifyMessenger';
 
 export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
@@ -12,7 +13,7 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
             status: status,
             body: message
         };    
-    };
+    }
 
     public getHttpRequestPath(): string {
         return this.request.url?.split('api/HttpTrigger')[1] || "";
@@ -27,7 +28,7 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
     }
 
     public async getHttpFormDataAsync(): Promise<any> {
-        let formData: any = {};
+        const formData: any = {};
         const rawFormData = await this.request.formData();
         if (this.getHttpHeader('Content-Type').startsWith('multipart/form-data')) {
             formData.message = rawFormData.get('message');

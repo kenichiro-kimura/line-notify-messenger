@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { ILineNotifyMessenger } from './interfaces/lineNotifyMessenger';
 import { IImageStorage } from './interfaces/imageStorage';
 import { IImageConverter } from './interfaces/imageConverter';
@@ -73,6 +74,5 @@ export class LineNotifyMessengerApp {
         await this.replyDefaultMessage(body);
     
         return this.httpOkMessage('Success');
-    };
-        
+    }       
 }

@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+/* eslint-disable  @typescript-eslint/no-require-imports */
 import { parse } from 'querystring';
 import { ILineNotifyMessenger } from './interfaces/lineNotifyMessenger';
 
@@ -16,9 +18,9 @@ export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
     public buildHttpResponse (status: number, message: string): any {
         return {
             statusCode: status,
-            body: JSON.stringify({ message: message }),
+            body: JSON.stringify({ message: message })
         };
-    };
+    }
 
     public getHttpRequestPath(): string {
         return this.event.rawPath;
