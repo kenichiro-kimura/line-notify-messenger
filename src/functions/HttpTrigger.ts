@@ -3,6 +3,7 @@ import { BlobImageStorage } from "../blobImageStorage";
 import { JimpImageConverter } from "../jimpImageConverter";
 import { FunctionsLineNotifyMessenger } from "../functionsLineNotifyMessenger";
 import { LineNotifyMessengerApp } from "../lineNotifyMessengerApp";
+import { FunctionsHttpResponse } from "../interfaces/lineNotifyMessenger";
 
 export async function HttpTrigger(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log('Received request:', request);
@@ -23,7 +24,7 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
 
     const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new BlobImageStorage(blobConnectionString,blobName), new JimpImageConverter());
 
-    return await app.processRequest();
+    return await app.processRequest() as FunctionsHttpResponse;
 }
 
 app.http('HttpTrigger', {

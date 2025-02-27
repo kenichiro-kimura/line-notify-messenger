@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { ILineNotifyMessenger } from './interfaces/lineNotifyMessenger';
+import { FunctionsHttpResponse, ILineNotifyMessenger, LambdaHttpResponse } from './interfaces/lineNotifyMessenger';
 import { IImageStorage } from './interfaces/imageStorage';
 import { IImageConverter } from './interfaces/imageConverter';
 import LineService from './lineService';
@@ -13,15 +13,15 @@ export class LineNotifyMessengerApp {
         this.lineService = new LineService(lineChannelAccessToken, imageStorage, imageConverter);
     }
 
-    private httpUnAuthorizedErrorMessage = (message: string): any => {
+    private httpUnAuthorizedErrorMessage = (message: string): LambdaHttpResponse | FunctionsHttpResponse => {
         return this.messenger.buildHttpResponse(401, message);
     }
 
-    private httpInternalServerErrorMessage = (message: string): any => {
+    private httpInternalServerErrorMessage = (message: string):  LambdaHttpResponse | FunctionsHttpResponse => {
         return this.messenger.buildHttpResponse(500, message);
     }
     
-    private httpOkMessage = (message: string): any => {
+    private httpOkMessage = (message: string):  LambdaHttpResponse | FunctionsHttpResponse => {
         return this.messenger.buildHttpResponse(200, message);
     }
 
@@ -49,7 +49,7 @@ export class LineNotifyMessengerApp {
         await this.lineService.replyMessage(replyToken, 'お送り頂いたメッセージはどこにも送られないのでご注意ください');
     };
     
-    async processRequest() {
+    async processRequest(): Promise<LambdaHttpResponse | FunctionsHttpResponse> {
         if(this.isNotifyServiceRequest()) {
             const bearerToken = this.getBearerToken();
     
