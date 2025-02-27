@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { ILineNotifyMessenger } from './interfaces/lineNotifyMessenger';
+import { ILineNotifyMessenger, FunctionsHttpResponse } from './interfaces/lineNotifyMessenger';
 
 export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
     private request: any;
@@ -8,11 +8,8 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
         this.request = request;
     }
 
-    public buildHttpResponse (status: number, message: string): any {
-        return {
-            status: status,
-            body: message
-        };    
+    public buildHttpResponse (status: number, message: string): FunctionsHttpResponse {
+        return new FunctionsHttpResponse(status,message);
     }
 
     public getHttpRequestPath(): string {

@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { parse } from 'querystring';
-import { ILineNotifyMessenger } from './interfaces/lineNotifyMessenger';
+import { ILineNotifyMessenger, LambdaHttpResponse } from './interfaces/lineNotifyMessenger';
 import * as multipart from 'aws-lambda-multipart-parser';
 
 export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
@@ -13,11 +13,8 @@ export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
         }
     }
 
-    public buildHttpResponse (status: number, message: string): any {
-        return {
-            statusCode: status,
-            body: JSON.stringify({ message: message })
-        };
+    public buildHttpResponse (status: number, message: string): LambdaHttpResponse {
+        return new LambdaHttpResponse(status,JSON.stringify({ message: message }));
     }
 
     public getHttpRequestPath(): string {
