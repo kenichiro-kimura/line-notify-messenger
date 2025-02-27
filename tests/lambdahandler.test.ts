@@ -1,5 +1,4 @@
 import { handler } from "../src/lambdahandler";
-import LineService from "../src/lineService"; // jest.mock によってモック化される
 
 const replyMessageMock = jest.fn().mockResolvedValue(undefined);
 const broadcastMessageMock = jest.fn().mockResolvedValue(undefined);

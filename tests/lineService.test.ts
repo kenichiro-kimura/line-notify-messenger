@@ -163,7 +163,7 @@ describe("LineService", () => {
         // uploadImage モック: originalKey が "original/" で始まるとき、originalUrl を返し、
         // thumbnailKey が "thumbnail/" で始まるとき、thumbnailUrl を返す
         const imageStorageMock = {
-            uploadImage: jest.fn().mockImplementation((key: string, image: Buffer, contentType: string): Promise<string> => {
+            uploadImage: jest.fn().mockImplementation((key: string): Promise<string> => {
                 if (key.startsWith("original/")) {
                     return Promise.resolve(expectedOriginalUrl);
                 }

@@ -1,5 +1,5 @@
 import { BlobImageStorage } from '../src/blobImageStorage';
-import { BlobServiceClient, ContainerClient, StorageSharedKeyCredential, BlobSASPermissions } from '@azure/storage-blob';
+import * as azureStorageBlob from '@azure/storage-blob';
 
 describe('BlobImageStorage', () => {
     const connectionString = 'AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;';
@@ -23,20 +23,21 @@ describe('BlobImageStorage', () => {
                 url: 'blob-url'
             };
         });
-        BlobServiceClient.fromConnectionString = jest.fn().mockImplementation(() => {
+        azureStorageBlob.BlobServiceClient.fromConnectionString = jest.fn().mockImplementation(() => {
             return {
                 getContainerClient: jest.fn()
             };
-        }) as jest.Mock<BlobServiceClient>;
+        }) as jest.Mock<azureStorageBlob.BlobServiceClient>;
 
-        BlobServiceClient.prototype.getContainerClient = jest.fn() as jest.Mock<ContainerClient>;        
+        azureStorageBlob.BlobServiceClient.prototype.getContainerClient = jest.fn() as jest.Mock<azureStorageBlob.ContainerClient>;
         const mockGenerateBlobSASQueryParameters = jest.fn().mockImplementation(() => {
             return { toString: () => 'sas-token' };
         });
-        ContainerClient.prototype.createIfNotExists = mockCreateIfNotExists;
-        ContainerClient.prototype.getBlockBlobClient = mockGetBlockBlobClient;
+        azureStorageBlob.ContainerClient.prototype.createIfNotExists = mockCreateIfNotExists;
+        azureStorageBlob.ContainerClient.prototype.getBlockBlobClient = mockGetBlockBlobClient;
         
-        jest.spyOn(require('@azure/storage-blob'), 'generateBlobSASQueryParameters').mockImplementation(mockGenerateBlobSASQueryParameters);
+        // generateBlobSASQueryParameters を mockGenerateBlobSASQueryParametersでモックする
+        jest.spyOn(azureStorageBlob, 'generateBlobSASQueryParameters').mockImplementation(mockGenerateBlobSASQueryParameters);
 
         const result = await blobImageStorage.uploadImage(fileName, image, contentType);
 

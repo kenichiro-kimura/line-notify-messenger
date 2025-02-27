@@ -1,10 +1,9 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext, HttpRequestInit } from "@azure/functions";
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+import { HttpRequest, InvocationContext } from "@azure/functions";
 import { HttpTrigger } from "../src/functions/HttpTrigger";
-import LineService from "../src/lineService"; // jest.mock によってモック化される
 
 const replyMessageMock = jest.fn().mockResolvedValue(undefined);
 const broadcastMessageMock = jest.fn().mockResolvedValue(undefined);
-const multipartMessage = "----tstbdr---\r\nContent-Disposition: form-data; name=\"message\"\r\n\r\ntest\r\n\r\n----tstbdr---\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"a.jpg\"\r\nContent-Type: image/jpeg\r\n\r\naaaa\r\n\r\n----tstbdr---\r\n";
 
 jest.mock("../src/lineService", () => {
   return jest.fn().mockImplementation(() => {
@@ -78,11 +77,11 @@ describe("HttpTrigger function", () => {
                 return "Bearer valid_token";
               default:
                 return ""
-            };
+            }
         }),
       },
       formData: jest.fn().mockImplementation(() => {
-        var hashmap: Map<string, FormDataEntryValue> = new Map();
+        const hashmap: Map<string, FormDataEntryValue> = new Map();
         hashmap.set("message", "test");
         return hashmap;
       }),
@@ -115,11 +114,11 @@ describe("HttpTrigger function", () => {
                 return "Bearer valid_token";
               default:
                 return ""
-            };
+            }
         }),
       },
       formData: jest.fn().mockImplementation(() => {
-        var hashmap: Map<string, any> = new Map();
+        const hashmap: Map<string, any> = new Map();
         hashmap.set("message", "test");
         hashmap.set("imageFile", { name: "a.jpg", type: "image/jpeg", arrayBuffer: jest.fn().mockResolvedValue(Buffer.from("aaaa")) });
         return hashmap;
@@ -154,11 +153,11 @@ describe("HttpTrigger function", () => {
                 return "Bearer invalid_token";
               default:
                 return ""
-            };
+            }
         }),
       },
       formData: jest.fn().mockImplementation(() => {
-        var hashmap: Map<string, FormDataEntryValue> = new Map();
+        const hashmap: Map<string, FormDataEntryValue> = new Map();
         hashmap.set("message", "test");
         return hashmap;
       }),
@@ -187,11 +186,11 @@ describe("HttpTrigger function", () => {
                 return "Bearer valid_token";
               default:
                 return ""
-            };
+            }
         }),
       },
       formData: jest.fn().mockImplementation(() => {
-        var hashmap: Map<string, FormDataEntryValue> = new Map();
+        const hashmap: Map<string, FormDataEntryValue> = new Map();
         hashmap.set("message", "test");
         return hashmap;
       }),
@@ -219,11 +218,11 @@ describe("HttpTrigger function", () => {
                 return "Bearer valid_token";
               default:
                 return ""
-            };
+            }
         }),
       },
       formData: jest.fn().mockImplementation(() => {
-        var hashmap: Map<string, FormDataEntryValue> = new Map();
+        const hashmap: Map<string, FormDataEntryValue> = new Map();
         hashmap.set("message", "test");
         return hashmap;
       }),

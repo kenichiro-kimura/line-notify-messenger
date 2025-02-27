@@ -1,7 +1,7 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import { parse } from 'querystring';
-import { ILineNotifyMessenger } from './interfaces/lineNotifyMessenger';
-
-const multipart = require('aws-lambda-multipart-parser');
+import { ILineNotifyMessenger, LambdaHttpResponse } from './interfaces/lineNotifyMessenger';
+import * as multipart from 'aws-lambda-multipart-parser';
 
 export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
     private event: any;
@@ -13,12 +13,9 @@ export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
         }
     }
 
-    public buildHttpResponse (status: number, message: string): any {
-        return {
-            statusCode: status,
-            body: JSON.stringify({ message: message }),
-        };
-    };
+    public buildHttpResponse (status: number, message: string): LambdaHttpResponse {
+        return new LambdaHttpResponse(status,JSON.stringify({ message: message }));
+    }
 
     public getHttpRequestPath(): string {
         return this.event.rawPath;
