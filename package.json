@@ -11,7 +11,7 @@
     "install-deps": "npm install",
     "destroy": "cdk destroy",
     "lint": "eslint --ext .ts ./",
-    "prepare": "husky"
+    "prepare": "husky install"
   },
   "dependencies": {
     "@line/bot-sdk": "^9.5.3",
@@ -40,7 +40,7 @@
     "typescript": "^4.0.0"
   },
   "lint-staged": {
-    "*.ts": [
+    "**/*.ts": [
       "eslint --fix"
     ]
   },
