@@ -24,10 +24,14 @@ export class LineNotifyMessengerApp {
         return this.messenger.buildHttpResponse(200, message);
     }
 
+    private getBearerToken = () => {
+        return this.messenger.getHttpHeader('Authorization').split('Bearer ')[1] || "";
+    }
+
     private isNotifyServiceRequest = () => {
-        const path = this.messenger.getRequestPath();
+        const path = this.messenger.getHttpRequestPath();
         const method = this.messenger.getHttpMethod();
-        const contentType = this.messenger.getContentType();
+        const contentType = this.messenger.getHttpHeader('Content-Type');
 
         if(path === '/notify' && method === 'POST' && ( contentType === 'application/x-www-form-urlencoded' || contentType.startsWith('multipart/form-data'))) {
             return true;
@@ -46,19 +50,19 @@ export class LineNotifyMessengerApp {
     
     async processRequest() {
         if(this.isNotifyServiceRequest()) {
-            const bearerToken = this.messenger.getBearerToken();
+            const bearerToken = this.getBearerToken();
     
             if (!bearerToken || bearerToken !== process.env.AUTHORIZATION_TOKEN) {
                 return this.httpUnAuthorizedErrorMessage('Invalid authorization token');
             }
     
-            const formData = await this.messenger.getFormDataAsync();
+            const formData = await this.messenger.getHttpFormDataAsync();
     
             await this.sendBroadcastMessage(formData);
             return this.httpOkMessage('Success Notify');
         }
     
-        const body = JSON.parse(await this.messenger.getBodyAsync());
+        const body = JSON.parse(await this.messenger.getHttpBodyAsync());
     
         /* health check from LINE */
         if(body.events.length === 0) {

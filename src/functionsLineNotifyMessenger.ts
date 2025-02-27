@@ -14,7 +14,7 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
         };    
     };
 
-    public getRequestPath(): string {
+    public getHttpRequestPath(): string {
         return this.request.url?.split('api/HttpTrigger')[1] || "";
     }
 
@@ -22,18 +22,14 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
         return this.request.method;
     }
 
-    public getContentType(): string {
-        return this.request.headers.get('content-type') || this.request.headers.get('Content-Type') || "";
+    public getHttpHeader(name: string): string {
+        return this.request.headers.get(name) || this.request.headers.get(name.toLowerCase()) || "";
     }
 
-    public getBearerToken(): string {
-        return this.request.headers.get('Authorization')?.split('Bearer ')[1] || "";
-    }
-
-    public async getFormDataAsync(): Promise<any> {
+    public async getHttpFormDataAsync(): Promise<any> {
         let formData: any = {};
         const rawFormData = await this.request.formData();
-        if (this.getContentType().startsWith('multipart/form-data')) {
+        if (this.getHttpHeader('Content-Type').startsWith('multipart/form-data')) {
             formData.message = rawFormData.get('message');
             const imageFile : any = rawFormData.get('imageFile');
             formData.imageFile = {
@@ -50,7 +46,7 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
         return formData;
     }
 
-    public async getBodyAsync(): Promise<string> {
+    public async getHttpBodyAsync(): Promise<string> {
         return await this.request.text();
     }
 }

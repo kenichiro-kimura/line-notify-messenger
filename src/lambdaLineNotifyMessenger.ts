@@ -20,7 +20,7 @@ export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
         };
     };
 
-    public getRequestPath(): string {
+    public getHttpRequestPath(): string {
         return this.event.rawPath;
     }
 
@@ -28,19 +28,14 @@ export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
         return this.event.requestContext?.http?.method || "";
     }
 
-    public getContentType(): string {
-        return  this.event.headers?.['content-type'] || this.event.headers?.['Content-Type'] || "";
+    public getHttpHeader(name: string): string {
+        return this.event.headers?.[name] || this.event.headers?.[name.toLowerCase()] || "";
+    }
+    public async getHttpFormDataAsync(): Promise<any> {
+        return (this.getHttpHeader('Content-Type').startsWith('multipart/form-data')) ? multipart.parse(this.event,true) : parse(await this.getHttpBodyAsync());
     }
 
-    public getBearerToken(): string {
-        return this.event.headers?.authorization?.split('Bearer ')[1] || "";
-    }
-
-    public async getFormDataAsync(): Promise<any> {
-        return (this.getContentType().startsWith('multipart/form-data')) ? multipart.parse(this.event,true) : parse(await this.getBodyAsync());
-    }
-
-    public async getBodyAsync(): Promise<string> {
+    public async getHttpBodyAsync(): Promise<string> {
         return this.event.body;
     }
 }
