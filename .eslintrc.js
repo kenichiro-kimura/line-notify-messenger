@@ -1,4 +1,3 @@
-const { Rule } = require("aws-cdk-lib/aws-events");
 
 module.exports = {
     root: true,
