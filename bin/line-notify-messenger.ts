@@ -5,7 +5,8 @@ import { LambdaStack } from '../lib/lambda-stack';
 
 const app = new cdk.App();
 
-const s3Stack = new S3Stack(app, 'LineNotifyMessangerS3Stack');
-new LambdaStack(app, 'LineNotifyMessengerLambdaStack', {
+const appSuffix = process.env.APP_SUFFIX ? `-${process.env.APP_SUFFIX}` : '';
+const s3Stack = new S3Stack(app, `LineNotifyMessengerS3Stack${appSuffix}`);
+new LambdaStack(app, `LineNotifyMessengerLambdaStack${appSuffix}`, {
   bucket: s3Stack.bucket,
 });

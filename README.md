@@ -87,6 +87,21 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
    npm run deploy
    ```
 
+4. 複数のアプリケーションをデプロイする際は、CDKのスタック名にサフィックスをつけることができます。環境変数`APP_SUFFIX`を設定できます。
+   bashの場合
+
+   ```bash
+   export APP_SUFFIX='xxxx'
+   ```
+
+   PowerShellの場合
+
+   ```powershell
+   $Env:APP_SUFFIX = 'xxxx'
+   ```
+
+   この場合、`npm run deploy`を実行すると、スタック名が`LineNotifyMessengerS3Stack-xxxx`と`LineNotifyMessengerLambdaStack-xxxx`になります。
+
 ### Azure (GitHub Actionsでデプロイする場合)
 
 1. 以下のボタンを押して環境を構築します。LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
