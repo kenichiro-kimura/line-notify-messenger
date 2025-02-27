@@ -1,9 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-/* eslint-disable  @typescript-eslint/no-require-imports */
 import { parse } from 'querystring';
 import { ILineNotifyMessenger } from './interfaces/lineNotifyMessenger';
-
-const multipart = require('aws-lambda-multipart-parser');
+import * as multipart from 'aws-lambda-multipart-parser';
 
 export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
     private event: any;
