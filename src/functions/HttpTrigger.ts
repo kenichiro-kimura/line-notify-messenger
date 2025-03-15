@@ -4,11 +4,13 @@ import { JimpImageConverter } from "../jimpImageConverter";
 import { FunctionsLineNotifyMessenger } from "../functionsLineNotifyMessenger";
 import { LineNotifyMessengerApp } from "../lineNotifyMessengerApp";
 import { FunctionsHttpResponse } from "../interfaces/lineNotifyMessenger";
+import { IGroupRepository } from '../interfaces/groupRepository';
 
 export async function HttpTrigger(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log('Received request:', request);
 
     const messenger = new FunctionsLineNotifyMessenger(request);
+    const groupRepository: IGroupRepository = {} as IGroupRepository;
 
     const lineChannelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
     if (!lineChannelAccessToken) {
@@ -22,7 +24,7 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
         throw new Error('BLOB_NAME or BLOB_CONNECTION_STRING is not set');
     }
 
-    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new BlobImageStorage(blobConnectionString,blobName), new JimpImageConverter());
+    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new BlobImageStorage(blobConnectionString,blobName), new JimpImageConverter(), groupRepository);
 
     return await app.processRequest() as FunctionsHttpResponse;
 }

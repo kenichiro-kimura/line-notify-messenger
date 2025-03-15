@@ -4,11 +4,13 @@ import { JimpImageConverter } from './jimpImageConverter';
 import { LambdaLineNotifyMessenger } from './lambdaLineNotifyMessenger';
 import { LineNotifyMessengerApp } from './lineNotifyMessengerApp';
 import { LambdaHttpResponse } from './interfaces/lineNotifyMessenger';
+import { IGroupRepository } from './interfaces/groupRepository';
 
 export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     console.log('Received event:', JSON.stringify(event, null, 2));
 
     const messenger = new LambdaLineNotifyMessenger(event);
+    const groupRepository: IGroupRepository = {} as IGroupRepository;
 
     const lineChannelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
     if (!lineChannelAccessToken) {
@@ -22,7 +24,7 @@ export const handler = async (event: any): Promise<LambdaHttpResponse> => {
         throw new Error('BUCKET_NAME or S3_REGION is not set');
     }
 
-    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter());
+    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter(), groupRepository);
 
     return await app.processRequest() as LambdaHttpResponse;
 };
