@@ -34,6 +34,16 @@ class LineService {
         });
     }
 
+    public async sendGroupMessage(groupIds: string[], message: string): Promise<void> {
+        await this.client.multicast({
+            to: groupIds,
+            messages: [{
+                type: 'text',
+                text: message
+            }]
+        });
+    }
+
     public async broadcastMessage(message: any): Promise<void> {
         /*
         以下は line notifyの説明。
