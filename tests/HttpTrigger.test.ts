@@ -17,6 +17,7 @@ jest.mock("../src/lineService", () => {
 jest.mock("@azure/functions");
 jest.mock("../src/blobImageStorage");
 jest.mock("../src/jimpImageConverter");
+jest.mock("../src/tableStorageGroupRepository");
 
 describe("HttpTrigger function", () => {
   const ORIGINAL_ENV = process.env;
@@ -24,7 +25,15 @@ describe("HttpTrigger function", () => {
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllMocks(); // 各テストの前にモックの呼び出し回数をリセット
-    process.env = { ...ORIGINAL_ENV, LINE_CHANNEL_ACCESS_TOKEN: "dummy_token", AUTHORIZATION_TOKEN: "valid_token",BLOB_NAME: "blob_name",BLOB_CONNECTION_STRING: "blob_connection_string"  };
+    process.env = {
+      ...ORIGINAL_ENV,
+      LINE_CHANNEL_ACCESS_TOKEN: "dummy_token",
+      AUTHORIZATION_TOKEN: "valid_token",
+      BLOB_NAME: "blob_name",
+      BLOB_CONNECTION_STRING: "blob_connection_string",
+      TABLE_NAME: "table_name",
+      TABLE_CONNECTION_STRING: "table_connection_string"
+    };
   });
 
   afterEach(() => {
@@ -62,6 +71,28 @@ describe("HttpTrigger function", () => {
 
     // 例外が投げられることを検証
     await expect(HttpTrigger(request,context)).rejects.toThrow("BLOB_NAME or BLOB_CONNECTION_STRING is not set");
+  });
+
+  test("should throw error when TABLE_NAME is not set", async () => {
+    delete process.env.TABLE_NAME;
+    const request = {} as HttpRequest;
+    const context = { 
+      log: jest.fn(),
+    } as unknown as InvocationContext;
+
+    // 例外が投げられることを検証
+    await expect(HttpTrigger(request,context)).rejects.toThrow("TABLE_NAME or TABLE_CONNECTION_STRING is not set");
+  });
+
+  test("should throw error when TABLE_CONNECTION_STRING is not set", async () => {
+    delete process.env.TABLE_CONNECTION_STRING;
+    const request = {} as HttpRequest;
+    const context = { 
+      log: jest.fn(),
+    } as unknown as InvocationContext;
+
+    // 例外が投げられることを検証
+    await expect(HttpTrigger(request,context)).rejects.toThrow("TABLE_NAME or TABLE_CONNECTION_STRING is not set");
   });
 
   test("should handle notify event branch and call broadcastMessage with parsed form data", async () => {
