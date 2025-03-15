@@ -4,13 +4,12 @@ import { JimpImageConverter } from "../jimpImageConverter";
 import { FunctionsLineNotifyMessenger } from "../functionsLineNotifyMessenger";
 import { LineNotifyMessengerApp } from "../lineNotifyMessengerApp";
 import { FunctionsHttpResponse } from "../interfaces/lineNotifyMessenger";
-import { IGroupRepository } from '../interfaces/groupRepository';
+import { TableStorageGroupRepository } from "../tableStorageGroupRepository";
 
 export async function HttpTrigger(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log('Received request:', request);
 
     const messenger = new FunctionsLineNotifyMessenger(request);
-    const groupRepository: IGroupRepository = {} as IGroupRepository;
 
     const lineChannelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
     if (!lineChannelAccessToken) {
@@ -23,6 +22,15 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
     if (!blobName || !blobConnectionString) {
         throw new Error('BLOB_NAME or BLOB_CONNECTION_STRING is not set');
     }
+
+    const tableName = process.env.TABLE_NAME;
+    const tableConnectionString = process.env.TABLE_CONNECTION_STRING;
+
+    if (!tableName || !tableConnectionString) {
+        throw new Error('TABLE_NAME or TABLE_CONNECTION_STRING is not set');
+    }
+
+    const groupRepository: TableStorageGroupRepository = new TableStorageGroupRepository(tableName,tableConnectionString);
 
     const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new BlobImageStorage(blobConnectionString,blobName), new JimpImageConverter(), groupRepository);
 
