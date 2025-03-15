@@ -33,7 +33,7 @@ export class TableStorageGroupRepository implements IGroupRepository {
       };
 
       // upsert操作：エンティティが存在しなければ作成、存在すれば何もしない
-      await this.tableClient.upsertEntity(entity, "Ignore");
+      await this.tableClient.upsertEntity(entity, "Merge");
     } catch (error) {
       console.error(`Error adding group ${groupName}:`, error);
       throw error;

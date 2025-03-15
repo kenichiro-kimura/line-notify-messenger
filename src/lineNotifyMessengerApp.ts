@@ -50,7 +50,7 @@ export class LineNotifyMessengerApp {
     }
     
     private getRequestGroupId = (body: any) : string => {
-        return body.events[0].source?.groupId || "";
+        return body.events[0]?.source?.groupId || "";
     }
 
     private addGroupId = async (groupId: string) => {
@@ -105,15 +105,7 @@ export class LineNotifyMessengerApp {
     }
     
     async processRequest(): Promise<LambdaHttpResponse | FunctionsHttpResponse> {
-        const body = JSON.parse(await this.messenger.getHttpBodyAsync());    
         const sendMode = this.getSendMode();
-        const groupId : string = this.getRequestGroupId(body);
-
-        if(groupId !== "") {
-            // リクエストにグループIDが含まれている場合、グループIDをデータストアに追加する
-            await this.addGroupId(groupId);
-            return this.httpOkMessage('Success Add Group');
-        }
 
         if(this.isNotifyServiceRequest()) {
             const bearerToken = this.getBearerToken();
@@ -128,11 +120,22 @@ export class LineNotifyMessengerApp {
             return this.httpOkMessage('Success Notify');
         }
     
+        const body = JSON.parse(await this.messenger.getHttpBodyAsync());    
+
         /* health check from LINE */
         if(body.events.length === 0) {
             return this.httpOkMessage('No events');
         }
-    
+
+        /* if the request has group id, save group id */
+        const groupId : string = this.getRequestGroupId(body);
+
+        if(groupId !== "") {
+            // リクエストにグループIDが含まれている場合、グループIDをデータストアに追加する
+            await this.addGroupId(groupId);
+            return this.httpOkMessage('Success Add Group');
+        }
+
         /* reply default message */
         await this.replyDefaultMessage(body);
     
