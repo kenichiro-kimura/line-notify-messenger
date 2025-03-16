@@ -4,13 +4,13 @@ import { JimpImageConverter } from './jimpImageConverter';
 import { LambdaLineNotifyMessenger } from './lambdaLineNotifyMessenger';
 import { LineNotifyMessengerApp } from './lineNotifyMessengerApp';
 import { LambdaHttpResponse } from './interfaces/lineNotifyMessenger';
-import { IGroupRepository } from './interfaces/groupRepository';
+import { DynamoGroupRepository } from './dynamoGroupRepository';
 
 export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     console.log('Received event:', JSON.stringify(event, null, 2));
 
     const messenger = new LambdaLineNotifyMessenger(event);
-    const groupRepository: IGroupRepository = {} as IGroupRepository;
+    const groupRepository: DynamoGroupRepository = new DynamoGroupRepository(process.env.TABLE_NAME);
 
     const lineChannelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
     if (!lineChannelAccessToken) {
