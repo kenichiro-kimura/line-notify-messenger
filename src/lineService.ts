@@ -34,17 +34,7 @@ class LineService {
         });
     }
 
-    public async sendGroupMessage(groupIds: string[], message: string): Promise<void> {
-        await this.client.multicast({
-            to: groupIds,
-            messages: [{
-                type: 'text',
-                text: message
-            }]
-        });
-    }
-
-    public async broadcastMessage(message: any): Promise<void> {
+    public async buildMessage(message: any): line.Message {
         /*
         以下は line notifyの説明。
         
@@ -69,7 +59,6 @@ class LineService {
             デフォルト値は false です。
         */
         let broadcastMessage: line.Message;
-        const notificationDisabled = message.notificationDisabled || false;
         if (message.imageFile) {
             // message.imageFile.contentType が 'image/jpeg' か 'image/png' であることを確認する
             if (!message.imageFile.contentType || !['image/jpeg', 'image/png'].includes(message.imageFile.contentType)) {
@@ -116,6 +105,24 @@ class LineService {
             };
         }
 
+        return broadcastMessage;
+    }
+
+    public async sendGroupMessage(groupIds: string[], message: string): Promise<void> {
+        const groupMessage: line.Message = await this.buildMessage(message);
+        for (const groupId of groupIds) {
+            await this.client.pushMessage({
+                to: groupId,
+                messages: [
+                    groupMessage
+                ]
+            });
+        }
+    }
+
+    public async broadcastMessage(message: any): Promise<void> {
+        const notificationDisabled: bool = message.notificationDisabled || false;
+        const broadcastMessage: line.Message = await this.buildMessage(message);        
         await this.client.broadcast({
             messages: [
                 broadcastMessage
