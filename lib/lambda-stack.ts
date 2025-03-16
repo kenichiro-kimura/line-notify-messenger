@@ -28,6 +28,7 @@ export class LambdaStack extends cdk.Stack {
         AUTHORIZATION_TOKEN: process.env.AUTHORIZATION_TOKEN || '',
         S3_REGION: bucket.env.region,
         TABLE_NAME: dynamo.tableName,
+        DYNAMO_REGION: dynamo.env.region,
         SEND_MODE: process.env.SEND_MODE || 'broadcast',
       },
       timeout: cdk.Duration.minutes(3),
@@ -38,7 +39,7 @@ export class LambdaStack extends cdk.Stack {
 
     // DynamoDBテーブルへの読み書き権限を付与
     dynamo.grantReadWriteData(myFunction);
-    
+
     // Lambda Function URL の作成
     const functionUrl = myFunction.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.NONE,

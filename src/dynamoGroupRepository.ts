@@ -5,11 +5,13 @@ import { DynamoDBDocumentClient, PutCommand, PutCommandInput, ScanCommand, ScanC
 
 export class DynamoGroupRepository implements IGroupRepository {
     private readonly tableName: string;
+    private readonly region: string;    
     private readonly docClient: DynamoDB.DocumentClient;
     
-    constructor(tableName: string) {
+    constructor(tableName: string, region: string) {
         this.tableName = tableName;
-        this.docClient =  DynamoDBDocumentClient.from(new DynamoDBClient({ region: 'ap-northeast-1' }));
+        this.region = region;
+        this.docClient =  DynamoDBDocumentClient.from(new DynamoDBClient({ region: region }));
     }
     
     public async add(groupName: string): Promise<void> {

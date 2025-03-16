@@ -10,7 +10,6 @@ export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     console.log('Received event:', JSON.stringify(event, null, 2));
 
     const messenger = new LambdaLineNotifyMessenger(event);
-    const groupRepository: DynamoGroupRepository = new DynamoGroupRepository(process.env.TABLE_NAME);
 
     const lineChannelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
     if (!lineChannelAccessToken) {
@@ -23,6 +22,15 @@ export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     if (!bucketName || !s3Region) {
         throw new Error('BUCKET_NAME or S3_REGION is not set');
     }
+
+    const tableName = process.env.TABLE_NAME;
+    const dynamoRegion = process.env.DYNAMO_REGION;
+
+    if (!tableName || !dynamoRegion) {
+        throw new Error('TABLE_NAME or DYNAMO_REGION is not set');
+    }
+
+    const groupRepository: DynamoGroupRepository = new DynamoGroupRepository(tableName, dynamoRegion);
 
     const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter(), groupRepository);
 
