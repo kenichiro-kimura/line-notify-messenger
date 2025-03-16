@@ -54,9 +54,7 @@ export class LineNotifyMessengerApp {
     }
 
     private addGroupId = async (groupId: string) => {
-
-        console.log(`Add group ${groupId}`);
-        return Promise.resolve("");
+        await this.groupRepository.add(groupId);
     }
 
     private getTargetGroupIds = async () : Promise<string[]> => {
