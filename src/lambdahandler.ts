@@ -30,9 +30,7 @@ export const handler = async (event: any): Promise<LambdaHttpResponse> => {
         throw new Error('TABLE_NAME or DYNAMO_REGION is not set');
     }
 
-    const groupRepository: DynamoGroupRepository = new DynamoGroupRepository(tableName, dynamoRegion);
-
-    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter(), groupRepository);
+    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter(), new DynamoGroupRepository(tableName, dynamoRegion));
 
     return await app.processRequest() as LambdaHttpResponse;
 };
