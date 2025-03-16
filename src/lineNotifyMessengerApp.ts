@@ -58,7 +58,7 @@ export class LineNotifyMessengerApp {
     }
 
     private getTargetGroupIds = async () : Promise<string[]> => {
-        return Promise.resolve([]);
+        return this.groupRepository.listAll();
     }
 
     private getSendMode = () : SendMode => {
