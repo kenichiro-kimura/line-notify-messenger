@@ -1,53 +1,52 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { IGroupRepository } from './groupRepository';
-import { DynamoDB } from 'aws-sdk';
-    
+import { IGroupRepository } from './interfaces/groupRepository';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, PutCommand, PutCommandInput, ScanCommand, ScanCommandInput, DeleteCommand, DeleteCommandInput } from '@aws-sdk/lib-dynamodb';
+
 export class DynamoGroupRepository implements IGroupRepository {
     private readonly tableName: string;
     private readonly docClient: DynamoDB.DocumentClient;
     
     constructor(tableName: string) {
         this.tableName = tableName;
-        this.docClient = new DynamoDB.DocumentClient();
+        this.docClient =  DynamoDBDocumentClient.from(new DynamoDBClient({ region: 'ap-northeast-1' }));
     }
     
     public async add(groupName: string): Promise<void> {
-        const params = {
+        const params: PutCommandInput  = {
             TableName: this.tableName,
             Item: {
-                'groupName': groupName
-            },
-            ConditionExpression: 'attribute_not_exists(groupName)'
-        };
-    
-        try {
-            await this.docClient.put(params).promise();
-            return;
-        } catch (error) {
-            if ((error as any).code === 'ConditionalCheckFailedException') {
-                return;
+                id: groupName
             }
-            throw error;
+        };
+        const command = new PutCommand(params);
+
+        try {
+            await this.docClient.send(command);
+            return;
+        } catch {
+            return;
         }
     }
     
     public async remove(groupName: string): Promise<void> {
-        const params = {
+        const params: DeleteCommandInput = {
             TableName: this.tableName,
             Key: {
-                'groupName': groupName
+                id: groupName
             }
         };
-    
-        await this.docClient.delete(params).promise();
+        const command = new DeleteCommand(params);
+        await this.docClient.send(command);
     }
     
     public async listAll(): Promise<string[]> {
-        const params = {
+        const params: ScanCommandInput = {
             TableName: this.tableName
         };
     
-        const result = await this.docClient.scan(params).promise();
-        return result.Items?.map((item: any) => item.groupName) || [];
+        const command = new ScanCommand(params);
+        const result = await this.docClient.send(command);
+        return result.Items?.map((item: any) => item.id) || [];
     }
 }
