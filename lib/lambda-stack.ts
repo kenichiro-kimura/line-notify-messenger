@@ -2,9 +2,11 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
+import { ITable } from 'aws-cdk-lib/aws-dynamodb';
 
 export interface LambdaStackProps extends cdk.StackProps {
   bucket: IBucket;
+  dynamo: ITable;
 }
 
 export class LambdaStack extends cdk.Stack {
@@ -13,7 +15,8 @@ export class LambdaStack extends cdk.Stack {
 
     // S3バケットは S3Stack で作成されたものを受け取る
     const bucket = props.bucket;
-
+    // DynamoDBテーブルは DynamoDBStack で作成されたものを受け取る
+    const dynamo = props.dynamo;
     // Lambda関数の作成
     const myFunction = new lambda.Function(this, 'LineNotifyMessenger', {
       runtime: lambda.Runtime.NODEJS_22_X,
@@ -24,6 +27,8 @@ export class LambdaStack extends cdk.Stack {
         LINE_CHANNEL_ACCESS_TOKEN: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
         AUTHORIZATION_TOKEN: process.env.AUTHORIZATION_TOKEN || '',
         S3_REGION: bucket.env.region,
+        TABLE_NAME: dynamo.tableName,
+        SEND_MODE: process.env.SEND_MODE || 'broadcast',
       },
       timeout: cdk.Duration.minutes(3),
     });
@@ -31,6 +36,9 @@ export class LambdaStack extends cdk.Stack {
     // S3バケットへの読み書き権限を付与
     bucket.grantReadWrite(myFunction);
 
+    // DynamoDBテーブルへの読み書き権限を付与
+    dynamo.grantReadWriteData(myFunction);
+    
     // Lambda Function URL の作成
     const functionUrl = myFunction.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.NONE,
