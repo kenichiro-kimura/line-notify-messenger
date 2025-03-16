@@ -30,7 +30,7 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
         throw new Error('TABLE_NAME or TABLE_CONNECTION_STRING is not set');
     }
 
-    const groupRepository: TableStorageGroupRepository = new TableStorageGroupRepository(tableName,tableConnectionString);
+    const groupRepository: TableStorageGroupRepository = new TableStorageGroupRepository(tableConnectionString,tableName);
 
     const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new BlobImageStorage(blobConnectionString,blobName), new JimpImageConverter(), groupRepository);
 
