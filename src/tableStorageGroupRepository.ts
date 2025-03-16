@@ -15,13 +15,17 @@ export class TableStorageGroupRepository implements IGroupRepository {
     this.tableName = tableName;
 
     // テーブルが存在しない場合は作成
-    const tableServiceClient = TableServiceClient.fromConnectionString(connectionString);
+    const tableServiceClient = TableServiceClient.fromConnectionString(connectionString, {
+        allowInsecureConnection: true // ローカルテストのためにHTTP接続を許可
+    });
     tableServiceClient.createTable(this.tableName).catch(() => {
-      // テーブルが既に存在する場合はエラーを無視
+        // テーブルが既に存在する場合はエラーを無視
     });
 
     // テーブルクライアントを作成
-    this.tableClient = TableClient.fromConnectionString(connectionString, this.tableName);
+    this.tableClient = TableClient.fromConnectionString(connectionString, this.tableName, {
+        allowInsecureConnection: true // ローカルテストのためにHTTP接続を許可
+    });
   }
 
   public async add(groupName: string): Promise<void> {
