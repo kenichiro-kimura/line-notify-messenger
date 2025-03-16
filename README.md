@@ -101,7 +101,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
    この場合、`npm run deploy`を実行すると、スタック名が`LineNotifyMessengerS3Stack-xxxx`と`LineNotifyMessengerLambdaStack-xxxx`になります。
 
-### Azure (GitHub Actionsでデプロイする場合)
+### Azure 
 
 1. 以下のボタンを押して環境を構築します。LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
 
@@ -113,17 +113,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
 4. 同じくForkしたリポジトリのActionsのVariables `FUNCTION_NAME` に、Azure Functionsの関数名を登録します。
 
-5. `Build and deploy Node.js project to Azure Function App`ワークフローを実行します
-
-### Azure (VSCodeでデプロイする場合)
-
-1. 以下のボタンを押して環境を構築します。LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
-
-   [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fkenichiro-kimura.github.io%2Fline-notify-messenger%2Fazuredeploy.json)
-
-2. 本リポジトリをクローンし、VSCodeで開きます。
-
-3. [「コード プロジェクトをデプロイする」](https://learn.microsoft.com/ja-jp/azure/azure-functions/flex-consumption-how-to?tabs=azure-cli%2Cvs-code-publish&pivots=programming-language-javascript#deploy-your-code-project)に従ってデプロイします。
+5. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します
 
 ## 使用方法
 
