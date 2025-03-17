@@ -4,12 +4,14 @@ import { HttpTrigger } from "../src/functions/HttpTrigger";
 
 const replyMessageMock = jest.fn().mockResolvedValue(undefined);
 const broadcastMessageMock = jest.fn().mockResolvedValue(undefined);
+const groupMessageMock = jest.fn().mockResolvedValue(undefined);
 
 jest.mock("../src/lineService", () => {
   return jest.fn().mockImplementation(() => {
     return {
       replyMessage: replyMessageMock,
       broadcastMessage: broadcastMessageMock,
+      groupMessage: groupMessageMock
     };
   });
 });
@@ -17,7 +19,16 @@ jest.mock("../src/lineService", () => {
 jest.mock("@azure/functions");
 jest.mock("../src/blobImageStorage");
 jest.mock("../src/jimpImageConverter");
-jest.mock("../src/tableStorageGroupRepository");
+jest.mock("../src/tableStorageGroupRepository", () => {
+  return {
+    TableStorageGroupRepository: jest.fn().mockImplementation(() => {
+      return {
+        add: jest.fn().mockResolvedValue(undefined),
+        listAll: jest.fn().mockResolvedValue(["testgroupid"])
+      };
+    })
+  };
+});
 
 describe("HttpTrigger function", () => {
   const ORIGINAL_ENV = process.env;
@@ -32,7 +43,8 @@ describe("HttpTrigger function", () => {
       BLOB_NAME: "blob_name",
       BLOB_CONNECTION_STRING: "blob_connection_string",
       TABLE_NAME: "table_name",
-      TABLE_CONNECTION_STRING: "table_connection_string"
+      TABLE_CONNECTION_STRING: "table_connection_string",
+      SEND_MODE: "broadcast"
     };
   });
 
@@ -129,6 +141,84 @@ describe("HttpTrigger function", () => {
     // broadcastMessage が 1 回呼ばれていることを検証
     expect(broadcastMessageMock).toHaveBeenCalledTimes(1);
     // 送信された引数（querystring.parse により { message: "test" } となることを想定）
+    expect(broadcastMessageMock).toHaveBeenCalledWith({ message: "test" });
+  });
+
+  test("should handle notify event branch and call groupMessage with parsed form data and SEND_MODE is 'group'", async () => {
+    process.env.SEND_MODE = "group";
+    const request = {
+      url: 'http://localhost:7071/api/HttpTrigger/notify',
+      method: 'POST',
+      headers: {
+        get: jest.fn().mockImplementation((x) => {
+            switch (x) {
+              case "content-type":
+                return "application/x-www-form-urlencoded";
+              case "Authorization":
+                return "Bearer valid_token";
+              default:
+                return ""
+            }
+        }),
+      },
+      formData: jest.fn().mockImplementation(() => {
+        const hashmap: Map<string, FormDataEntryValue> = new Map();
+        hashmap.set("message", "test");
+        return hashmap;
+      }),
+      text: jest.fn().mockResolvedValue(Buffer.from("message=test").toString("base64")),
+    } as unknown as HttpRequest;
+    const context = { 
+      log: jest.fn(),
+    } as unknown as InvocationContext;
+
+    const response = await HttpTrigger(request, context);
+    // HTTP ステータス 200 を検証
+    expect(response.status).toEqual(200);
+    expect(response.body).toContain("Success Notify");
+    // groupMessage が 1 回呼ばれていることを検証
+    expect(groupMessageMock).toHaveBeenCalledTimes(1);
+    // 送信された引数（querystring.parse により { message: "test" } となることを想定）
+    expect(groupMessageMock).toHaveBeenCalledWith([ "testgroupid" ], { message: "test" });
+  });
+
+  test("should handle notify event branch and call groupMessage and broadcastMessage with parsed form data and SEND_MODE is 'all'", async () => {
+    process.env.SEND_MODE = "all";
+    const request = {
+      url: 'http://localhost:7071/api/HttpTrigger/notify',
+      method: 'POST',
+      headers: {
+        get: jest.fn().mockImplementation((x) => {
+            switch (x) {
+              case "content-type":
+                return "application/x-www-form-urlencoded";
+              case "Authorization":
+                return "Bearer valid_token";
+              default:
+                return ""
+            }
+        }),
+      },
+      formData: jest.fn().mockImplementation(() => {
+        const hashmap: Map<string, FormDataEntryValue> = new Map();
+        hashmap.set("message", "test");
+        return hashmap;
+      }),
+      text: jest.fn().mockResolvedValue(Buffer.from("message=test").toString("base64")),
+    } as unknown as HttpRequest;
+    const context = { 
+      log: jest.fn(),
+    } as unknown as InvocationContext;
+
+    const response = await HttpTrigger(request, context);
+    // HTTP ステータス 200 を検証
+    expect(response.status).toEqual(200);
+    expect(response.body).toContain("Success Notify");
+    // groupMessageとbroadcastMessage が 1 回呼ばれていることを検証
+    expect(groupMessageMock).toHaveBeenCalledTimes(1);
+    expect(broadcastMessageMock).toHaveBeenCalledTimes(1);
+    // 送信された引数（querystring.parse により { message: "test" } となることを想定）
+    expect(groupMessageMock).toHaveBeenCalledWith([ "testgroupid" ], { message: "test" });
     expect(broadcastMessageMock).toHaveBeenCalledWith({ message: "test" });
   });
 
