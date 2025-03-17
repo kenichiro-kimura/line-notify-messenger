@@ -8,7 +8,17 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./",
+    "paths": {
+      "@core/*": ["src/core/*"],
+      "@services/*": ["src/services/*"],
+      "@repositories/*": ["src/repositories/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@strategies/*": ["src/strategies/*"],
+      "@handlers/*": ["src/handlers/*"],
+      "@utils/*": ["src/utils/*"]
+    }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

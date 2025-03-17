@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { ILineNotifyMessenger, FunctionsHttpResponse } from './interfaces/lineNotifyMessenger';
+import { ILineNotifyMessenger, FunctionsHttpResponse } from '@interfaces/lineNotifyMessenger';
 
 export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
     private request: any;

@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { TableStorageGroupRepository } from "../src/tableStorageGroupRepository";
+import { TableStorageGroupRepository } from "@repositories/tableStorageGroupRepository";
 import { TableClient } from "@azure/data-tables";
 
 jest.mock("@azure/data-tables", () => ({

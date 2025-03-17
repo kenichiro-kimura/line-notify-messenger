@@ -1,4 +1,4 @@
-import { JimpImageConverter } from '../src/jimpImageConverter';
+import { JimpImageConverter } from '@utils/jimpImageConverter';
 import { Jimp } from 'jimp';
 
 jest.mock('jimp');

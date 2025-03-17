@@ -6,7 +6,7 @@ const replyMessageMock = jest.fn().mockResolvedValue(undefined);
 const broadcastMessageMock = jest.fn().mockResolvedValue(undefined);
 const groupMessageMock = jest.fn().mockResolvedValue(undefined);
 
-jest.mock("../src/lineService", () => {
+jest.mock("@services/lineService", () => {
   return jest.fn().mockImplementation(() => {
     return {
       replyMessage: replyMessageMock,
@@ -17,9 +17,9 @@ jest.mock("../src/lineService", () => {
 });
 
 jest.mock("@azure/functions");
-jest.mock("../src/blobImageStorage");
-jest.mock("../src/jimpImageConverter");
-jest.mock("../src/tableStorageGroupRepository", () => {
+jest.mock("@repositories/blobImageStorage");
+jest.mock("@utils/jimpImageConverter");
+jest.mock("@repositories/tableStorageGroupRepository", () => {
   return {
     TableStorageGroupRepository: jest.fn().mockImplementation(() => {
       return {

@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { ILineNotifyMessenger } from './interfaces/lineNotifyMessenger';
+import { ILineNotifyMessenger } from '@interfaces/lineNotifyMessenger';
 
 export class RequestHandler {
     private messenger: ILineNotifyMessenger;

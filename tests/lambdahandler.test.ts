@@ -6,7 +6,7 @@ const broadcastMessageMock = jest.fn().mockResolvedValue(undefined);
 const groupMessageMock = jest.fn().mockResolvedValue(undefined);
 const multipartMessage = "----tstbdr---\r\nContent-Disposition: form-data; name=\"message\"\r\n\r\ntest\r\n\r\n----tstbdr---\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"a.jpg\"\r\nContent-Type: image/jpeg\r\n\r\naaaa\r\n\r\n----tstbdr---\r\n";
 
-jest.mock("../src/lineService", () => {
+jest.mock("@services/lineService", () => {
   return jest.fn().mockImplementation(() => {
     return {
       replyMessage: replyMessageMock,
@@ -16,7 +16,7 @@ jest.mock("../src/lineService", () => {
   });
 });
 
-jest.mock("../src/dynamoGroupRepository", () => {
+jest.mock("@repositories/dynamoGroupRepository", () => {
   return {
     DynamoGroupRepository: jest.fn().mockImplementation(() => {
       return {
@@ -27,8 +27,8 @@ jest.mock("../src/dynamoGroupRepository", () => {
   };
 });
 
-jest.mock("../src/s3ImageStorage");
-jest.mock("../src/jimpImageConverter");
+jest.mock("@repositories/s3ImageStorage");
+jest.mock("@utils/jimpImageConverter");
 
 describe("handler function", () => {
   const ORIGINAL_ENV = process.env;

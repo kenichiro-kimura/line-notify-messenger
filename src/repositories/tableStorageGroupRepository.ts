@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { IGroupRepository } from "./interfaces/groupRepository";
+import { IGroupRepository } from "@interfaces/groupRepository";
 import { TableClient, TableServiceClient, TableEntity, odata } from "@azure/data-tables";
 
 interface GroupEntity extends TableEntity {

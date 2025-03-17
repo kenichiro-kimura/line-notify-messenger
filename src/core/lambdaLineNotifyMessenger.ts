@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { parse } from 'querystring';
-import { ILineNotifyMessenger, LambdaHttpResponse } from './interfaces/lineNotifyMessenger';
+import { ILineNotifyMessenger, LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
 import * as multipart from 'aws-lambda-multipart-parser';
 
 export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
