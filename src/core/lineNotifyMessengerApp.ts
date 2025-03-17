@@ -1,12 +1,12 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { FunctionsHttpResponse, ILineNotifyMessenger, LambdaHttpResponse } from './interfaces/lineNotifyMessenger';
-import { IImageStorage } from './interfaces/imageStorage';
-import { IImageConverter } from './interfaces/imageConverter';
-import LineService from './lineService';
-import { IGroupRepository } from './interfaces/groupRepository';
-import { SendMode, ISendModeStrategy } from './interfaces/sendModeStrategy';
-import { EnvironmentSendModeStrategy } from './sendModeStrategy';
-import { RequestHandler } from './requestHandler';
+import { FunctionsHttpResponse, ILineNotifyMessenger, LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
+import { IImageStorage } from '@interfaces/imageStorage';
+import { IImageConverter } from '@interfaces/imageConverter';
+import LineService from '@services/lineService';
+import { IGroupRepository } from '@interfaces/groupRepository';
+import { SendMode, ISendModeStrategy } from '@interfaces/sendModeStrategy';
+import { EnvironmentSendModeStrategy } from '@strategies/sendModeStrategy';
+import { RequestHandler } from '@handlers/requestHandler';
 
 export class LineNotifyMessengerApp {
     private messenger: ILineNotifyMessenger;

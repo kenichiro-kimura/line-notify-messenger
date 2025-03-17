@@ -1,4 +1,4 @@
-import { BlobImageStorage } from '../src/blobImageStorage';
+import { BlobImageStorage } from '@repositories/blobImageStorage';
 import * as azureStorageBlob from '@azure/storage-blob';
 
 describe('BlobImageStorage', () => {

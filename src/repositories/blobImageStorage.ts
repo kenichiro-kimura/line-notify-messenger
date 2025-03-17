@@ -1,4 +1,4 @@
-import { IImageStorage } from './interfaces/imageStorage';
+import { IImageStorage } from '@interfaces/imageStorage';
 import { BlobServiceClient, ContainerClient, StorageSharedKeyCredential, generateBlobSASQueryParameters, BlobSASPermissions } from '@azure/storage-blob';
 
 export class BlobImageStorage implements IImageStorage {

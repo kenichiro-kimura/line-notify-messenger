@@ -1,4 +1,4 @@
-import LineService from "../src/lineService";
+import LineService from "@services/lineService";
 const pushMessageMock = jest.fn().mockResolvedValue(undefined);
 const replyMessageMock = jest.fn().mockResolvedValue(undefined);
 const broadcastMock = jest.fn().mockResolvedValue(undefined);

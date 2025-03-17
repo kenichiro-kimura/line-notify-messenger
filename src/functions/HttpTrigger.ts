@@ -1,10 +1,10 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { BlobImageStorage } from "../blobImageStorage";
-import { JimpImageConverter } from "../jimpImageConverter";
-import { FunctionsLineNotifyMessenger } from "../functionsLineNotifyMessenger";
-import { LineNotifyMessengerApp } from "../lineNotifyMessengerApp";
-import { FunctionsHttpResponse } from "../interfaces/lineNotifyMessenger";
-import { TableStorageGroupRepository } from "../tableStorageGroupRepository";
+import { BlobImageStorage } from "@repositories/blobImageStorage";
+import { JimpImageConverter } from "@utils/jimpImageConverter";
+import { FunctionsLineNotifyMessenger } from "@core/functionsLineNotifyMessenger";
+import { LineNotifyMessengerApp } from "@core/lineNotifyMessengerApp";
+import { FunctionsHttpResponse } from "@interfaces/lineNotifyMessenger";
+import { TableStorageGroupRepository } from "@repositories/tableStorageGroupRepository";
 
 export async function HttpTrigger(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log('Received request:', request);

@@ -1,4 +1,4 @@
-import { FunctionsHttpResponse, ILineNotifyMessenger, LambdaHttpResponse } from '../interfaces/lineNotifyMessenger';
+import { FunctionsHttpResponse, ILineNotifyMessenger, LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
 
 export class HttpResponseService {
     private messenger: ILineNotifyMessenger;

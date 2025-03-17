@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { IGroupRepository } from './interfaces/groupRepository';
+import { IGroupRepository } from '@interfaces/groupRepository';
 import { DynamoDBClient, } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, PutCommandInput, ScanCommand, ScanCommandInput, DeleteCommand, DeleteCommandInput } from '@aws-sdk/lib-dynamodb';
 

@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { IGroupRepository } from '../interfaces/groupRepository';
+import { IGroupRepository } from '@interfaces/groupRepository';
 
 export class GroupService {
     private groupRepository: IGroupRepository;

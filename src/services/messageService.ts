@@ -1,8 +1,8 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { SendMode } from '../interfaces/sendModeStrategy';
-import LineService from '../lineService';
-import { GroupService } from './groupService';
-import { ISendModeStrategy } from '../interfaces/sendModeStrategy';
+import { SendMode } from '@interfaces/sendModeStrategy';
+import LineService from '@services/lineService';
+import { GroupService } from '@services/groupService';
+import { ISendModeStrategy } from '@interfaces/sendModeStrategy';
 
 export class MessageService {
     private lineService: LineService;

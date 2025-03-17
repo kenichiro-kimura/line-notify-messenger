@@ -1,10 +1,10 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { S3ImageStorage } from './s3ImageStorage';
-import { JimpImageConverter } from './jimpImageConverter';
-import { LambdaLineNotifyMessenger } from './lambdaLineNotifyMessenger';
-import { LineNotifyMessengerApp } from './lineNotifyMessengerApp';
-import { LambdaHttpResponse } from './interfaces/lineNotifyMessenger';
-import { DynamoGroupRepository } from './dynamoGroupRepository';
+import { S3ImageStorage } from '@repositories/s3ImageStorage';
+import { JimpImageConverter } from '@utils/jimpImageConverter';
+import { LambdaLineNotifyMessenger } from '@core/lambdaLineNotifyMessenger';
+import { LineNotifyMessengerApp } from '@core/lineNotifyMessengerApp';
+import { LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
+import { DynamoGroupRepository } from '@repositories/dynamoGroupRepository';
 
 export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     console.log('Received event:', JSON.stringify(event, null, 2));

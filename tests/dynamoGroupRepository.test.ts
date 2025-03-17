@@ -1,4 +1,4 @@
-import { DynamoGroupRepository } from '../src/dynamoGroupRepository';
+import { DynamoGroupRepository } from '@repositories/dynamoGroupRepository';
 import { PutCommand, DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
 
 const sendMock = jest.fn();

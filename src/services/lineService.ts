@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import * as line from '@line/bot-sdk';
-import { IImageStorage } from './interfaces/imageStorage';
-import { IImageConverter } from './interfaces/imageConverter';
+import { IImageStorage } from '@interfaces/imageStorage';
+import { IImageConverter } from '@interfaces/imageConverter';
 
 class LineService {
     private readonly client: line.messagingApi.MessagingApiClient;

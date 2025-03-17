@@ -1,4 +1,4 @@
-import { SendMode, ISendModeStrategy } from './interfaces/sendModeStrategy';
+import { SendMode, ISendModeStrategy } from '@interfaces/sendModeStrategy';
 export class DefaultSendModeStrategy implements ISendModeStrategy {
     getSendMode(): SendMode {
         return SendMode.broadcast;
