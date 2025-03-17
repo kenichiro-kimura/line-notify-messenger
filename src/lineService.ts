@@ -34,7 +34,7 @@ class LineService {
         });
     }
 
-    public async buildMessage(message: any): Promise<line.Message> {
+    public async buildMessage(message: any): Promise<line.messagingApi.Message> {
         /*
         以下は line notifyの説明。
         
@@ -85,31 +85,31 @@ class LineService {
                 type: 'image',
                 originalContentUrl: originalUrl,
                 previewImageUrl: thumbnailUrl
-            };
+            } as line.ImageMessage;
         } else if (message.imageThumbnail && message.imageFullsize) {
             broadcastMessage = {
                 type: 'image',
                 originalContentUrl: message.imageFullsize,
                 previewImageUrl: message.imageThumbnail
-            };
+            } as line.ImageMessage;
         } else if (message.stickerPackageId && message.stickerId) {
             broadcastMessage = {
                 type: 'sticker',
                 packageId: message.stickerPackageId,
                 stickerId: message.stickerId
-            };
+            } as line.StickerMessage;
         } else {
             broadcastMessage = {
                 type: 'text',
                 text: message.message
-            };
+            } as line.TextMessage;
         }
 
         return broadcastMessage;
     }
 
     public async groupMessage(groupIds: string[], message: string): Promise<void> {
-        const groupMessage: line.Message = await this.buildMessage(message);
+        const groupMessage: line.messagingApi.Message = await this.buildMessage(message);
         for (const groupId of groupIds) {
             await this.client.pushMessage({
                 to: groupId,
@@ -122,7 +122,7 @@ class LineService {
 
     public async broadcastMessage(message: any): Promise<void> {
         const notificationDisabled: boolean = message.notificationDisabled || false;
-        const broadcastMessage: line.Message = await this.buildMessage(message);        
+        const broadcastMessage: line.messagingApi.Message = await this.buildMessage(message);        
         await this.client.broadcast({
             messages: [
                 broadcastMessage
