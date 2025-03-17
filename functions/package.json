@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/src/functions/*.js",
   "scripts": {
-    "build": "esbuild ../src/functions/HttpTrigger.ts --bundle --outdir=dist/src/functions/ --external:node:buffer --external:node:crypto --external:node:stream --external:fs --external:stream --external:@azure/functions-core --external:@azure/storage-blob --external:@line/bot-sdk --external:jimp --platform=node --format=cjs",
+    "build": "esbuild ../src/functions/HttpTrigger.ts --bundle --outdir=dist/src/functions/ --external:node:buffer --external:node:crypto --external:node:stream --external:fs --external:stream --external:@azure/functions-core --external:@azure/storage-blob --external:@azure/data-tables --external:@line/bot-sdk --external:jimp --platform=node --format=cjs",
     "watch": "tsc -w",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
@@ -12,6 +12,7 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
+    "@azure/data-tables": "^13.3.0",
     "@azure/storage-blob": "^12.26.0",
     "@line/bot-sdk": "^9.5.3",
     "jimp": "^1.6.0"

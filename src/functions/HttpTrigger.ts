@@ -4,6 +4,7 @@ import { JimpImageConverter } from "../jimpImageConverter";
 import { FunctionsLineNotifyMessenger } from "../functionsLineNotifyMessenger";
 import { LineNotifyMessengerApp } from "../lineNotifyMessengerApp";
 import { FunctionsHttpResponse } from "../interfaces/lineNotifyMessenger";
+import { TableStorageGroupRepository } from "../tableStorageGroupRepository";
 
 export async function HttpTrigger(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log('Received request:', request);
@@ -22,7 +23,14 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
         throw new Error('BLOB_NAME or BLOB_CONNECTION_STRING is not set');
     }
 
-    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new BlobImageStorage(blobConnectionString,blobName), new JimpImageConverter());
+    const tableName = process.env.TABLE_NAME;
+    const tableConnectionString = process.env.TABLE_CONNECTION_STRING;
+
+    if (!tableName || !tableConnectionString) {
+        throw new Error('TABLE_NAME or TABLE_CONNECTION_STRING is not set');
+    }
+
+    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new BlobImageStorage(blobConnectionString,blobName), new JimpImageConverter(), new TableStorageGroupRepository(tableConnectionString,tableName));
 
     return await app.processRequest() as FunctionsHttpResponse;
 }

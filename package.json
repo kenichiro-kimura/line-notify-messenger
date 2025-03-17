@@ -4,7 +4,7 @@
   "description": "A LINE Messaging API bot like LINE Notify service",
   "main": "src/handler.ts",
   "scripts": {
-    "build": "esbuild src/lambdahandler.ts --bundle --outdir=dist --external:node:buffer --external:node:crypto --external:node:stream --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:fs --external:stream --format=cjs",
+    "build": "esbuild src/lambdahandler.ts --bundle --outdir=dist --external:node:buffer --external:node:crypto --external:node:stream --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:@aws-sdk --external:fs --external:stream --format=cjs",
     "deploy": "cdk deploy '*'",
     "watch": "tsc -w",
     "test": "jest",
@@ -22,7 +22,9 @@
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.744.0",
+    "@aws-sdk/lib-dynamodb": "^3.767.0",
     "@aws-sdk/s3-request-presigner": "^3.744.0",
+    "@azure/data-tables": "^13.3.0",
     "@azure/functions": "^4.6.1",
     "@azure/storage-blob": "^12.26.0",
     "@types/jest": "^26.0.24",

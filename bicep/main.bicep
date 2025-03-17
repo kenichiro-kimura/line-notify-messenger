@@ -111,6 +111,14 @@ module flexFunction 'core/host/function.bicep' = {
             value: publicStorage.outputs.connectionString
         }
         {
+            name: 'TABLE_NAME'
+            value: 'groupIds'
+        }
+        {
+          name: 'TABLE_CONNECTION_STRING'
+          value: publicStorage.outputs.connectionString
+        }
+        {
             name: 'LINE_CHANNEL_ACCESS_TOKEN'
             value: lineChannelAccessToken
         }

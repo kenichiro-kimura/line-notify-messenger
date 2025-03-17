@@ -4,6 +4,7 @@ import { JimpImageConverter } from './jimpImageConverter';
 import { LambdaLineNotifyMessenger } from './lambdaLineNotifyMessenger';
 import { LineNotifyMessengerApp } from './lineNotifyMessengerApp';
 import { LambdaHttpResponse } from './interfaces/lineNotifyMessenger';
+import { DynamoGroupRepository } from './dynamoGroupRepository';
 
 export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     console.log('Received event:', JSON.stringify(event, null, 2));
@@ -22,7 +23,14 @@ export const handler = async (event: any): Promise<LambdaHttpResponse> => {
         throw new Error('BUCKET_NAME or S3_REGION is not set');
     }
 
-    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter());
+    const tableName = process.env.TABLE_NAME;
+    const dynamoRegion = process.env.DYNAMO_REGION;
+
+    if (!tableName || !dynamoRegion) {
+        throw new Error('TABLE_NAME or DYNAMO_REGION is not set');
+    }
+
+    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter(), new DynamoGroupRepository(tableName, dynamoRegion));
 
     return await app.processRequest() as LambdaHttpResponse;
 };
