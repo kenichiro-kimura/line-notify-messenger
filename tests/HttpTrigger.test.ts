@@ -34,7 +34,7 @@ describe("HttpTrigger function", () => {
   const ORIGINAL_ENV = process.env;
 
   const createRequest = (headers: Record<string, string>, path: string, body: any): HttpRequest => ({
-    url: 'http://localhost:7071/api/HttpTrigger/' + path,
+    url: 'http://localhost:7071/api/HttpTrigger' + path,
     method: 'POST',
     headers: {
       get: jest.fn().mockImplementation((key) => headers[key] || ""),
@@ -69,7 +69,7 @@ describe("HttpTrigger function", () => {
   const testMissingEnvVar = (envVar: string, expectedError: string) => {
     test(`should throw error when ${envVar} is not set`, async () => {
       delete process.env[envVar];
-      const request = createRequest({}, "", {});
+      const request = createRequest({}, "/", {});
       const context = createContext();
 
       await expect(HttpTrigger(request, context)).rejects.toThrow(expectedError);
@@ -85,7 +85,7 @@ describe("HttpTrigger function", () => {
   test("handles notify event and calls broadcastMessage", async () => {
     const request = createRequest(
       { "content-type": "application/x-www-form-urlencoded", Authorization: "Bearer valid_token" },
-      "notify",
+      "/notify",
       { message: "test" }
     );
     const context = createContext();
@@ -102,7 +102,7 @@ describe("HttpTrigger function", () => {
       process.env.SEND_MODE = sendMode;
       const request = createRequest(
         { "content-type": "application/x-www-form-urlencoded", Authorization: "Bearer valid_token" },
-        "notify",
+        "/notify",
         { message: "test" }
       );
       const context = createContext();
@@ -131,7 +131,7 @@ describe("HttpTrigger function", () => {
   test("should return unauthorized error when AUTHORIZATION_TOKEN is invalid", async () => {
     const request = createRequest(
       { "content-type": "application/x-www-form-urlencoded", Authorization: "Bearer invalid_token" },
-      "notify",
+      "/notify",
       { message: "test" }
     );
     const context = createContext();
@@ -145,7 +145,7 @@ describe("HttpTrigger function", () => {
   test("should handle health check event branch when events array is empty", async () => {
     const request = createRequest(
       { Authorization: "Bearer valid_token" },
-      "",
+      "/",
       { events: [] }
     );
     const context = createContext();
@@ -159,7 +159,7 @@ describe("HttpTrigger function", () => {
   test("should handle reply default message branch for normal events", async () => {
     const request = createRequest(
       { Authorization: "Bearer valid_token" },
-      "",
+      "/",
       { events: [{ replyToken: "dummyReplyToken", message: { text: "Hello" } }] }
     );
     const context = createContext();
