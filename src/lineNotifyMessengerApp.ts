@@ -79,7 +79,7 @@ export class LineNotifyMessengerApp {
         const groupIds : string [] = await this.getTargetGroupIds();
         console.log(`groupIds: ${groupIds}`);
         if(groupIds.length > 0) {
-            await this.lineService.sendGroupMessage(groupIds, formData);
+            await this.lineService.groupMessage(groupIds, formData);
         }
     }
 

@@ -108,7 +108,7 @@ class LineService {
         return broadcastMessage;
     }
 
-    public async sendGroupMessage(groupIds: string[], message: string): Promise<void> {
+    public async groupMessage(groupIds: string[], message: string): Promise<void> {
         const groupMessage: line.Message = await this.buildMessage(message);
         for (const groupId of groupIds) {
             await this.client.pushMessage({
