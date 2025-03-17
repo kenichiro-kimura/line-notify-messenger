@@ -6,12 +6,14 @@ import LineService from './lineService';
 import { IGroupRepository } from './interfaces/groupRepository';
 import { SendMode, ISendModeStrategy } from './interfaces/sendModeStrategy';
 import { EnvironmentSendModeStrategy } from './sendModeStrategy';
+import { RequestHandler } from './requestHandler';
 
 export class LineNotifyMessengerApp {
     private messenger: ILineNotifyMessenger;
     private lineService: LineService;
     private groupRepository: IGroupRepository;
     private sendModeStrategy: ISendModeStrategy;
+    private requestHandler: RequestHandler;
 
     constructor(
         messenger: ILineNotifyMessenger,
@@ -25,6 +27,7 @@ export class LineNotifyMessengerApp {
         this.groupRepository = groupRepository;
         this.lineService = new LineService(lineChannelAccessToken, imageStorage, imageConverter);
         this.sendModeStrategy = sendModeStrategy;
+        this.requestHandler = new RequestHandler(messenger); // RequestHandler を初期化
     }
 
     private httpUnAuthorizedErrorMessage = (message: string): LambdaHttpResponse | FunctionsHttpResponse => {
@@ -37,25 +40,6 @@ export class LineNotifyMessengerApp {
 
     private httpOkMessage = (message: string): LambdaHttpResponse | FunctionsHttpResponse => {
         return this.messenger.buildHttpResponse(200, message);
-    };
-
-    private getBearerToken = () => {
-        return this.messenger.getHttpHeader('Authorization').split('Bearer ')[1] || '';
-    };
-
-    private isNotifyServiceRequest = () => {
-        const path = this.messenger.getHttpRequestPath();
-        const method = this.messenger.getHttpMethod();
-        const contentType = this.messenger.getHttpHeader('Content-Type');
-
-        if (
-            path === '/notify' &&
-            method === 'POST' &&
-            (contentType === 'application/x-www-form-urlencoded' || contentType.startsWith('multipart/form-data'))
-        ) {
-            return true;
-        }
-        return false;
     };
 
     private getRequestGroupId = (body: any): string => {
@@ -112,20 +96,20 @@ export class LineNotifyMessengerApp {
     async processRequest(): Promise<LambdaHttpResponse | FunctionsHttpResponse> {
         const sendMode = this.getSendMode();
 
-        if (this.isNotifyServiceRequest()) {
-            const bearerToken = this.getBearerToken();
+        if (this.requestHandler.isNotifyServiceRequest()) {
+            const bearerToken = this.requestHandler.getBearerToken();
 
             if (!bearerToken || bearerToken !== process.env.AUTHORIZATION_TOKEN) {
                 return this.httpUnAuthorizedErrorMessage('Invalid authorization token');
             }
 
-            const formData = await this.messenger.getHttpFormDataAsync();
+            const formData = await this.requestHandler.getFormData();
 
             await this.sendMessage(formData, sendMode);
             return this.httpOkMessage('Success Notify');
         }
 
-        const body = JSON.parse(await this.messenger.getHttpBodyAsync());
+        const body = await this.requestHandler.getRequestBody();
 
         /* health check from LINE */
         if (body.events.length === 0) {
@@ -136,7 +120,6 @@ export class LineNotifyMessengerApp {
         const groupId: string = this.getRequestGroupId(body);
 
         if (groupId !== '') {
-            // リクエストにグループIDが含まれている場合、グループIDをデータストアに追加する
             await this.addGroupId(groupId);
             return this.httpOkMessage('Success Add Group');
         }
