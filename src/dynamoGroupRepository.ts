@@ -1,12 +1,12 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { IGroupRepository } from './interfaces/groupRepository';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, PutCommandInput, ScanCommand, ScanCommandInput, DeleteCommand, DeleteCommandInput } from '@aws-sdk/lib-dynamodb';
 
 export class DynamoGroupRepository implements IGroupRepository {
     private readonly tableName: string;
     private readonly region: string;    
-    private readonly docClient: DynamoDB.DocumentClient;
+    private readonly docClient: DynamoDBDocumentClient;
     
     constructor(tableName: string, region: string) {
         this.tableName = tableName;
