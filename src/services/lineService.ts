@@ -1,15 +1,22 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+import 'reflect-metadata';
 import * as line from '@line/bot-sdk';
 import { IImageStorage } from '@interfaces/imageStorage';
 import { IImageConverter } from '@interfaces/imageConverter';
+import { inject, injectable } from 'tsyringe';
 
+@injectable()
 class LineService {
     private readonly client: line.messagingApi.MessagingApiClient;
     private readonly imageStorage: IImageStorage;
     private readonly imageConverter: IImageConverter;
 
-    constructor(channelAccessToken: string, imageStorage: IImageStorage, imageConverter: IImageConverter) {
-        this.client = new line.messagingApi.MessagingApiClient({ channelAccessToken });        
+    constructor(
+        @inject('LineChannelAccessToken') lineChannelAccessToken: string,
+        @inject('IImageStorage') imageStorage: IImageStorage,
+        @inject('IImageConverter') imageConverter: IImageConverter,
+    ) {
+        this.client = new line.messagingApi.MessagingApiClient({ channelAccessToken: lineChannelAccessToken });
         this.imageStorage = imageStorage;
         this.imageConverter = imageConverter;
     }
