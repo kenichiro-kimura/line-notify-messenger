@@ -33,9 +33,23 @@ jest.mock("../src/tableStorageGroupRepository", () => {
 describe("HttpTrigger function", () => {
   const ORIGINAL_ENV = process.env;
 
+  const createRequest = (headers: Record<string, string>, path: string, body: any): HttpRequest => ({
+    url: 'http://localhost:7071/api/HttpTrigger/' + path,
+    method: 'POST',
+    headers: {
+      get: jest.fn().mockImplementation((key) => headers[key] || ""),
+    },
+    formData: jest.fn().mockResolvedValue(new Map(Object.entries(body))),
+    text: jest.fn().mockResolvedValue(JSON.stringify(body)),
+  } as unknown as HttpRequest);
+
+  const createContext = (): InvocationContext => ({
+    log: jest.fn(),
+  } as unknown as InvocationContext);
+
   beforeEach(() => {
     jest.resetModules();
-    jest.clearAllMocks(); // 各テストの前にモックの呼び出し回数をリセット
+    jest.clearAllMocks();
     process.env = {
       ...ORIGINAL_ENV,
       LINE_CHANNEL_ACCESS_TOKEN: "dummy_token",
@@ -44,7 +58,7 @@ describe("HttpTrigger function", () => {
       BLOB_CONNECTION_STRING: "blob_connection_string",
       TABLE_NAME: "table_name",
       TABLE_CONNECTION_STRING: "table_connection_string",
-      SEND_MODE: "broadcast"
+      SEND_MODE: "broadcast",
     };
   });
 
@@ -52,312 +66,108 @@ describe("HttpTrigger function", () => {
     process.env = ORIGINAL_ENV;
   });
 
-  test("should throw error when LINE_CHANNEL_ACCESS_TOKEN is not set", async () => {
-    delete process.env.LINE_CHANNEL_ACCESS_TOKEN;
-    const request = {} as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
+  const testMissingEnvVar = (envVar: string, expectedError: string) => {
+    test(`should throw error when ${envVar} is not set`, async () => {
+      delete process.env[envVar];
+      const request = createRequest({}, "", {});
+      const context = createContext();
 
-    // 例外が投げられることを検証
-    await expect(HttpTrigger(request,context)).rejects.toThrow("LINE_CHANNEL_ACCESS_TOKEN is not set");
-  });
+      await expect(HttpTrigger(request, context)).rejects.toThrow(expectedError);
+    });
+  };
 
-  test("should throw error when BLOB_NAME is not set", async () => {
-    delete process.env.BLOB_NAME;
-    const request = {} as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
+  testMissingEnvVar("LINE_CHANNEL_ACCESS_TOKEN", "LINE_CHANNEL_ACCESS_TOKEN is not set");
+  testMissingEnvVar("BLOB_NAME", "BLOB_NAME or BLOB_CONNECTION_STRING is not set");
+  testMissingEnvVar("BLOB_CONNECTION_STRING", "BLOB_NAME or BLOB_CONNECTION_STRING is not set");
+  testMissingEnvVar("TABLE_NAME", "TABLE_NAME or TABLE_CONNECTION_STRING is not set");
+  testMissingEnvVar("TABLE_CONNECTION_STRING", "TABLE_NAME or TABLE_CONNECTION_STRING is not set");
 
-    // 例外が投げられることを検証
-    await expect(HttpTrigger(request,context)).rejects.toThrow("BLOB_NAME or BLOB_CONNECTION_STRING is not set");
-  });
-
-  test("should throw error when BLOB_CONNECTION_STRING is not set", async () => {
-    delete process.env.BLOB_CONNECTION_STRING;
-    const request = {} as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
-
-    // 例外が投げられることを検証
-    await expect(HttpTrigger(request,context)).rejects.toThrow("BLOB_NAME or BLOB_CONNECTION_STRING is not set");
-  });
-
-  test("should throw error when TABLE_NAME is not set", async () => {
-    delete process.env.TABLE_NAME;
-    const request = {} as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
-
-    // 例外が投げられることを検証
-    await expect(HttpTrigger(request,context)).rejects.toThrow("TABLE_NAME or TABLE_CONNECTION_STRING is not set");
-  });
-
-  test("should throw error when TABLE_CONNECTION_STRING is not set", async () => {
-    delete process.env.TABLE_CONNECTION_STRING;
-    const request = {} as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
-
-    // 例外が投げられることを検証
-    await expect(HttpTrigger(request,context)).rejects.toThrow("TABLE_NAME or TABLE_CONNECTION_STRING is not set");
-  });
-
-  test("should handle notify event branch and call broadcastMessage with parsed form data", async () => {
-    const request = {
-      url: 'http://localhost:7071/api/HttpTrigger/notify',
-      method: 'POST',
-      headers: {
-        get: jest.fn().mockImplementation((x) => {
-            switch (x) {
-              case "content-type":
-                return "application/x-www-form-urlencoded";
-              case "Authorization":
-                return "Bearer valid_token";
-              default:
-                return ""
-            }
-        }),
-      },
-      formData: jest.fn().mockImplementation(() => {
-        const hashmap: Map<string, FormDataEntryValue> = new Map();
-        hashmap.set("message", "test");
-        return hashmap;
-      }),
-      text: jest.fn().mockResolvedValue(Buffer.from("message=test").toString("base64")),
-    } as unknown as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
+  test("handles notify event and calls broadcastMessage", async () => {
+    const request = createRequest(
+      { "content-type": "application/x-www-form-urlencoded", Authorization: "Bearer valid_token" },
+      "notify",
+      { message: "test" }
+    );
+    const context = createContext();
 
     const response = await HttpTrigger(request, context);
-    // HTTP ステータス 200 を検証
-    expect(response.status).toEqual(200);
+
+    expect(response.status).toBe(200);
     expect(response.body).toContain("Success Notify");
-    // broadcastMessage が 1 回呼ばれていることを検証
-    expect(broadcastMessageMock).toHaveBeenCalledTimes(1);
-    // 送信された引数（querystring.parse により { message: "test" } となることを想定）
     expect(broadcastMessageMock).toHaveBeenCalledWith({ message: "test" });
   });
 
-  test("should handle notify event branch and call groupMessage with parsed form data and SEND_MODE is 'group'", async () => {
-    process.env.SEND_MODE = "group";
-    const request = {
-      url: 'http://localhost:7071/api/HttpTrigger/notify',
-      method: 'POST',
-      headers: {
-        get: jest.fn().mockImplementation((x) => {
-            switch (x) {
-              case "content-type":
-                return "application/x-www-form-urlencoded";
-              case "Authorization":
-                return "Bearer valid_token";
-              default:
-                return ""
-            }
-        }),
-      },
-      formData: jest.fn().mockImplementation(() => {
-        const hashmap: Map<string, FormDataEntryValue> = new Map();
-        hashmap.set("message", "test");
-        return hashmap;
-      }),
-      text: jest.fn().mockResolvedValue(Buffer.from("message=test").toString("base64")),
-    } as unknown as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
+  const testSendMode = (sendMode: string, expectedMocks: Array<{ mock: jest.Mock, args: any[] }>) => {
+    test(`should handle notify event and call correct functions when SEND_MODE is '${sendMode}'`, async () => {
+      process.env.SEND_MODE = sendMode;
+      const request = createRequest(
+        { "content-type": "application/x-www-form-urlencoded", Authorization: "Bearer valid_token" },
+        "notify",
+        { message: "test" }
+      );
+      const context = createContext();
 
-    const response = await HttpTrigger(request, context);
-    // HTTP ステータス 200 を検証
-    expect(response.status).toEqual(200);
-    expect(response.body).toContain("Success Notify");
-    // groupMessage が 1 回呼ばれていることを検証
-    expect(groupMessageMock).toHaveBeenCalledTimes(1);
-    // 送信された引数（querystring.parse により { message: "test" } となることを想定）
-    expect(groupMessageMock).toHaveBeenCalledWith([ "testgroupid" ], { message: "test" });
-  });
+      const response = await HttpTrigger(request, context);
 
-  test("should handle notify event branch and call groupMessage and broadcastMessage with parsed form data and SEND_MODE is 'all'", async () => {
-    process.env.SEND_MODE = "all";
-    const request = {
-      url: 'http://localhost:7071/api/HttpTrigger/notify',
-      method: 'POST',
-      headers: {
-        get: jest.fn().mockImplementation((x) => {
-            switch (x) {
-              case "content-type":
-                return "application/x-www-form-urlencoded";
-              case "Authorization":
-                return "Bearer valid_token";
-              default:
-                return ""
-            }
-        }),
-      },
-      formData: jest.fn().mockImplementation(() => {
-        const hashmap: Map<string, FormDataEntryValue> = new Map();
-        hashmap.set("message", "test");
-        return hashmap;
-      }),
-      text: jest.fn().mockResolvedValue(Buffer.from("message=test").toString("base64")),
-    } as unknown as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
+      expect(response.status).toBe(200);
+      expect(response.body).toContain("Success Notify");
 
-    const response = await HttpTrigger(request, context);
-    // HTTP ステータス 200 を検証
-    expect(response.status).toEqual(200);
-    expect(response.body).toContain("Success Notify");
-    // groupMessageとbroadcastMessage が 1 回呼ばれていることを検証
-    expect(groupMessageMock).toHaveBeenCalledTimes(1);
-    expect(broadcastMessageMock).toHaveBeenCalledTimes(1);
-    // 送信された引数（querystring.parse により { message: "test" } となることを想定）
-    expect(groupMessageMock).toHaveBeenCalledWith([ "testgroupid" ], { message: "test" });
-    expect(broadcastMessageMock).toHaveBeenCalledWith({ message: "test" });
-  });
+      expectedMocks.forEach(({ mock, args }) => {
+        expect(mock).toHaveBeenCalledTimes(1);
+        expect(mock).toHaveBeenCalledWith(...args);
+      });
+    });
+  };
 
-  test("should handle notify event branch and call broadcastMessage with parsed form data, with multipart form data", async () => {
-    const request = {
-      url: 'http://localhost:7071/api/HttpTrigger/notify',
-      method: 'POST',
-      headers: {
-        get: jest.fn().mockImplementation((x) => {
-            switch (x) {
-              case "content-type":
-                return "multipart/form-data;  boundary=----tstbdr---";
-              case "Authorization":
-                return "Bearer valid_token";
-              default:
-                return ""
-            }
-        }),
-      },
-      formData: jest.fn().mockImplementation(() => {
-        const hashmap: Map<string, any> = new Map();
-        hashmap.set("message", "test");
-        hashmap.set("imageFile", { name: "a.jpg", type: "image/jpeg", arrayBuffer: jest.fn().mockResolvedValue(Buffer.from("aaaa")) });
-        return hashmap;
-      }),
-      text: jest.fn().mockResolvedValue(Buffer.from("message=test").toString("base64")),
-    } as unknown as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
+  testSendMode("group", [
+    { mock: groupMessageMock, args: [["testgroupid"], { message: "test" }] }
+  ]);
 
-    const response = await HttpTrigger(request, context);
-
-    // HTTP ステータス 200 を検証
-    expect(response.status).toEqual(200);
-    expect(response.body).toContain("Success Notify");
-    // broadcastMessage が 1 回呼ばれていることを検証
-    expect(broadcastMessageMock).toHaveBeenCalledTimes(1);
-    // 送信された引数（querystring.parse により { message: "test" } となることを想定）
-    expect(broadcastMessageMock).toHaveBeenCalledWith({ message: "test", imageFile: { type: "file",filename: "a.jpg", contentType: "image/jpeg", content: Buffer.from("aaaa") } });
-  });
+  testSendMode("all", [
+    { mock: groupMessageMock, args: [["testgroupid"], { message: "test" }] },
+    { mock: broadcastMessageMock, args: [{ message: "test" }] }
+  ]);
 
   test("should return unauthorized error when AUTHORIZATION_TOKEN is invalid", async () => {
-    const request = {
-      url: 'http://localhost:7071/api/HttpTrigger/notify',
-      method: 'POST',
-      headers: {
-        get: jest.fn().mockImplementation((x) => {
-            switch (x) {
-              case "content-type":
-                return "application/x-www-form-urlencoded";
-              case "Authorization":
-                return "Bearer invalid_token";
-              default:
-                return ""
-            }
-        }),
-      },
-      formData: jest.fn().mockImplementation(() => {
-        const hashmap: Map<string, FormDataEntryValue> = new Map();
-        hashmap.set("message", "test");
-        return hashmap;
-      }),
-      text: jest.fn().mockResolvedValue(Buffer.from("message=test").toString("base64")),
-    } as unknown as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
+    const request = createRequest(
+      { "content-type": "application/x-www-form-urlencoded", Authorization: "Bearer invalid_token" },
+      "notify",
+      { message: "test" }
+    );
+    const context = createContext();
 
     const response = await HttpTrigger(request, context);
-    // HTTP ステータス 401 を検証
-    expect(response.status).toEqual(401);
+
+    expect(response.status).toBe(401);
     expect(response.body).toContain("Invalid authorization token");
   });
 
   test("should handle health check event branch when events array is empty", async () => {
-    const request = {
-      url: 'http://localhost:7071/api/HttpTrigger/',
-      method: 'POST',
-      headers: {
-        get: jest.fn().mockImplementation((x) => {
-            switch (x) {
-              case "content-type":
-                return "application/x-www-form-urlencoded";
-              case "Authorization":
-                return "Bearer valid_token";
-              default:
-                return ""
-            }
-        }),
-      },
-      formData: jest.fn().mockImplementation(() => {
-        const hashmap: Map<string, FormDataEntryValue> = new Map();
-        hashmap.set("message", "test");
-        return hashmap;
-      }),
-      text: jest.fn().mockResolvedValue(JSON.stringify({ events: [] })),
-    } as unknown as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
+    const request = createRequest(
+      { Authorization: "Bearer valid_token" },
+      "",
+      { events: [] }
+    );
+    const context = createContext();
 
     const response = await HttpTrigger(request, context);
+
     expect(response.status).toEqual(200);
     expect(response.body).toEqual("No events");
   });
 
   test("should handle reply default message branch for normal events", async () => {
-    const request = {
-      url: 'http://localhost:7071/api/HttpTrigger/',
-      method: 'POST',
-      headers: {
-        get: jest.fn().mockImplementation((x) => {
-            switch (x) {
-              case "content-type":
-                return "application/x-www-form-urlencoded";
-              case "Authorization":
-                return "Bearer valid_token";
-              default:
-                return ""
-            }
-        }),
-      },
-      formData: jest.fn().mockImplementation(() => {
-        const hashmap: Map<string, FormDataEntryValue> = new Map();
-        hashmap.set("message", "test");
-        return hashmap;
-      }),
-      text: jest.fn().mockResolvedValue(JSON.stringify({ events: [{ replyToken: "dummyReplyToken", message: { text: "Hello" } }] })),
-    } as unknown as HttpRequest;
-    const context = { 
-      log: jest.fn(),
-    } as unknown as InvocationContext;
+    const request = createRequest(
+      { Authorization: "Bearer valid_token" },
+      "",
+      { events: [{ replyToken: "dummyReplyToken", message: { text: "Hello" } }] }
+    );
+    const context = createContext();
 
     const response = await HttpTrigger(request, context);
+
     expect(response.status).toEqual(200);
     expect(response.body).toEqual("Success");
-
-    // モック化された LineService のインスタンスから replyMessage の呼び出しを検証
     expect(replyMessageMock).toHaveBeenCalledTimes(1);
     expect(replyMessageMock).toHaveBeenCalledWith(
       "dummyReplyToken",
