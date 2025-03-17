@@ -34,7 +34,7 @@ class LineService {
         });
     }
 
-    public async buildMessage(message: any): line.Message {
+    public async buildMessage(message: any): Promise<line.Message> {
         /*
         以下は line notifyの説明。
         
@@ -121,7 +121,7 @@ class LineService {
     }
 
     public async broadcastMessage(message: any): Promise<void> {
-        const notificationDisabled: bool = message.notificationDisabled || false;
+        const notificationDisabled: boolean = message.notificationDisabled || false;
         const broadcastMessage: line.Message = await this.buildMessage(message);        
         await this.client.broadcast({
             messages: [
