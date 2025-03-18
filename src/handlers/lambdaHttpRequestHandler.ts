@@ -1,18 +1,18 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { parse } from 'querystring';
-import { ILineNotifyMessenger, LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
+import { IHttpRequestHandler, AwsLambdaHttpResponse } from '@interfaces/httpRequestHandler';
 import * as multipart from 'aws-lambda-multipart-parser';
 
 /**
  * AWS Lambda環境用のLINE Notify Messengerの実装クラス
  * HTTP要求を処理し、LINE Notifyに必要なデータを抽出するためのメソッドを提供します
  */
-export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
+export class LambdaHttpRequestHandler implements IHttpRequestHandler {
     /** AWS Lambdaから受け取ったイベントオブジェクト */
     private event: any;
 
     /**
-     * LambdaLineNotifyMessengerのコンストラクタ
+     * LambdaHttpRequestHandlerのコンストラクタ
      * @param event - AWS Lambdaから受け取ったイベントオブジェクト
      */
     constructor(event: any) {
@@ -28,8 +28,8 @@ export class LambdaLineNotifyMessenger implements ILineNotifyMessenger {
      * @param message - レスポンスメッセージ
      * @returns 生成されたHTTP応答オブジェクト
      */
-    public buildHttpResponse (status: number, message: string): LambdaHttpResponse {
-        return new LambdaHttpResponse(status,JSON.stringify({ message: message }));
+    public buildHttpResponse (status: number, message: string): AwsLambdaHttpResponse {
+        return new AwsLambdaHttpResponse(status,JSON.stringify({ message: message }));
     }
 
     /**

@@ -7,16 +7,16 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
 - エントリポイント
   - `src/lambdahandler.ts`: AWS Lambdaのエントリポイント。
-  - `src/functions/handler.ts`: Azure Functionsのエントリポイント。
+  - `src/functions/HttpTrigger.ts`: Azure Functionsのエントリポイント。
 - メインロジック
-  - `src/core/lineNotifyMessengerApp.ts`: LINE Messaging APIからのイベントやHTTPリクエストを処理するロジックを実装しています。
+  - `src/core/LineNotifyMessengerApp.ts`: LINE Messaging APIからのイベントやHTTPリクエストを処理するロジックを実装しています。
   - `src/services/groupService.ts`: グループIDを管理するサービスクラスを定義しています。グループIDの保存や取得を行うメソッドが含まれています。
   - `src/services/httpResponseService.ts`: HTTPレスポンスを生成するサービスクラスを定義しています。HTTPステータスコードやメッセージを指定してレスポンスを生成するメソッドが含まれています。
   - `src/services/messageService.ts`: メッセージ送信のサービスクラスを定義しています。実際のメッセージの生成や送信を行うメソッドは`lineService`クラスに含まれます。
   - `src/handlers/requestHandler.ts`: HTTPリクエストを処理するクラスを定義しています。
 - 実行環境特有のロジック
-  - `src/core/lambdaLineNotifyMessenger.ts`: ILineNotifyMessengerを実装したクラス。AWS Lambda固有のロジックを実装しています。
-  - `src/core/functionsLineNotifyMessenger.ts`: ILineNotifyMessengerを実装したクラス。Azure Functions固有のロジックを実装しています。
+  - `src/handlers/lambdaHttpRequestHandler.ts`: IHttpRequestHandlerを実装したクラス。AWS Lambda固有のロジックを実装しています。
+  - `src/handlers/functionsHttpRequestHandler.ts`: IHttpRequestHandlerを実装したクラス。Azure Functions固有のロジックを実装しています。
 - LINE Messaging API関連
   - `src/services/lineService.ts`: LINE Messaging APIとのインタラクションを管理するサービスクラスを定義しています。メッセージの送信や受信を行うメソッドが含まれています。
 - 画像保存
@@ -28,7 +28,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
   - `src/repositories/dynamoGroupRepository.ts`: IGroupRepositoryを実装したクラス。Amazon DynamoDBにグループIDを保存するリポジトリクラスを定義しています。
   - `src/repositories/tableStorageGroupRepository.ts`: IGroupRepositoryを実装したクラス。Azure Table StorageにグループIDを保存するリポジトリクラスを定義しています。
 - 送信モード
-  - `src/strategies/sendModeStrategy.ts`: ISendModeStrategyを実装したクラス。送信モードを取得する手段をストラテジークラスを定義しています。環境変数から取得するEnvironmentSendModeStrategyが実装されていて、これがデフォルトで利用されます。他の手段で取得する場合はここで実装し、`lineNotifyMessengerApp`クラスのコンストラクタでDIします。
+  - `src/strategies/sendModeStrategy.ts`: ISendModeStrategyを実装したクラス。送信モードを取得する手段をストラテジークラスを定義しています。環境変数から取得するEnvironmentSendModeStrategyが実装されていて、これがデフォルトで利用されます。他の手段で取得する場合はここで実装し、`LineNotifyMessengerApp`クラスのコンストラクタでDIします。
 - IaC
   - `bin/line-notify-messenger.ts`: AWS CDKアプリケーションのエントリポイント。スタックを作成し、デプロイするための設定を行います。
   - `lib/lambda-stack.ts`: AWSリソースを定義するCDKスタック。AWS Lambda関数の設定が記述されています。

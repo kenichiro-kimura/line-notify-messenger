@@ -3,14 +3,13 @@ import 'reflect-metadata';
 import { container } from 'tsyringe';
 import { S3ImageStorage } from '@repositories/s3ImageStorage';
 import { JimpImageConverter } from '@utils/jimpImageConverter';
-import { LambdaLineNotifyMessenger } from '@core/lambdaLineNotifyMessenger';
+import { LambdaHttpRequestHandler } from '@handlers/lambdaHttpRequestHandler';
 import { LineNotifyMessengerApp } from '@core/lineNotifyMessengerApp';
-import { LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
+import { AwsLambdaHttpResponse, IHttpRequestHandler } from '@interfaces/httpRequestHandler';
 import { DynamoGroupRepository } from '@repositories/dynamoGroupRepository';
 import { IImageStorage } from '@interfaces/imageStorage';
 import { IImageConverter } from '@interfaces/imageConverter';
 import { IGroupRepository } from '@interfaces/groupRepository';
-import { ILineNotifyMessenger } from '@interfaces/lineNotifyMessenger';
 import { ISendModeStrategy } from '@interfaces/sendModeStrategy';
 import { EnvironmentSendModeStrategy } from '@strategies/sendModeStrategy';
 import LineService from '@services/lineService';
@@ -33,7 +32,7 @@ import LineService from '@services/lineService';
  * @param event - 受け取るイベントオブジェクト
  * @returns HTTP応答オブジェクト
  */
-export const handler = async (event: any): Promise<LambdaHttpResponse> => {
+export const handler = async (event: any): Promise<AwsLambdaHttpResponse> => {
     console.log('Received event:', JSON.stringify(event, null, 2));
 
     // 環境変数のチェック
@@ -61,7 +60,7 @@ export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     container.registerInstance<IImageStorage>('IImageStorage', new S3ImageStorage(bucketName, s3Region));
     container.register<IImageConverter>('IImageConverter', JimpImageConverter);
     container.registerInstance<IGroupRepository>('IGroupRepository', new DynamoGroupRepository(tableName, dynamoRegion));
-    container.registerInstance<ILineNotifyMessenger>('ILineNotifyMessenger', new LambdaLineNotifyMessenger(event));
+    container.registerInstance<IHttpRequestHandler>('IHttpRequestHandler', new LambdaHttpRequestHandler(event));
     container.register<ISendModeStrategy>('ISendModeStrategy', { useClass: EnvironmentSendModeStrategy });
     container.register('LineService', { useClass: LineService });
     
@@ -69,5 +68,5 @@ export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     const app = container.resolve(LineNotifyMessengerApp);
 
     // リクエスト処理を委譲し、結果を返す
-    return await app.processRequest() as LambdaHttpResponse;
+    return await app.processRequest() as AwsLambdaHttpResponse;
 };

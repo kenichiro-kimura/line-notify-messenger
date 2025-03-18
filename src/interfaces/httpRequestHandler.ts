@@ -4,14 +4,14 @@
  * Azure Functions用のHTTPレスポンスクラス
  * Azure Functions環境でHTTPレスポンスを表現します
  */
-export class FunctionsHttpResponse {
+export class AzureFunctionsHttpResponse {
     /** HTTPステータスコード */
     public status: number;
     /** レスポンスボディの内容 */
     public body: string;
 
     /**
-     * FunctionsHttpResponseのコンストラクタ
+     * AzureFunctionsHttpResponseのコンストラクタ
      * @param status - HTTPステータスコード
      * @param body - レスポンスボディの内容
      */
@@ -25,14 +25,14 @@ export class FunctionsHttpResponse {
  * AWS Lambda用のHTTPレスポンスクラス
  * API Gateway + Lambda環境でHTTPレスポンスを表現します
  */
-export class LambdaHttpResponse {
+export class AwsLambdaHttpResponse {
     /** HTTPステータスコード */
     public statusCode: number;
     /** レスポンスボディの内容 */
     public body: string;
 
     /**
-     * LambdaHttpResponseのコンストラクタ
+     * AwsLambdaHttpResponseのコンストラクタ
      * @param statusCode - HTTPステータスコード
      * @param body - レスポンスボディの内容
      */
@@ -47,14 +47,14 @@ export class LambdaHttpResponse {
  * 異なる実行環境（Azure Functions、AWS Lambda）間で
  * HTTPリクエスト処理を抽象化します
  */
-export interface ILineNotifyMessenger {
+export interface IHttpRequestHandler {
     /**
      * HTTP応答オブジェクトを生成します
      * @param status - HTTPステータスコード
      * @param body - レスポンスボディの内容
      * @returns 実行環境に対応したHTTPレスポンスオブジェクト
      */
-    buildHttpResponse(status: number, body: string): FunctionsHttpResponse | LambdaHttpResponse;
+    buildHttpResponse(status: number, body: string): AzureFunctionsHttpResponse | AwsLambdaHttpResponse;
     
     /**
      * リクエストURLからパス部分を取得します

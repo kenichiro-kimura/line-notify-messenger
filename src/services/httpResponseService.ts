@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { FunctionsHttpResponse, ILineNotifyMessenger, LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
+import { AzureFunctionsHttpResponse, IHttpRequestHandler, AwsLambdaHttpResponse } from '@interfaces/httpRequestHandler';
 import { inject, injectable } from 'tsyringe';
 
 /**
@@ -8,17 +8,17 @@ import { inject, injectable } from 'tsyringe';
  */
 @injectable()
 export class HttpResponseService {
-    /** HTTPリクエスト/レスポンス処理を担当するメッセンジャー */
-    private messenger: ILineNotifyMessenger;
+    /** HTTPリクエスト/レスポンス処理を担当するハンドラー */
+    private handler: IHttpRequestHandler;
 
     /**
      * HttpResponseServiceのコンストラクタ
-     * @param messenger HTTPリクエスト/レスポンス処理用メッセンジャー
+     * @param handler HTTPリクエスト/レスポンス処理用ハンドラー
      */
     constructor(
-        @inject('ILineNotifyMessenger') messenger: ILineNotifyMessenger,
+        @inject('IHttpRequestHandler') handler: IHttpRequestHandler,
     ) {
-        this.messenger = messenger;
+        this.handler = handler;
     }
 
     /**
@@ -26,8 +26,8 @@ export class HttpResponseService {
      * @param message エラーメッセージ
      * @returns HTTP 401レスポンスオブジェクト
      */
-    httpUnAuthorizedErrorMessage(message: string): LambdaHttpResponse | FunctionsHttpResponse {
-        return this.messenger.buildHttpResponse(401, message);
+    httpUnAuthorizedErrorMessage(message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse {
+        return this.handler.buildHttpResponse(401, message);
     }
 
     /**
@@ -35,8 +35,8 @@ export class HttpResponseService {
      * @param message エラーメッセージ
      * @returns HTTP 500レスポンスオブジェクト
      */
-    httpInternalServerErrorMessage(message: string): LambdaHttpResponse | FunctionsHttpResponse {
-        return this.messenger.buildHttpResponse(500, message);
+    httpInternalServerErrorMessage(message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse {
+        return this.handler.buildHttpResponse(500, message);
     }
 
     /**
@@ -44,7 +44,7 @@ export class HttpResponseService {
      * @param message 応答メッセージ
      * @returns HTTP 200レスポンスオブジェクト
      */
-    httpOkMessage(message: string): LambdaHttpResponse | FunctionsHttpResponse {
-        return this.messenger.buildHttpResponse(200, message);
+    httpOkMessage(message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse {
+        return this.handler.buildHttpResponse(200, message);
     }
 }

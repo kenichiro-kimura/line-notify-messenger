@@ -4,13 +4,13 @@
 
 - AWS Lambda/Azure Functions以外の環境向けの実装を追加する場合、以下の手順に従って実装を追加してください。
   - 実行環境特有のロジック
-    - 主にHTTPの入出力など環境特有の処理について、`src/interfaces/lineNotifyMessenger.ts`を実装したクラスを作成してください。
+    - 主にHTTPの入出力など環境特有の処理について、`src/interfaces/httpRequestHandler.ts`を実装したクラスを作成してください。
   - 画像保存
     - 画像を保存するサービスとして、`src/interfaces/imageStorage.ts`を実装したクラスを作成してください。
   - グループID保存
     - グループIDを保存するサービスとして`src/interfaces/groupRepository.ts`を実装したクラスを作成してください。
   - エンドポイントの作成
-    - `src/lambdahandler.ts`や`src/functions/HttpTrigger.ts`を参考に、環境固有のエンドポイントを作成してください。基本的には必要な環境変数をチェックしたら、ILineNotifyMessenger/IImageStorage/IGroupRepositoryを実装したクラスをDIして`LineNotifyMessengerApp`のインスタンスを作成し、`processRequest()`メソッドを呼んでください。
+    - `src/lambdahandler.ts`や`src/functions/HttpTrigger.ts`を参考に、環境固有のエンドポイントを作成してください。基本的には必要な環境変数をチェックしたら、IHttpRequestHandler/IImageStorage/IGroupRepositoryを実装したクラスをDIして`LineNotifyMessengerApp`のインスタンスを作成し、`processRequest()`メソッドを呼んでください。
   - IaCとCI/CDの追加
     - 可能であれば環境を構築するためのIaCならびにデプロイするためのワークフローファイルを追加してください。難しい場合は、READMEに手動でのデプロイ手順を追加してください。
   - テストの追加
