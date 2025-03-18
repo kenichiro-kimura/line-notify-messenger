@@ -1,20 +1,20 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { ILineNotifyMessenger, FunctionsHttpResponse } from '@interfaces/lineNotifyMessenger';
+import { IHttpRequestHandler , AzureFunctionsHttpResponse } from '@interfaces/httpRequestHandler';
 
 /**
  * Azure Functions環境用のLINE Notify Messengerの実装クラス
  * HTTP要求を処理し、LINE Notifyに必要なデータを抽出するためのメソッドを提供します
  * 
  * このクラスはHTTPリクエストオブジェクトをラップし、LINE Notifyに関連する
- * データ処理とレスポンス生成の責務を担います。ILineNotifyMessengerインターフェースを実装し、
+ * データ処理とレスポンス生成の責務を担います。IHttpRequestHandlerインターフェースを実装し、
  * Azure Functions固有の実装を提供します。
  */
-export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
+export class FunctionsHttpRequestHandler implements IHttpRequestHandler {
     /** Azure Functionsから受け取ったHTTPリクエストオブジェクト */
     private request: any;
 
     /**
-     * FunctionsLineNotifyMessengerのコンストラクタ
+     * FunctionsHttpRequestHandlerのコンストラクタ
      * @param request - Azure Functionsから受け取ったHTTPリクエストオブジェクト
      */
     constructor(request: any) {
@@ -27,8 +27,8 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
      * @param message - レスポンスメッセージ
      * @returns 生成されたHTTP応答オブジェクト
      */
-    public buildHttpResponse(status: number, message: string): FunctionsHttpResponse {
-        return new FunctionsHttpResponse(status, message);
+    public buildHttpResponse(status: number, message: string): AzureFunctionsHttpResponse {
+        return new AzureFunctionsHttpResponse(status, message);
     }
 
     /**

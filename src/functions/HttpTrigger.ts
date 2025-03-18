@@ -3,14 +3,14 @@ import { container } from 'tsyringe';
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { BlobImageStorage } from "@repositories/blobImageStorage";
 import { JimpImageConverter } from "@utils/jimpImageConverter";
-import { FunctionsLineNotifyMessenger } from "@core/functionsLineNotifyMessenger";
+import { FunctionsHttpRequestHandler } from "@handlers/functionsHttpRequestHandler";
 import { LineNotifyMessengerApp } from "@core/lineNotifyMessengerApp";
-import { FunctionsHttpResponse } from "@interfaces/lineNotifyMessenger";
+import { AzureFunctionsHttpResponse } from "@interfaces/httpRequestHandler";
 import { TableStorageGroupRepository } from "@repositories/tableStorageGroupRepository";
 import { IImageStorage } from '@interfaces/imageStorage';
 import { IImageConverter } from '@interfaces/imageConverter';
 import { IGroupRepository } from '@interfaces/groupRepository';
-import { ILineNotifyMessenger } from '@interfaces/lineNotifyMessenger';
+import { IHttpRequestHandler } from '@interfaces/httpRequestHandler';
 import { ISendModeStrategy } from '@interfaces/sendModeStrategy';
 import { EnvironmentSendModeStrategy } from '@strategies/sendModeStrategy';
 import LineService from '@services/lineService';
@@ -53,14 +53,14 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
     container.registerInstance<IImageStorage>('IImageStorage', new BlobImageStorage(blobConnectionString, blobName));
     container.register<IImageConverter>('IImageConverter', JimpImageConverter);
     container.registerInstance<IGroupRepository>('IGroupRepository', new TableStorageGroupRepository(tableConnectionString, tableName));
-    container.registerInstance<ILineNotifyMessenger>('ILineNotifyMessenger', new FunctionsLineNotifyMessenger(request));
+    container.registerInstance<IHttpRequestHandler>('IHttpRequestHandler', new FunctionsHttpRequestHandler(request));
     container.register<ISendModeStrategy>('ISendModeStrategy', { useClass: EnvironmentSendModeStrategy });
     container.register('LineService', { useClass: LineService });
 
     // TsyringeでLineNotifyMessengerAppを解決
     const app = container.resolve(LineNotifyMessengerApp);
 
-    return await app.processRequest() as FunctionsHttpResponse;
+    return await app.processRequest() as AzureFunctionsHttpResponse;
 }
 
 /**

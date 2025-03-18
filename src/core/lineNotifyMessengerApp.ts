@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import { FunctionsHttpResponse, ILineNotifyMessenger, LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
+import { AzureFunctionsHttpResponse, IHttpRequestHandler, AwsLambdaHttpResponse } from '@interfaces/httpRequestHandler';
 import { IImageStorage } from '@interfaces/imageStorage';
 import { IImageConverter } from '@interfaces/imageConverter';
 import LineService from '@services/lineService';
@@ -15,8 +15,8 @@ import { inject, injectable } from 'tsyringe';
  */
 @injectable()
 export class LineNotifyMessengerApp {
-    /** HTTPリクエスト/レスポンス処理を担当するメッセンジャー */
-    private messenger: ILineNotifyMessenger;
+    /** HTTPリクエスト/レスポンス処理を担当するハンドラー */
+    private handler: IHttpRequestHandler;
     /** LINE APIとの通信を担当するサービス */
     private lineService: LineService;
     /** LINEグループ情報の保存と取得を担当するリポジトリ */
@@ -30,7 +30,7 @@ export class LineNotifyMessengerApp {
      * LineNotifyMessengerAppのコンストラクタ
      * 依存性注入によって必要なサービスとコンポーネントを受け取ります
      * 
-     * @param messenger - HTTPリクエスト/レスポンス処理用メッセンジャー
+     * @param handler - HTTPリクエスト/レスポンス処理用ハンドラー
      * @param lineChannelAccessToken - LINE APIアクセス用トークン
      * @param imageStorage - 画像の保存と取得を担当するストレージ
      * @param imageConverter - 画像形式の変換を担当するコンバーター
@@ -39,7 +39,7 @@ export class LineNotifyMessengerApp {
      * @param lineService - LINE API通信用サービス
      */
     constructor(
-        @inject('ILineNotifyMessenger') messenger: ILineNotifyMessenger,
+        @inject('IHttpRequestHandler') handler: IHttpRequestHandler,
         @inject('LineChannelAccessToken') lineChannelAccessToken: string,
         @inject('IImageStorage') imageStorage: IImageStorage,
         @inject('IImageConverter') imageConverter: IImageConverter,
@@ -47,11 +47,11 @@ export class LineNotifyMessengerApp {
         @inject('ISendModeStrategy') sendModeStrategy: ISendModeStrategy,
         @inject('LineService') lineService: LineService,
     ) {
-        this.messenger = messenger;
+        this.handler = handler;
         this.lineService = lineService;
         this.groupRepository = groupRepository;
         this.sendModeStrategy = sendModeStrategy;
-        this.requestHandler = new RequestHandler(messenger); // RequestHandler を初期化
+        this.requestHandler = new RequestHandler(handler); // RequestHandler を初期化
     }
     
     /**
@@ -59,8 +59,8 @@ export class LineNotifyMessengerApp {
      * @param message - エラーメッセージ
      * @returns 401 Unauthorizedレスポンス
      */
-    private httpUnAuthorizedErrorMessage = (message: string): LambdaHttpResponse | FunctionsHttpResponse => {
-        return this.messenger.buildHttpResponse(401, message);
+    private httpUnAuthorizedErrorMessage = (message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse => {
+        return this.handler.buildHttpResponse(401, message);
     };
 
     /**
@@ -68,8 +68,8 @@ export class LineNotifyMessengerApp {
      * @param message - エラーメッセージ
      * @returns 500 Internal Server Errorレスポンス
      */
-    private httpInternalServerErrorMessage = (message: string): LambdaHttpResponse | FunctionsHttpResponse => {
-        return this.messenger.buildHttpResponse(500, message);
+    private httpInternalServerErrorMessage = (message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse => {
+        return this.handler.buildHttpResponse(500, message);
     };
 
     /**
@@ -77,8 +77,8 @@ export class LineNotifyMessengerApp {
      * @param message - 応答メッセージ
      * @returns 200 OKレスポンス
      */
-    private httpOkMessage = (message: string): LambdaHttpResponse | FunctionsHttpResponse => {
-        return this.messenger.buildHttpResponse(200, message);
+    private httpOkMessage = (message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse => {
+        return this.handler.buildHttpResponse(200, message);
     };
 
     /**
@@ -171,7 +171,7 @@ export class LineNotifyMessengerApp {
      * 通知サービスリクエスト、LINEウェブフック、ヘルスチェックなどを処理します
      * @returns HTTPレスポンスオブジェクト
      */
-    async processRequest(): Promise<LambdaHttpResponse | FunctionsHttpResponse> {
+    async processRequest(): Promise<AwsLambdaHttpResponse | AzureFunctionsHttpResponse> {
         const sendMode = this.getSendMode();
 
         if (this.requestHandler.isNotifyServiceRequest()) {

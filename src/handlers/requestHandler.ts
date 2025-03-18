@@ -1,25 +1,25 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import { ILineNotifyMessenger } from '@interfaces/lineNotifyMessenger';
+import { IHttpRequestHandler } from '@interfaces/httpRequestHandler';
 import { inject, injectable } from 'tsyringe';
 
 /**
  * HTTPリクエスト処理を担当するハンドラークラス
- * ILineNotifyMessengerを利用してリクエストの解析と必要なデータの抽出を行います
+ * IHttpRequestHandlerを利用してリクエストの解析と必要なデータの抽出を行います
  */
 @injectable()
 export class RequestHandler {
-    /** HTTPリクエスト/レスポンス処理を担当するメッセンジャー */
-    private messenger: ILineNotifyMessenger;
+    /** HTTPリクエスト/レスポンス処理を担当するハンドラー */
+    private handler: IHttpRequestHandler;
 
     /**
      * RequestHandlerのコンストラクタ
-     * @param messenger - HTTPリクエスト/レスポンス処理用メッセンジャー
+     * @param handler - HTTPリクエスト/レスポンス処理用ハンドラー
      */
     constructor(
-        @inject('ILineNotifyMessenger') messenger: ILineNotifyMessenger,
+        @inject('IHttpRequestHandler') handler: IHttpRequestHandler,
     ) {
-        this.messenger = messenger;
+        this.handler = handler;
     }
 
     /**
@@ -27,7 +27,7 @@ export class RequestHandler {
      * @returns Bearerトークン（存在しない場合は空文字列）
      */
     getBearerToken(): string {
-        return this.messenger.getHttpHeader('Authorization').split('Bearer ')[1] || '';
+        return this.handler.getHttpHeader('Authorization').split('Bearer ')[1] || '';
     }
 
     /**
@@ -39,9 +39,9 @@ export class RequestHandler {
      * @returns 通知サービス向けの場合はtrue、そうでない場合はfalse
      */
     isNotifyServiceRequest(): boolean {
-        const path = this.messenger.getHttpRequestPath();
-        const method = this.messenger.getHttpMethod();
-        const contentType = this.messenger.getHttpHeader('Content-Type');
+        const path = this.handler.getHttpRequestPath();
+        const method = this.handler.getHttpMethod();
+        const contentType = this.handler.getHttpHeader('Content-Type');
 
         return (
             path === '/notify' &&
@@ -55,15 +55,15 @@ export class RequestHandler {
      * @returns 解析されたJSONオブジェクト
      */
     async getRequestBody(): Promise<any> {
-        return JSON.parse(await this.messenger.getHttpBodyAsync());
+        return JSON.parse(await this.handler.getHttpBodyAsync());
     }
 
     /**
      * フォームデータを取得して処理します
-     * 実際の処理はILineNotifyMessengerの実装に委譲されます
+     * 実際の処理はIHttpRequestHandlerの実装に委譲されます
      * @returns 処理されたフォームデータ
      */
     async getFormData(): Promise<any> {
-        return this.messenger.getHttpFormDataAsync();
+        return this.handler.getHttpFormDataAsync();
     }
 }
