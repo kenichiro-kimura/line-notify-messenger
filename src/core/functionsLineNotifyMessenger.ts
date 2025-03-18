@@ -91,14 +91,6 @@ export class FunctionsLineNotifyMessenger implements ILineNotifyMessenger {
     }
 
     /**
-     * リクエストデータからテキストボディを取得します
-     * @returns リクエストボディの文字列表現を含むPromise
-     */
-    public async getRequestBodyText(): Promise<string> {
-        return await this.request.text();
-    }
-
-    /**
      * リクエストがLINE Notifyのルートを使用しているかチェックします
      * @returns notifyルートを使用している場合はtrue、そうでなければfalse
      */
