@@ -2,15 +2,31 @@
 import { IGroupRepository } from "@interfaces/groupRepository";
 import { TableClient, TableServiceClient, TableEntity, odata } from "@azure/data-tables";
 
+/**
+ * LINEグループエンティティの型定義
+ * Azure Table Storageに保存するグループ情報のスキーマを定義します
+ */
 interface GroupEntity extends TableEntity {
   groupName: string;
 }
 
+/**
+ * Azure Table Storageを使用したLINEグループ情報リポジトリの実装クラス
+ * IGroupRepositoryインターフェースを実装し、Table StorageにLINEグループIDを保存・取得する機能を提供します
+ */
 export class TableStorageGroupRepository implements IGroupRepository {
+  /** Table Storage のテーブル名 */
   private readonly tableName: string;
+  /** Table Storage クライアント */
   private readonly tableClient: TableClient;
-  private readonly partitionKey = "groups"; // すべてのグループに共通のパーティションキー
+  /** すべてのグループエンティティに共通のパーティションキー */
+  private readonly partitionKey = "groups";
 
+  /**
+   * TableStorageGroupRepositoryのコンストラクタ
+   * @param connectionString Azure Table Storageの接続文字列
+   * @param tableName グループ情報を保存するテーブル名
+   */
   constructor(connectionString: string, tableName: string) {
     this.tableName = tableName;
 
@@ -28,6 +44,14 @@ export class TableStorageGroupRepository implements IGroupRepository {
     });
   }
 
+  /**
+   * 新しいグループIDをTable Storageに追加します
+   * 既に同じIDが存在する場合はマージ操作を行います
+   * 
+   * @param groupName 追加するLINEグループID
+   * @returns 処理完了を表すPromise
+   * @throws エラーが発生した場合は例外をスローします
+   */
   public async add(groupName: string): Promise<void> {
     try {
       const entity: GroupEntity = {
@@ -44,6 +68,14 @@ export class TableStorageGroupRepository implements IGroupRepository {
     }
   }
 
+  /**
+   * 指定したグループIDをTable Storageから削除します
+   * 存在しない場合は無視します
+   * 
+   * @param groupName 削除するLINEグループID
+   * @returns 処理完了を表すPromise
+   * @throws 404エラー以外のエラーが発生した場合は例外をスローします
+   */
   public async remove(groupName: string): Promise<void> {
     try {
       await this.tableClient.deleteEntity(this.partitionKey, groupName);
@@ -57,6 +89,11 @@ export class TableStorageGroupRepository implements IGroupRepository {
     }
   }
 
+  /**
+   * Table Storageに保存されているすべてのグループIDを取得します
+   * 
+   * @returns グループIDの配列を含むPromise
+   */
   public async listAll(): Promise<string[]> {
     const entities: GroupEntity[] = [];
     
@@ -73,4 +110,3 @@ export class TableStorageGroupRepository implements IGroupRepository {
     return entities.map(entity => entity.groupName);
   }
 }
-

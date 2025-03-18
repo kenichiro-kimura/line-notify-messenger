@@ -1,12 +1,18 @@
 import { IImageStorage } from '@interfaces/imageStorage';
 import { BlobServiceClient, ContainerClient, StorageSharedKeyCredential, generateBlobSASQueryParameters, BlobSASPermissions } from '@azure/storage-blob';
 
+/**
+ * Azure Blob Storageを使用した画像ストレージの実装クラス
+ * IImageStorageインターフェースを実装し、Azure Blob Storageに画像を保存・取得する機能を提供します
+ */
 export class BlobImageStorage implements IImageStorage {
+  /** Azure Blob Storageのコンテナクライアント */
   private readonly containerClient: ContainerClient;
+  /** Azure Storageの共有キー認証情報 */
   private readonly sharedKeyCredential: StorageSharedKeyCredential;
 
   /**
-   * コンストラクタ
+   * BlobImageStorageのコンストラクタ
    * @param connectionString Azure Blob Storage の接続文字列
    * @param containerName アップロード先のコンテナ名
    */
@@ -19,7 +25,6 @@ export class BlobImageStorage implements IImageStorage {
     const accountNameSegment = segments.find(segment => segment.startsWith("AccountName="));
     const accountKeySegment = segments.find(segment => segment.startsWith("AccountKey="));
 
-    // 接続文字列から AccountName と AccountKey を抽出
     const accountName = accountNameSegment?.split('=')[1];
     const accountKey = accountKeySegment?.split('=')[1];
 
@@ -41,6 +46,7 @@ export class BlobImageStorage implements IImageStorage {
     await this.containerClient.createIfNotExists({ access: 'container' });
     const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
 
+    // 画像データのアップロード
     await blockBlobClient.uploadData(image, {
       blobHTTPHeaders: { blobContentType: contentType },
     });
