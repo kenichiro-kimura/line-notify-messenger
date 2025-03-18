@@ -1,10 +1,15 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+import 'reflect-metadata';
 import { IGroupRepository } from '@interfaces/groupRepository';
+import { inject, injectable } from 'tsyringe';
 
+@injectable()
 export class GroupService {
     private groupRepository: IGroupRepository;
 
-    constructor(groupRepository: IGroupRepository) {
+    constructor(
+        @inject('IGroupRepository') groupRepository: IGroupRepository,
+    ) {
         this.groupRepository = groupRepository;
     }
 

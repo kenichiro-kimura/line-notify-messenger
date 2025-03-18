@@ -1,9 +1,14 @@
+import 'reflect-metadata';
 import { FunctionsHttpResponse, ILineNotifyMessenger, LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
+import { inject, injectable } from 'tsyringe';
 
+@injectable()
 export class HttpResponseService {
     private messenger: ILineNotifyMessenger;
 
-    constructor(messenger: ILineNotifyMessenger) {
+    constructor(
+        @inject('ILineNotifyMessenger') messenger: ILineNotifyMessenger,
+    ) {
         this.messenger = messenger;
     }
 

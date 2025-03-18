@@ -1,15 +1,22 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+import 'reflect-metadata';
+import { container } from 'tsyringe';
 import { S3ImageStorage } from '@repositories/s3ImageStorage';
 import { JimpImageConverter } from '@utils/jimpImageConverter';
 import { LambdaLineNotifyMessenger } from '@core/lambdaLineNotifyMessenger';
 import { LineNotifyMessengerApp } from '@core/lineNotifyMessengerApp';
 import { LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
 import { DynamoGroupRepository } from '@repositories/dynamoGroupRepository';
+import { IImageStorage } from '@interfaces/imageStorage';
+import { IImageConverter } from '@interfaces/imageConverter';
+import { IGroupRepository } from '@interfaces/groupRepository';
+import { ILineNotifyMessenger } from '@interfaces/lineNotifyMessenger';
+import { ISendModeStrategy } from '@interfaces/sendModeStrategy';
+import { EnvironmentSendModeStrategy } from '@strategies/sendModeStrategy';
+import LineService from '@services/lineService';
 
 export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     console.log('Received event:', JSON.stringify(event, null, 2));
-
-    const messenger = new LambdaLineNotifyMessenger(event);
 
     const lineChannelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
     if (!lineChannelAccessToken) {
@@ -30,7 +37,17 @@ export const handler = async (event: any): Promise<LambdaHttpResponse> => {
         throw new Error('TABLE_NAME or DYNAMO_REGION is not set');
     }
 
-    const app = new LineNotifyMessengerApp(messenger, lineChannelAccessToken, new S3ImageStorage(bucketName, s3Region), new JimpImageConverter(), new DynamoGroupRepository(tableName, dynamoRegion));
+    // Tsyringeで依存関係を登録
+    container.registerInstance('LineChannelAccessToken', lineChannelAccessToken);
+    container.registerInstance<IImageStorage>('IImageStorage', new S3ImageStorage(bucketName, s3Region));
+    container.register<IImageConverter>('IImageConverter', JimpImageConverter);
+    container.registerInstance<IGroupRepository>('IGroupRepository', new DynamoGroupRepository(tableName, dynamoRegion));
+    container.registerInstance<ILineNotifyMessenger>('ILineNotifyMessenger', new LambdaLineNotifyMessenger(event));
+    container.register<ISendModeStrategy>('ISendModeStrategy', { useClass: EnvironmentSendModeStrategy });
+    container.register('LineService', { useClass: LineService });
+    
+    // TsyringeでLineNotifyMessengerAppを解決
+    const app = container.resolve(LineNotifyMessengerApp);
 
     return await app.processRequest() as LambdaHttpResponse;
 };

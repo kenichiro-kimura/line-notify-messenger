@@ -1,13 +1,15 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+import 'reflect-metadata';
 import { FunctionsHttpResponse, ILineNotifyMessenger, LambdaHttpResponse } from '@interfaces/lineNotifyMessenger';
 import { IImageStorage } from '@interfaces/imageStorage';
 import { IImageConverter } from '@interfaces/imageConverter';
 import LineService from '@services/lineService';
 import { IGroupRepository } from '@interfaces/groupRepository';
 import { SendMode, ISendModeStrategy } from '@interfaces/sendModeStrategy';
-import { EnvironmentSendModeStrategy } from '@strategies/sendModeStrategy';
 import { RequestHandler } from '@handlers/requestHandler';
+import { inject, injectable } from 'tsyringe';
 
+@injectable()
 export class LineNotifyMessengerApp {
     private messenger: ILineNotifyMessenger;
     private lineService: LineService;
@@ -16,20 +18,21 @@ export class LineNotifyMessengerApp {
     private requestHandler: RequestHandler;
 
     constructor(
-        messenger: ILineNotifyMessenger,
-        lineChannelAccessToken: string,
-        imageStorage: IImageStorage,
-        imageConverter: IImageConverter,
-        groupRepository: IGroupRepository,
-        sendModeStrategy: ISendModeStrategy = new EnvironmentSendModeStrategy() // デフォルトで環境変数を使用
+        @inject('ILineNotifyMessenger') messenger: ILineNotifyMessenger,
+        @inject('LineChannelAccessToken') lineChannelAccessToken: string,
+        @inject('IImageStorage') imageStorage: IImageStorage,
+        @inject('IImageConverter') imageConverter: IImageConverter,
+        @inject('IGroupRepository') groupRepository: IGroupRepository,
+        @inject('ISendModeStrategy') sendModeStrategy: ISendModeStrategy,
+        @inject('LineService') lineService: LineService,
     ) {
         this.messenger = messenger;
+        this.lineService = lineService;
         this.groupRepository = groupRepository;
-        this.lineService = new LineService(lineChannelAccessToken, imageStorage, imageConverter);
         this.sendModeStrategy = sendModeStrategy;
         this.requestHandler = new RequestHandler(messenger); // RequestHandler を初期化
     }
-
+    
     private httpUnAuthorizedErrorMessage = (message: string): LambdaHttpResponse | FunctionsHttpResponse => {
         return this.messenger.buildHttpResponse(401, message);
     };

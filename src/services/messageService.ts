@@ -1,15 +1,22 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+import 'reflect-metadata';
 import { SendMode } from '@interfaces/sendModeStrategy';
 import LineService from '@services/lineService';
 import { GroupService } from '@services/groupService';
 import { ISendModeStrategy } from '@interfaces/sendModeStrategy';
+import { inject, injectable } from 'tsyringe';
 
+@injectable()
 export class MessageService {
     private lineService: LineService;
     private groupService: GroupService;
     private sendModeStrategy: ISendModeStrategy;
 
-    constructor(lineService: LineService, groupService: GroupService, sendModeStrategy: ISendModeStrategy) {
+    constructor(
+        @inject('LineService') lineService: LineService,
+        @inject('IGroupService') groupService: GroupService,
+        @inject('ISendModeStrategy') sendModeStrategy: ISendModeStrategy
+    ) {
         this.lineService = lineService;
         this.groupService = groupService;
         this.sendModeStrategy = sendModeStrategy;

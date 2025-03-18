@@ -5,7 +5,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
 ## 構成
 
-- ハンドラー
+- エントリポイント
   - `src/lambdahandler.ts`: AWS Lambdaのエントリポイント。
   - `src/functions/handler.ts`: Azure Functionsのエントリポイント。
 - メインロジック
@@ -59,6 +59,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
    ```bash
    npm run build
    ```
+
 ### AWS
 
 1. 環境変数`LINE_CHANNEL_ACCESS_TOKEN`に、LINE Messaging APIのチャンネルアクセストークンを設定します。
@@ -110,7 +111,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
    この場合、`npm run deploy`を実行すると、スタック名が`LineNotifyMessengerS3Stack-xxxx`と`LineNotifyMessengerLambdaStack-xxxx`になります。
 
-### Azure 
+### Azure
 
 1. 以下のボタンを押して環境を構築します。LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
 
@@ -122,7 +123,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
 4. 同じくForkしたリポジトリのActionsのVariables `FUNCTION_NAME` に、Azure Functionsの関数名を登録します。
 
-5. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します
+5. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。
 
 ## 使用方法
 
