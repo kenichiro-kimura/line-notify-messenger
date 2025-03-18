@@ -15,9 +15,28 @@ import { ISendModeStrategy } from '@interfaces/sendModeStrategy';
 import { EnvironmentSendModeStrategy } from '@strategies/sendModeStrategy';
 import LineService from '@services/lineService';
 
+/**
+ * AWS Lambda用のメインハンドラー関数
+ * HTTPリクエストを処理し、LINE Notifyメッセージを送信します
+ * 
+ * 環境変数から必要な設定を読み込み、依存性注入を設定して
+ * LineNotifyMessengerAppにリクエスト処理を委譲します
+ * 
+ * 必要な環境変数:
+ * - LINE_CHANNEL_ACCESS_TOKEN: LINE Messaging API用のアクセストークン
+ * - BUCKET_NAME: 画像保存用のS3バケット名
+ * - S3_REGION: S3バケットのAWSリージョン
+ * - TABLE_NAME: グループ情報保存用のDynamoDBテーブル名
+ * - DYNAMO_REGION: DynamoDBのAWSリージョン
+ * - SEND_MODE: 送信モード（broadcast、group、all）（オプション）
+ * 
+ * @param event - 受け取るイベントオブジェクト
+ * @returns HTTP応答オブジェクト
+ */
 export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     console.log('Received event:', JSON.stringify(event, null, 2));
 
+    // 環境変数のチェック
     const lineChannelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
     if (!lineChannelAccessToken) {
         throw new Error('LINE_CHANNEL_ACCESS_TOKEN is not set');
@@ -49,5 +68,6 @@ export const handler = async (event: any): Promise<LambdaHttpResponse> => {
     // TsyringeでLineNotifyMessengerAppを解決
     const app = container.resolve(LineNotifyMessengerApp);
 
+    // リクエスト処理を委譲し、結果を返す
     return await app.processRequest() as LambdaHttpResponse;
 };

@@ -5,12 +5,25 @@ import { IImageStorage } from '@interfaces/imageStorage';
 import { IImageConverter } from '@interfaces/imageConverter';
 import { inject, injectable } from 'tsyringe';
 
+/**
+ * LINE Messaging APIと連携するサービスクラス
+ * メッセージの送信、画像の処理、および各種LINE通知の管理を担当します
+ */
 @injectable()
 class LineService {
+    /** LINE Messaging APIクライアント */
     private readonly client: line.messagingApi.MessagingApiClient;
+    /** 画像ストレージサービス */
     private readonly imageStorage: IImageStorage;
+    /** 画像変換サービス */
     private readonly imageConverter: IImageConverter;
 
+    /**
+     * LineServiceのコンストラクタ
+     * @param lineChannelAccessToken LINE Messaging API用のアクセストークン
+     * @param imageStorage 画像ストレージサービス
+     * @param imageConverter 画像変換サービス
+     */
     constructor(
         @inject('LineChannelAccessToken') lineChannelAccessToken: string,
         @inject('IImageStorage') imageStorage: IImageStorage,
@@ -21,6 +34,12 @@ class LineService {
         this.imageConverter = imageConverter;
     }
 
+    /**
+     * 特定のユーザーまたはグループにメッセージを送信します
+     * @param to 送信先のユーザーID、グループIDまたはルームID
+     * @param message 送信するテキストメッセージ
+     * @returns 送信完了を表すPromise
+     */
     public async sendMessage(to: string, message: string): Promise<void> {
         await this.client.pushMessage({
             to: to,
@@ -31,6 +50,12 @@ class LineService {
         });
     }
 
+    /**
+     * ユーザーからの受信メッセージに対して返信します
+     * @param replyToken メッセージ受信時に取得した返信用トークン
+     * @param message 返信するテキストメッセージ
+     * @returns 送信完了を表すPromise
+     */
     public async replyMessage(replyToken: string, message: string): Promise<void> {
         await this.client.replyMessage({
             replyToken: replyToken,
@@ -41,6 +66,14 @@ class LineService {
         });
     }
 
+    /**
+     * 送信データからLINE Messaging API用のメッセージオブジェクトを構築します
+     * テキスト、画像、スタンプに対応し、必要に応じて画像の変換とアップロードを行います
+     * 
+     * @param message 送信するメッセージデータ（テキスト、画像、スタンプ情報を含む）
+     * @returns LINE Messaging API形式のメッセージオブジェクト
+     * @throws 無効な画像形式の場合はエラーをスロー
+     */
     public async buildMessage(message: any): Promise<line.messagingApi.Message> {
         /*
         以下は line notifyの説明。
@@ -115,7 +148,13 @@ class LineService {
         return broadcastMessage;
     }
 
-    public async groupMessage(groupIds: string[], message: string): Promise<void> {
+    /**
+     * 指定された複数のグループにメッセージを送信します
+     * @param groupIds 送信先のグループIDリスト
+     * @param message 送信するメッセージデータ
+     * @returns 送信完了を表すPromise
+     */
+    public async groupMessage(groupIds: string[], message: any): Promise<void> {
         const groupMessage: line.messagingApi.Message = await this.buildMessage(message);
         for (const groupId of groupIds) {
             await this.client.pushMessage({
@@ -127,6 +166,11 @@ class LineService {
         }
     }
 
+    /**
+     * 全ての友達に一斉にメッセージをブロードキャスト送信します
+     * @param message 送信するメッセージデータ
+     * @returns 送信完了を表すPromise
+     */
     public async broadcastMessage(message: any): Promise<void> {
         const notificationDisabled: boolean = message.notificationDisabled || false;
         const broadcastMessage: line.messagingApi.Message = await this.buildMessage(message);        
