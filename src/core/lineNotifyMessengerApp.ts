@@ -1,8 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 import { AzureFunctionsHttpResponse, IHttpRequestHandler, AwsLambdaHttpResponse } from '@interfaces/httpRequestHandler';
-import { IImageStorage } from '@interfaces/imageStorage';
-import { IImageConverter } from '@interfaces/imageConverter';
 import LineService from '@services/lineService';
 import { IGroupRepository } from '@interfaces/groupRepository';
 import { SendMode, ISendModeStrategy } from '@interfaces/sendModeStrategy';
@@ -31,18 +29,12 @@ export class LineNotifyMessengerApp {
      * 依存性注入によって必要なサービスとコンポーネントを受け取ります
      * 
      * @param handler - HTTPリクエスト/レスポンス処理用ハンドラー
-     * @param lineChannelAccessToken - LINE APIアクセス用トークン
-     * @param imageStorage - 画像の保存と取得を担当するストレージ
-     * @param imageConverter - 画像形式の変換を担当するコンバーター
      * @param groupRepository - LINEグループ情報管理用リポジトリ
      * @param sendModeStrategy - メッセージ送信モード決定用戦略
      * @param lineService - LINE API通信用サービス
      */
     constructor(
         @inject('IHttpRequestHandler') handler: IHttpRequestHandler,
-        @inject('LineChannelAccessToken') lineChannelAccessToken: string,
-        @inject('IImageStorage') imageStorage: IImageStorage,
-        @inject('IImageConverter') imageConverter: IImageConverter,
         @inject('IGroupRepository') groupRepository: IGroupRepository,
         @inject('ISendModeStrategy') sendModeStrategy: ISendModeStrategy,
         @inject('LineService') lineService: LineService,
@@ -128,20 +120,22 @@ export class LineNotifyMessengerApp {
 
     /**
      * 指定された送信モードに基づいてメッセージを送信します
-     * @param FormData - 送信するメッセージデータ
+     * @param formData - 送信するメッセージデータ
      * @param sendMode - メッセージ送信モード
      */
-    private sendMessage = async (FormData: any, sendMode: SendMode) => {
+    private sendMessage = async (formData: any) => {
+        const sendMode = this.sendModeStrategy.getSendMode();
+
         switch (sendMode) {
             case SendMode.broadcast:
-                await this.sendBroadcastMessage(FormData);
+                await this.sendBroadcastMessage(formData);
                 break;
             case SendMode.group:
-                await this.sendGroupMessage(FormData);
+                await this.sendGroupMessage(formData);
                 break;
             case SendMode.all:
-                await this.sendBroadcastMessage(FormData);
-                await this.sendGroupMessage(FormData);
+                await this.sendBroadcastMessage(formData);
+                await this.sendGroupMessage(formData);
                 break;
         }
     };
@@ -159,21 +153,11 @@ export class LineNotifyMessengerApp {
     };
 
     /**
-     * 現在設定されている送信モードを取得します
-     * @returns 現在の送信モード
-     */
-    private getSendMode = (): SendMode => {
-        return this.sendModeStrategy.getSendMode();
-    };
-
-    /**
      * HTTPリクエストを処理し、適切なレスポンスを返します
      * 通知サービスリクエスト、LINEウェブフック、ヘルスチェックなどを処理します
      * @returns HTTPレスポンスオブジェクト
      */
     async processRequest(): Promise<AwsLambdaHttpResponse | AzureFunctionsHttpResponse> {
-        const sendMode = this.getSendMode();
-
         if (this.requestHandler.isNotifyServiceRequest()) {
             const bearerToken = this.requestHandler.getBearerToken();
 
@@ -183,7 +167,7 @@ export class LineNotifyMessengerApp {
 
             const formData = await this.requestHandler.getFormData();
 
-            await this.sendMessage(formData, sendMode);
+            await this.sendMessage(formData);
             return this.httpOkMessage('Success Notify');
         }
 
