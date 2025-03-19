@@ -120,22 +120,22 @@ export class LineNotifyMessengerApp {
 
     /**
      * 指定された送信モードに基づいてメッセージを送信します
-     * @param FormData - 送信するメッセージデータ
+     * @param formData - 送信するメッセージデータ
      * @param sendMode - メッセージ送信モード
      */
-    private sendMessage = async (FormData: any) => {
+    private sendMessage = async (formData: any) => {
         const sendMode = this.sendModeStrategy.getSendMode();
 
         switch (sendMode) {
             case SendMode.broadcast:
-                await this.sendBroadcastMessage(FormData);
+                await this.sendBroadcastMessage(formData);
                 break;
             case SendMode.group:
-                await this.sendGroupMessage(FormData);
+                await this.sendGroupMessage(formData);
                 break;
             case SendMode.all:
-                await this.sendBroadcastMessage(FormData);
-                await this.sendGroupMessage(FormData);
+                await this.sendBroadcastMessage(formData);
+                await this.sendGroupMessage(formData);
                 break;
         }
     };
