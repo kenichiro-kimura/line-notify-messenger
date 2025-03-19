@@ -62,6 +62,8 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
 ### AWS
 
+[AWS CloudShell](https://aws.amazon.com/jp/cloudshell/)で作業すると楽です。独自の環境で実施される場合は、Node.js(>=20)と[AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)をインストールしておいてください。
+
 1. 環境変数`LINE_CHANNEL_ACCESS_TOKEN`に、LINE Messaging APIのチャンネルアクセストークンを設定します。
 
    bashの場合
