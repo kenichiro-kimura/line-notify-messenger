@@ -123,7 +123,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
 4. 同じくForkしたリポジトリのActionsのVariables `FUNCTION_NAME` に、Azure Functionsの関数名を登録します。
 
-5. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。
+5. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。[GitHubの公式ドキュメント](https://docs.github.com/ja/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow)を参照して下さい。
 
 ## 使用方法
 
