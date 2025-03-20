@@ -6,8 +6,8 @@ import { ICheckAuthorizationToken } from "@interfaces/checkAuthorizationToken";
  */
 export class DefaultCheckAuthorizationTokenStrategy implements ICheckAuthorizationToken {
     /**
-     * ブロードキャスト送信モードを常に返します
-     * @returns ブロードキャスト送信モード（SendMode.broadcast）
+     * デフォルトではAUTHORIZATION_TOKEN環境変数と一致するかをチェックします
+     * @returns トークンが定義されていて、環境変数と一致するかどうか
      */
     checkToken(token: string) : boolean {
         if (token) {
@@ -18,3 +18,18 @@ export class DefaultCheckAuthorizationTokenStrategy implements ICheckAuthorizati
     }
 }
 
+export class MultipleEnvironmentCheckAuthorizationTokenStrategy implements ICheckAuthorizationToken {
+    /**
+     * "AUTHORIZATION_TOKEN"という文字列で始まる全ての環境変数のいずれかと一致するかをチェックします
+     * @returns トークンが定義されていて、環境変数と一致するかどうか
+     */
+    checkToken(token: string) : boolean {
+        if (token) {
+            const keys = Object.keys(process.env);
+            const tokenKeys = keys.filter(key => key.startsWith('AUTHORIZATION_TOKEN'));
+            return tokenKeys.some(key => token === process.env[key]);
+        } else {
+            return false;
+        }
+    }
+}
