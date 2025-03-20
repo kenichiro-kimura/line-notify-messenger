@@ -6,6 +6,7 @@ import { IGroupRepository } from '@interfaces/groupRepository';
 import { SendMode, ISendModeStrategy } from '@interfaces/sendModeStrategy';
 import { RequestHandler } from '@handlers/requestHandler';
 import { inject, injectable } from 'tsyringe';
+import { ICheckAuthorizationToken } from '@interfaces/checkAuthorizationToken';
 
 /**
  * LINE Notify Messenger アプリケーションのメインクラス
@@ -23,6 +24,8 @@ export class LineNotifyMessengerApp {
     private sendModeStrategy: ISendModeStrategy;
     /** HTTPリクエストの処理とデータ抽出を行うハンドラー */
     private requestHandler: RequestHandler;
+    /** 認証トークンの検証ストラテジー */
+    private checkAuthorizationTokenStrategy;
 
     /**
      * LineNotifyMessengerAppのコンストラクタ
@@ -38,12 +41,14 @@ export class LineNotifyMessengerApp {
         @inject('IGroupRepository') groupRepository: IGroupRepository,
         @inject('ISendModeStrategy') sendModeStrategy: ISendModeStrategy,
         @inject('LineService') lineService: LineService,
+        @inject('ICheckAuthorizationToken') checkAuthorizationTokenStragety: ICheckAuthorizationToken
     ) {
         this.handler = handler;
         this.lineService = lineService;
         this.groupRepository = groupRepository;
         this.sendModeStrategy = sendModeStrategy;
-        this.requestHandler = new RequestHandler(handler); // RequestHandler を初期化
+        this.requestHandler = new RequestHandler(handler);
+        this.checkAuthorizationTokenStrategy = checkAuthorizationTokenStragety;
     }
     
     /**
@@ -161,7 +166,7 @@ export class LineNotifyMessengerApp {
         if (this.requestHandler.isNotifyServiceRequest()) {
             const bearerToken = this.requestHandler.getBearerToken();
 
-            if (!bearerToken || bearerToken !== process.env.AUTHORIZATION_TOKEN) {
+            if (! this.checkAuthorizationTokenStrategy.checkToken(bearerToken)) {
                 return this.httpUnAuthorizedErrorMessage('Invalid authorization token');
             }
 

@@ -12,7 +12,9 @@ import { IImageConverter } from '@interfaces/imageConverter';
 import { IGroupRepository } from '@interfaces/groupRepository';
 import { IHttpRequestHandler } from '@interfaces/httpRequestHandler';
 import { ISendModeStrategy } from '@interfaces/sendModeStrategy';
+import { ICheckAuthorizationToken } from '@interfaces/checkAuthorizationToken';
 import { EnvironmentSendModeStrategy } from '@strategies/sendModeStrategy';
+import { DefaultCheckAuthorizationTokenStrategy } from '@strategies/checkAuthorizationTokenStrategy';
 import LineService from '@services/lineService';
 
 /**
@@ -55,6 +57,7 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
     container.registerInstance<IGroupRepository>('IGroupRepository', new TableStorageGroupRepository(tableConnectionString, tableName));
     container.registerInstance<IHttpRequestHandler>('IHttpRequestHandler', new FunctionsHttpRequestHandler(request));
     container.register<ISendModeStrategy>('ISendModeStrategy', { useClass: EnvironmentSendModeStrategy });
+    container.register<ICheckAuthorizationToken>('ICheckAuthorizationToken', { useClass: DefaultCheckAuthorizationTokenStrategy });
     container.register('LineService', { useClass: LineService });
 
     // TsyringeでLineNotifyMessengerAppを解決
