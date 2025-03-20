@@ -27,8 +27,10 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 - グループID保存
   - `src/repositories/dynamoGroupRepository.ts`: IGroupRepositoryを実装したクラス。Amazon DynamoDBにグループIDを保存するリポジトリクラスを定義しています。
   - `src/repositories/tableStorageGroupRepository.ts`: IGroupRepositoryを実装したクラス。Azure Table StorageにグループIDを保存するリポジトリクラスを定義しています。
+- 認証トークン
+  - `src/strategies/checkAuthorizationTokenStrategy.ts`: ICheckAuthorizationTokenを実装したクラス。認証トークンの検証方法を提供するストラテジークラスを定義しています。環境変数から取得するDefaultCheckAuthorizationTokenStrategyが実装されていて、これがデフォルトで利用されます。他の手段で取得する場合はここで実装し、`LineNotifyMessengerApp`クラスのコンストラクタでDIします。
 - 送信モード
-  - `src/strategies/sendModeStrategy.ts`: ISendModeStrategyを実装したクラス。送信モードを取得する手段をストラテジークラスを定義しています。環境変数から取得するEnvironmentSendModeStrategyが実装されていて、これがデフォルトで利用されます。他の手段で取得する場合はここで実装し、`LineNotifyMessengerApp`クラスのコンストラクタでDIします。
+  - `src/strategies/sendModeStrategy.ts`: ISendModeStrategyを実装したクラス。送信モードを取得する手段を提供するストラテジークラスを定義しています。環境変数から取得するEnvironmentSendModeStrategyが実装されていて、これがデフォルトで利用されます。他の手段で取得する場合はここで実装し、`LineNotifyMessengerApp`クラスのコンストラクタでDIします。
 - IaC
   - `bin/line-notify-messenger.ts`: AWS CDKアプリケーションのエントリポイント。スタックを作成し、デプロイするための設定を行います。
   - `lib/lambda-stack.ts`: AWSリソースを定義するCDKスタック。AWS Lambda関数の設定が記述されています。
