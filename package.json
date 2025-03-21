@@ -5,16 +5,18 @@
   "main": "src/handler.ts",
   "scripts": {
     "build": "esbuild src/lambdahandler.ts --bundle --outdir=dist --external:node:buffer --external:node:crypto --external:node:stream --external:@aws-sdk/client-s3 --external:@aws-sdk/s3-request-presigner --external:@aws-sdk --external:fs --external:stream --format=cjs",
-    "cloudflare-build": "wrangler types --cwd ./src/ && wrangler build",
-    "cloudflare-dev": "wrangler types --cwd ./src/ && wrangler dev",
-    "cloudflare-deploy": "wrangler types --cwd ./src/ && wrangler deploy",
+    "wrangler-types": "wrangler types --cwd ./src/",
+    "cloudflare-build": "npm run wrangler-types && wrangler build",
+    "cloudflare-dev": "npm run wrangler-types && wrangler dev",
+    "cloudflare-deploy": "npm run update-config && npm run wrangler-types && wrangler deploy",
     "deploy": "cdk deploy '*'",
     "watch": "tsc -w",
     "test": "jest",
     "install-deps": "npm install",
     "destroy": "cdk destroy",
     "lint": "eslint --ext .ts ./",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "update-config": "node bin/update-dev-vars.js"
   },
   "dependencies": {
     "@line/bot-sdk": "^9.5.3",
