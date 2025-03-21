@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "line-notify-messenger",
+  "main": "src/cloudflareworkers.ts",
+  "compatibility_date": "2025-03-21",
+  "build": {
+    "command": "tsc"
+  }
+}
