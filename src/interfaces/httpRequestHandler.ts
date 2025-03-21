@@ -54,7 +54,7 @@ export interface IHttpRequestHandler {
      * @param body - レスポンスボディの内容
      * @returns 実行環境に対応したHTTPレスポンスオブジェクト
      */
-    buildHttpResponse(status: number, body: string): AzureFunctionsHttpResponse | AwsLambdaHttpResponse;
+    buildHttpResponse(status: number, body: string): AzureFunctionsHttpResponse | AwsLambdaHttpResponse | Response;
     
     /**
      * リクエストURLからパス部分を取得します

@@ -2,6 +2,8 @@
 import 'reflect-metadata';
 import { container } from 'tsyringe';
 import { LineNotifyMessengerApp } from '@core/lineNotifyMessengerApp';
+import { CloudflareHttpRequestHandler } from '@handlers/cloudflareHttpRequestHandler';
+import { IHttpRequestHandler } from '@interfaces/httpRequestHandler';
 
 //interface Env {};
 
@@ -13,12 +15,16 @@ export default {
         throw new Error('LINE_CHANNEL_ACCESS_TOKEN is not set');
     }
 
+    // Cloudflare コンテキストオブジェクトの登録
+    const cloudflareHttpRequestHandler = new CloudflareHttpRequestHandler(request, env, ctx);
+    
     // Tsyringeで依存関係を登録
     container.registerInstance('LineChannelAccessToken', lineChannelAccessToken);
+    container.registerInstance<IHttpRequestHandler>('IHttpRequestHandler', cloudflareHttpRequestHandler);
 
-   // TsyringeでLineNotifyMessengerAppを解決
-   const app = container.resolve(LineNotifyMessengerApp);
+    // TsyringeでLineNotifyMessengerAppを解決
+    const app = container.resolve(LineNotifyMessengerApp);
 
-   return await app.processRequest() as unknown as Response;// as CloudflareWorkerResponse;
+    return await app.processRequest() as Response;
   },
 } satisfies ExportedHandler<Env>;

@@ -5,5 +5,20 @@
   "compatibility_date": "2025-03-21",
   "build": {
     "command": "tsc"
-  }
+  },
+  "vars": {
+    "ENVIRONMENT": "development"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "GROUPS",
+      "id": "${KV_NAMESPACE_ID}"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "IMAGES",
+      "bucket_name": "${R2_BUCKET_NAME}"
+    }
+  ]
 }
