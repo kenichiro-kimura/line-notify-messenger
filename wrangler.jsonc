@@ -2,7 +2,10 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "line-notify-messenger",
   "main": "src/cloudflareworkers.ts",
-  "compatibility_date": "2025-03-21",
+  "compatibility_date": "2025-03-19",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "build": {
     "command": "tsc"
   },
@@ -20,5 +23,6 @@
       "binding": "IMAGES",
       "bucket_name": "${R2_BUCKET_NAME}"
     }
-  ]
+  ],
+  // accountId,accountKeyId,accountKeySecretは環境変数に設定する
 }
