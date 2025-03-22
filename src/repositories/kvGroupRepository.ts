@@ -4,15 +4,13 @@ import { IGroupRepository } from "@interfaces/groupRepository";
  * Cloudflare KVを使用したIGroupRepositoryの実装
  */
 export class KVGroupRepository implements IGroupRepository {
-  private namespace: KVNamespace;
-  private readonly KEY_PREFIX = "lineGroup:";
-  private readonly GROUP_LIST_KEY = "lineGroups";
+  private namespace: KVNamespace<string>;
 
   /**
    * コンストラクタ
    * @param namespace - Cloudflare KV Namespace
    */
-  constructor(namespace: KVNamespace) {
+  constructor(namespace: KVNamespace<string>) {
     this.namespace = namespace;
   }
 
@@ -22,15 +20,9 @@ export class KVGroupRepository implements IGroupRepository {
    */
   async add(groupName: string): Promise<void> {
     try {
-      // 現在のグループリストを取得
-      const groups = await this.listAll();
-      
-      // グループがまだ存在しない場合のみ追加
-      if (!groups.includes(groupName)) {
-        // グループリストを更新
-        const updatedGroups = [...groups, groupName];
-        await this.namespace.put(this.GROUP_LIST_KEY, JSON.stringify(updatedGroups));
-      }
+      const upsertGroups = JSON.stringify({"name": groupName});
+      console.log(`Adding group ${groupName}`);
+      await this.namespace.put(groupName, JSON.stringify(upsertGroups));
     } catch (error) {
       console.error(`Error adding group ${groupName}:`, error);
       throw new Error(`Failed to add group: ${error}`);
@@ -43,14 +35,8 @@ export class KVGroupRepository implements IGroupRepository {
    */
   async remove(groupName: string): Promise<void> {
     try {
-      // 現在のグループリストを取得
-      const groups = await this.listAll();
-      
-      // 指定されたグループを除外した新しいリストを作成
-      const updatedGroups = groups.filter(group => group !== groupName);
-      
       // グループリストを更新
-      await this.namespace.put(this.GROUP_LIST_KEY, JSON.stringify(updatedGroups));
+      await this.namespace.delete(groupName);
     } catch (error) {
       console.error(`Error removing group ${groupName}:`, error);
       throw new Error(`Failed to remove group: ${error}`);
@@ -64,14 +50,15 @@ export class KVGroupRepository implements IGroupRepository {
   async listAll(): Promise<string[]> {
     try {
       // KVからグループリストを取得
-      const groupsJson = await this.namespace.get(this.GROUP_LIST_KEY);
+      const groupsJson = await this.namespace.list();
       
       // グループリストが存在しない場合は空の配列を返す
       if (!groupsJson) {
         return [];
       }
       
-      return JSON.parse(groupsJson) as string[];
+      // グループリストを返す
+      return groupsJson.keys.map((group) => group.name);
     } catch (error) {
       console.error("Error listing groups:", error);
       return [];
