@@ -120,7 +120,7 @@ export class CloudflareHttpRequestHandler implements IHttpRequestHandler {
     if (!this.request) {
       throw new Error('Request is not set.');
     }
-    
+
     return await this.request.text();
   }
 
