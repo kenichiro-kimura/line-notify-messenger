@@ -1,41 +1,34 @@
 import { IImageStorage } from '@interfaces/imageStorage';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // cloudflare R2をつかって IImageStorage を実装する
 export class R2ImageStorage implements IImageStorage {
-    private readonly bucketName: string;
-    private readonly region: string;
-    private readonly client: S3Client;
+    private readonly bucket: R2Bucket;
+    private readonly origin: string;
 
-    constructor(bucketName: string, region: string, accountId?: string, accessKeyId?: string, secretAccessKey?: string) {
-        if (!bucketName || !region) {
-            throw new Error("bucket name or region is not set");
+    constructor(bucket: R2Bucket, origin: string) {
+        if (!bucket) {
+            throw new Error("bucket is not set");
         }
 
-        this.bucketName = bucketName;
-        this.region = region;
-        
-        // R2用のS3クライアントを作成
-        this.client = new S3Client({
-            region: this.region,
-            endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-            credentials: {
-                accessKeyId: accessKeyId || process.env.R2_ACCESS_KEY_ID || '',
-                secretAccessKey: secretAccessKey || process.env.R2_SECRET_ACCESS_KEY || ''
-            }
-        });
+        if (!origin || !origin.startsWith("http")){
+            throw new Error(`origin is not set: ${origin}`);
+        }
+
+        if (origin.endsWith("/")) {
+            this.origin = origin.slice(0, -1);
+        }
+        this.bucket = bucket;
+        this.origin = origin;        
     }
 
     async uploadImage(fileName: string, image: Buffer, contentType: string): Promise<string> {       
         // 画像を R2 にアップロード
-        await this.client.send(new PutObjectCommand({
-            Bucket: this.bucketName,
-            Key: fileName,
-            Body: image,
-            ContentType: contentType
-        }));
+        await this.bucket.put(fileName, image, {
+            httpMetadata: {
+                contentType: contentType
+            }
+        });
 
-        // R2のパブリックURLを返す
-        return `https://${this.bucketName}.${this.region}.r2.cloudflarestorage.com/${fileName}`;
+        return `${this.origin}/images/${fileName}`
     }
 }
