@@ -11,7 +11,7 @@ const devVarsContent = `KV_NAMESPACE_ID=${terraformOutput.kv_namespace_id.value}
 R2_BUCKET_NAME=${terraformOutput.r2_bucket_name.value}
 LINE_CHANNEL_ACCESS_TOKEN=${process.env.LINE_CHANNEL_ACCESS_TOKEN || "your-channnel-access-token"}
 AUTHORIZATION_TOKEN=${process.env.AUTHORIZATION_TOKEN}
-SEND_MODE=${process.env.SEND_MODE} || "group"
+SEND_MODE=${process.env.SEND_MODE || "group"}
 `;
 
 // .dev.vars ファイルに書き込み
