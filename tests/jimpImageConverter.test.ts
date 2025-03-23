@@ -19,9 +19,10 @@ describe('JimpImageConverter', () => {
         };
         (Jimp.read as jest.Mock).mockResolvedValue(mockImage);
 
-        const result = await jimpImageConverter.resizeImage('http://example.com/image.jpg', 800, 600, 'image/jpeg');
+        const image = Buffer.from('test image');
+        const result = await jimpImageConverter.resizeImage(image, 800, 600, 'image/jpeg');
 
-        expect(Jimp.read).toHaveBeenCalledWith('http://example.com/image.jpg');
+        expect(Jimp.read).toHaveBeenCalledWith(image);
         expect(mockImage.resize).toHaveBeenCalledWith({ w: 800 });
         expect(mockImage.getBuffer).toHaveBeenCalledWith('image/jpeg');
         expect(result).toEqual(Buffer.from('test buffer'));
@@ -36,9 +37,10 @@ describe('JimpImageConverter', () => {
         };
         (Jimp.read as jest.Mock).mockResolvedValue(mockImage);
 
-        const result = await jimpImageConverter.resizeImage('http://example.com/image.jpg', 800, 600, 'image/jpeg');
+        const image = Buffer.from('test image');
+        const result = await jimpImageConverter.resizeImage(image, 800, 600, 'image/jpeg');
 
-        expect(Jimp.read).toHaveBeenCalledWith('http://example.com/image.jpg');
+        expect(Jimp.read).toHaveBeenCalledWith(image);
         expect(mockImage.resize).not.toHaveBeenCalled();
         expect(mockImage.getBuffer).toHaveBeenCalledWith('image/jpeg');
         expect(result).toEqual(Buffer.from('test buffer'));
@@ -53,9 +55,10 @@ describe('JimpImageConverter', () => {
         };
         (Jimp.read as jest.Mock).mockResolvedValue(mockImage);
 
-        const result = await jimpImageConverter.resizeImage('http://example.com/image.jpg', 800, 600, 'image/jpeg');
+        const image = Buffer.from('test image');
+        const result = await jimpImageConverter.resizeImage(image, 800, 600, 'image/jpeg');
 
-        expect(Jimp.read).toHaveBeenCalledWith('http://example.com/image.jpg');
+        expect(Jimp.read).toHaveBeenCalledWith(image);
         expect(mockImage.resize).toHaveBeenCalledWith({ h: 600 });
         expect(mockImage.getBuffer).toHaveBeenCalledWith('image/jpeg');
         expect(result).toEqual(Buffer.from('test buffer'));

@@ -127,6 +127,21 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
 5. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。[GitHubの公式ドキュメント](https://docs.github.com/ja/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow)を参照して下さい。
 
+### cloudflare
+
+1. LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENとSEND_MODを環境変数に設定します。
+2. cloudflareのダッシュボードから、cloudflare R2を使えるようにします
+3. cloudflareのダッシュボードから、デプロイ用のAPIトークンを作成します
+4. `cd terraform`でterraformディレクトリに移動します。
+5. `terraform.tfvars.template`をコピーして`terraform.tfvars`を作成し、`cloudflare_api_token`と`cloudflare_account_id`を設定します。
+6. `terraform init`で初期化します。
+7. `terraform apply`でデプロイします。
+8. `cd ../`で元のディレクトリに戻ります。
+9. `npm run update-config`で設定ファイルを更新します。
+10. `npm run cloudflare-build`でビルドします。
+11. `npm run cloudflare-deploy`でデプロイします。
+12. cloudflareのダッシュボードからシークレットにLINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENを設定します。
+
 ## 使用方法
 
 1. デプロイしたボットのエンドポイント(AWS Lambdaの場合はcdkのOutputsで出てきたLambda関数URL、Azure Functionsの場合は {Funcitonsのホスト名}/api/HttpTrigger)を、LINE公式アカウントのWebhook URLに設定します。

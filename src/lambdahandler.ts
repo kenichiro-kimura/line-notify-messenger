@@ -57,6 +57,7 @@ export const handler = async (event: any): Promise<AwsLambdaHttpResponse> => {
 
     // Tsyringeで依存関係を登録
     container.registerInstance('LineChannelAccessToken', lineChannelAccessToken);
+    container.registerInstance('AuthorizationToken', process.env.AUTHORIZATION_TOKEN);
     container.registerInstance<IImageStorage>('IImageStorage', new S3ImageStorage(bucketName, s3Region));
     container.register<IImageConverter>('IImageConverter', JimpImageConverter);
     container.registerInstance<IGroupRepository>('IGroupRepository', new DynamoGroupRepository(tableName, dynamoRegion));

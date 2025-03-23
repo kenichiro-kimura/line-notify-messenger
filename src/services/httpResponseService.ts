@@ -26,7 +26,7 @@ export class HttpResponseService {
      * @param message エラーメッセージ
      * @returns HTTP 401レスポンスオブジェクト
      */
-    httpUnAuthorizedErrorMessage(message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse {
+    httpUnAuthorizedErrorMessage(message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse | Response {
         return this.handler.buildHttpResponse(401, message);
     }
 
@@ -35,7 +35,7 @@ export class HttpResponseService {
      * @param message エラーメッセージ
      * @returns HTTP 500レスポンスオブジェクト
      */
-    httpInternalServerErrorMessage(message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse {
+    httpInternalServerErrorMessage(message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse | Response{
         return this.handler.buildHttpResponse(500, message);
     }
 
@@ -44,7 +44,7 @@ export class HttpResponseService {
      * @param message 応答メッセージ
      * @returns HTTP 200レスポンスオブジェクト
      */
-    httpOkMessage(message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse {
+    httpOkMessage(message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse | Response{
         return this.handler.buildHttpResponse(200, message);
     }
 }

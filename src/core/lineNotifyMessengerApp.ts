@@ -23,6 +23,8 @@ export class LineNotifyMessengerApp {
     private sendModeStrategy: ISendModeStrategy;
     /** HTTPリクエストの処理とデータ抽出を行うハンドラー */
     private requestHandler: RequestHandler;
+    /** 認証トークン */
+    private authorizationToken: string;
 
     /**
      * LineNotifyMessengerAppのコンストラクタ
@@ -32,18 +34,21 @@ export class LineNotifyMessengerApp {
      * @param groupRepository - LINEグループ情報管理用リポジトリ
      * @param sendModeStrategy - メッセージ送信モード決定用戦略
      * @param lineService - LINE API通信用サービス
+     * @param authorizationToken - 認証トークン
      */
     constructor(
         @inject('IHttpRequestHandler') handler: IHttpRequestHandler,
         @inject('IGroupRepository') groupRepository: IGroupRepository,
         @inject('ISendModeStrategy') sendModeStrategy: ISendModeStrategy,
         @inject('LineService') lineService: LineService,
+        @inject('AuthorizationToken') authorizationToken: string
     ) {
         this.handler = handler;
         this.lineService = lineService;
         this.groupRepository = groupRepository;
         this.sendModeStrategy = sendModeStrategy;
-        this.requestHandler = new RequestHandler(handler); // RequestHandler を初期化
+        this.requestHandler = new RequestHandler(handler);
+        this.authorizationToken = authorizationToken;
     }
     
     /**
@@ -51,7 +56,7 @@ export class LineNotifyMessengerApp {
      * @param message - エラーメッセージ
      * @returns 401 Unauthorizedレスポンス
      */
-    private httpUnAuthorizedErrorMessage = (message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse => {
+    private httpUnAuthorizedErrorMessage = (message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse | Response => {
         return this.handler.buildHttpResponse(401, message);
     };
 
@@ -60,7 +65,7 @@ export class LineNotifyMessengerApp {
      * @param message - エラーメッセージ
      * @returns 500 Internal Server Errorレスポンス
      */
-    private httpInternalServerErrorMessage = (message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse => {
+    private httpInternalServerErrorMessage = (message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse | Response => {
         return this.handler.buildHttpResponse(500, message);
     };
 
@@ -69,7 +74,7 @@ export class LineNotifyMessengerApp {
      * @param message - 応答メッセージ
      * @returns 200 OKレスポンス
      */
-    private httpOkMessage = (message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse => {
+    private httpOkMessage = (message: string): AwsLambdaHttpResponse | AzureFunctionsHttpResponse | Response => {
         return this.handler.buildHttpResponse(200, message);
     };
 
@@ -157,11 +162,11 @@ export class LineNotifyMessengerApp {
      * 通知サービスリクエスト、LINEウェブフック、ヘルスチェックなどを処理します
      * @returns HTTPレスポンスオブジェクト
      */
-    async processRequest(): Promise<AwsLambdaHttpResponse | AzureFunctionsHttpResponse> {
+    async processRequest(): Promise<AwsLambdaHttpResponse | AzureFunctionsHttpResponse | Response> {
         if (this.requestHandler.isNotifyServiceRequest()) {
             const bearerToken = this.requestHandler.getBearerToken();
 
-            if (!bearerToken || bearerToken !== process.env.AUTHORIZATION_TOKEN) {
+            if (!bearerToken || bearerToken !== this.authorizationToken) {
                 return this.httpUnAuthorizedErrorMessage('Invalid authorization token');
             }
 
