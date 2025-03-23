@@ -19,6 +19,3 @@ SEND_MODE = "${{SEND_MODE}}"
 
 [observability.logs]
 enabled = true
-
-
-
