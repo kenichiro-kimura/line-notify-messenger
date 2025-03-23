@@ -7,9 +7,7 @@ const terraformOutput = JSON.parse(
 );
 
 // .dev.vars ファイルの内容を作成
-const devVarsContent = `KV_NAMESPACE_ID=${terraformOutput.kv_namespace_id.value}
-R2_BUCKET_NAME=${terraformOutput.r2_bucket_name.value}
-LINE_CHANNEL_ACCESS_TOKEN=${process.env.LINE_CHANNEL_ACCESS_TOKEN || "your-channnel-access-token"}
+const devVarsContent = `LINE_CHANNEL_ACCESS_TOKEN=${process.env.LINE_CHANNEL_ACCESS_TOKEN || "your-channnel-access-token"}
 AUTHORIZATION_TOKEN=${process.env.AUTHORIZATION_TOKEN}
 SEND_MODE=${process.env.SEND_MODE || "group"}
 `;
@@ -17,4 +15,13 @@ SEND_MODE=${process.env.SEND_MODE || "group"}
 // .dev.vars ファイルに書き込み
 fs.writeFileSync('.dev.vars', devVarsContent);
 
-console.log('.dev.vars file has been updated with Terraform outputs');
+// wrangler.toml.templateファイルを読み込み、${{PROD_R2_BUCKET_NAME}}"を置換
+const wranglerTomlTemplate = fs.readFileSync('wrangler.toml.template').toString();
+const wranglerToml = wranglerTomlTemplate
+  .replace('${{R2_BUCKET_NAME}}', terraformOutput.r2_bucket_name.value)
+  .replace('${{KV_NAMESPACE_ID}}', terraformOutput.kv_namespace_id.value)
+  .replace('${{SEND_MODE}}', process.env.SEND_MODE || "group");
+
+  fs.writeFileSync('wrangler.toml', wranglerToml);
+
+console.log('.dev.vars file and wrangler.toml has been updated with Terraform outputs');
