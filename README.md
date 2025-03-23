@@ -140,7 +140,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 9. `npm run update-config`で設定ファイルを更新します。
 10. `npm run cloudflare-build`でビルドします。
 11. `npm run cloudflare-deploy`でデプロイします。
-12. cloudflareのダッシュボードからシークレットにLINE_CHANNEL_ACCESS_TOKENを設定します。
+12. cloudflareのダッシュボードからシークレットにLINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENを設定します。
 
 ## 使用方法
 
