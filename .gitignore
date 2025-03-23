@@ -37,6 +37,7 @@ __azurite_db*__.json
 # wrangler
 .wrangler
 src/worker-configuration.d.ts
+wrangler.toml
 
 # terraform
 terraform/terraform.tfvars
