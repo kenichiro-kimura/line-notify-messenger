@@ -29,6 +29,20 @@ export class R2ImageStorage implements IImageStorage {
             }
         });
 
-        return `${this.origin}/images/${fileName}`
+        const maxAttempts = 5;
+        const delay = 500; // ms
+      
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          try {
+            const object = await this.bucket.get(fileName);
+            if (object) {
+              return `${this.origin}/images/${fileName}`;
+            }            
+          } catch (error) {
+            console.error(`Attempt ${attempt + 1} failed:`, error);
+          }
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+        throw new Error(`Failed to upload image: ${fileName}`);
     }
 }

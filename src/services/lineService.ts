@@ -116,7 +116,7 @@ class LineService {
             const originalUrl = await this.imageStorage.uploadImage(originalKey, message.imageFile.content, message.imageFile.contentType);
 
             // jimp により 240x240px 以内にリサイズ（縦横比を維持して内側にフィット）
-            const thumbnailBuffer = await this.imageConverter.resizeImage(originalUrl, 240, 240, message.imageFile.contentType);
+            const thumbnailBuffer = await this.imageConverter.resizeImage(message.imageFile.content, 240, 240, message.imageFile.contentType);
 
             // サムネイル画像をアップロード
             const thumbnailUrl = await this.imageStorage.uploadImage(thumbnailKey, thumbnailBuffer, message.imageFile.contentType);

@@ -153,10 +153,11 @@ describe("LineService", () => {
     test("broadcastMessage should call broadcast with correct image message when imageFile is provided", async () => {
         const expectedOriginalUrl = "https://example.com/original.jpg";
         const expectedThumbnailUrl = "https://example.com/thumbnail.jpg";
+        const expectedImageBuffer = Buffer.from("test image content");
 
         const imageFile = {
             filename: "test.jpg",
-            content: Buffer.from("test image content"),
+            content: expectedImageBuffer,
             contentType: "image/jpeg"
         };
 
@@ -191,7 +192,7 @@ describe("LineService", () => {
         // uploadImage は元画像とサムネイル画像のアップロードで2回呼ばれるはず
         expect(imageStorageMock.uploadImage).toHaveBeenCalledTimes(2);
         // resizeImage が originalUrl, 240, 240, contentType で呼ばれていることを確認
-        expect(imageConverterMock.resizeImage).toHaveBeenCalledWith(expectedOriginalUrl, 240, 240, imageFile.contentType);
+        expect(imageConverterMock.resizeImage).toHaveBeenCalledWith(expectedImageBuffer, 240, 240, imageFile.contentType);
         expect(broadcastMock).toHaveBeenCalledTimes(1);
         expect(broadcastMock).toHaveBeenCalledWith({
             messages: [{
