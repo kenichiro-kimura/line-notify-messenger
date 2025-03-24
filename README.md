@@ -74,7 +74,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
    bashの場合
 
    ```bash
-   export LINE_CHANNEL_ACCESS='YOUR_CHANNEL_ACCESS_TOKEN'
+   export LINE_CHANNEL_ACCESS_TOKEN='YOUR_CHANNEL_ACCESS_TOKEN'
    ```
 
    PowerShellの場合
@@ -118,6 +118,18 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
    この場合、`npm run deploy`を実行すると、スタック名が`LineNotifyMessengerS3Stack-xxxx`と`LineNotifyMessengerLambdaStack-xxxx`になります。
 
+GitHub Actionsでデプロイする場合は、以下のようにします。
+
+1. AWS CDKのデプロイに必要な環境変数をリポジトリのSecretに設定します。
+   - `LINE_CHANNEL_ACCESS_TOKEN`: LINE Messaging APIのチャンネルアクセストークン
+   - `AUTHORIZATION_TOKEN`: LINE NotifyのAuthorizationヘッダの値
+   - `AWS_ROLE_ARN`: デプロイ時に使用するIAMロールのARN。[こちら](https://aws.amazon.com/jp/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/)を参考にIAMロールを作成して、そのARNを設定します。
+2. AWS CDKのデプロイに必要な環境変数をリポジトリの環境変数に設定します。
+   - `AWS_REGION`: AWSリージョン
+   - `SEND_MODE`: 送信モードとして`group`を設定します
+   - `APP_SUFFIX`: スタック名にサフィックスをつける場合は、任意のサフィックスを設定します
+3. `Deploy AWS Lambda`ワークフローをGitHubのページから手動で実行します。[GitHubの公式ドキュメント](https://docs.github.com/ja/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow)を参照して下さい。
+
 ### Azure
 
 1. 以下のボタンを押して環境を構築します。LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
@@ -130,7 +142,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
 4. 同じくForkしたリポジトリのActionsのVariables `FUNCTION_NAME` に、Azure Functionsの関数名を登録します。
 
-5. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。[GitHubの公式ドキュメント](https://docs.github.com/ja/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow)を参照して下さい。
+5. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。
 
 ### cloudflare
 
