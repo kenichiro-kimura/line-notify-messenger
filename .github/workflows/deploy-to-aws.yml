@@ -1,0 +1,40 @@
+name: Deploy AWS Lambda
+
+on:
+    workflow_dispatch:
+
+jobs:
+    job:
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: read
+            id-token: write
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                aws-region: ${{ vars.AWS_REGION }}
+                role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+            - name: Deploy to AWS Lambda
+              run: |
+                npm run build
+                npm run deploy
+              env:
+                LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+                AUTHORIZATION_TOKEN: ${{ secrets.AUTHORIZATION_TOKEN }}
+                APP_SUFFIX: ${{ vars.APP_SUFFIX }}
+                SEND_MODE: ${{ vars.SEND_MODE }}
