@@ -9,7 +9,6 @@ jobs:
 
     permissions:
       contents: read
-      id-token: write  # OIDC経由の認証用
       
     steps:
       - name: Checkout repository
@@ -45,8 +44,5 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           wranglerVersion: '4.3.0'
-          postCommands: |
-            echo "Deploying with GitHub OIDC"
         env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-          # API Tokenを使用せず、GitHub ActionsのOIDCを使用
+          CLOUDFLARE_API_TOKEN: ${{ vars.CLOUDFLARE_API_TOKEN }}
