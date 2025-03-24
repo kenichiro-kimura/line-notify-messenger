@@ -44,7 +44,7 @@ jobs:
       - name: Publish with Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
-          wranglerVersion: '3'
+          wranglerVersion: '4.3.0'
           postCommands: |
             echo "Deploying with GitHub OIDC"
         env:
