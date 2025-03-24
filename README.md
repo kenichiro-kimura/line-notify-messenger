@@ -74,7 +74,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
    bashの場合
 
    ```bash
-   export LINE_CHANNEL_ACCESS='YOUR_CHANNEL_ACCESS_TOKEN'
+   export LINE_CHANNEL_ACCESS_TOKEN='YOUR_CHANNEL_ACCESS_TOKEN'
    ```
 
    PowerShellの場合
