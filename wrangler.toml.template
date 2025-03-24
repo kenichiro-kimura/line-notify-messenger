@@ -8,14 +8,15 @@ command = "tsc"
 
 [[kv_namespaces]]
 binding = "GROUPS"
-id = "${{KV_NAMESPACE_ID}}"
+id = "${KV_NAMESPACE_ID}"
 
 [[r2_buckets]]
 binding = "IMAGES"
-bucket_name = "${{R2_BUCKET_NAME}}"
+bucket_name = "${R2_BUCKET_NAME}"
 
 [vars]
-SEND_MODE = "${{SEND_MODE}}"
+SEND_MODE = "${SEND_MODE}"
 
 [observability.logs]
 enabled = true
+

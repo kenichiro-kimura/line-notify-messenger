@@ -9,7 +9,6 @@ jobs:
 
     permissions:
       contents: read
-      id-token: write  # OIDC経由の認証用
       
     steps:
       - name: Checkout repository
@@ -19,21 +18,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
+          
       - name: Install dependencies
         run: npm install
 
-      - name: update config
+      - name: create wrangler.toml
         run: |
-            npm run update-config 
-            npm run wrangler-types
+            # 環境変数に基づいてテンプレートを処理
+            cat wrangler.toml.template | envsubst > wrangler.toml
+        env:
+            KV_NAMESPACE_ID: ${{ vars.KV_NAMESPACE_ID }}
+            R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME }}
+            SEND_MODE: ${{ vars.SEND_MODE }}
+
+      - name: wrangler types
+        run: npm run wrangler-types
 
       - name: Publish with Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
-          wranglerVersion: '3'
-          postCommands: |
-            echo "Deploying with GitHub OIDC"
-        env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-          # API Tokenを使用せず、GitHub ActionsのOIDCを使用
+          wranglerVersion: '4.3.0'
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
