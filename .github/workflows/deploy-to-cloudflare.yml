@@ -25,10 +25,13 @@ jobs:
 
       - name: create wrangler.toml
         run: |
-            cp wrangler.toml.template wrangler.toml
-            sed -i "s/\\$\\{\\{KV_NAMESPACE_ID\\}\\}/${KV_NAMESPACE_ID}/g" wrangler.toml
-            sed -i "s/\\$\\{\\{R2_BUCKET_NAME\\}\\}/${R2_BUCKET_NAME}/g" wrangler.toml
-            sed -i "s/\\$\\{\\{SEND_MODE\\}\\}/${SEND_MODE}/g" wrangler.toml
+            # 変数をエクスポート
+            export KV_NAMESPACE_ID="${KV_NAMESPACE_ID}"
+            export R2_BUCKET_NAME="${R2_BUCKET_NAME}"
+            export SEND_MODE="${SEND_MODE}"
+            
+            # 環境変数に基づいてテンプレートを処理
+            cat wrangler.toml.template | envsubst > wrangler.toml
         env:
             KV_NAMESPACE_ID: ${{ vars.KV_NAMESPACE_ID }}
             R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME }}
