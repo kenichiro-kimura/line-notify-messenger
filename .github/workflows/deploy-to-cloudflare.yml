@@ -20,19 +20,22 @@ jobs:
         with:
           node-version: 20
           
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.11.2
-          terraform_wrapper: false
-
       - name: Install dependencies
         run: npm install
 
       - name: update config
+        run: npm run wrangler-types
+
+      - name: create wrangler.toml
         run: |
-            npm run update-config 
-            npm run wrangler-types
+            cp wrangler.toml.template wrangler.toml
+            sed -i "s/\$\{\{KV_NAMESPACE_ID\}\}"/${KV_NAMESPACE_ID}/g" wrangler.toml
+            sed -i "s/\$\{\{R2_BUCKET_NAME\}\}"/${R2_BUCKET_NAME}/g" wrangler.toml
+            sed -i "s/\$\{\{SEND_MODE\}\}"/${SEND_MODE}/g" wrangler.toml
+        env:
+            KV_NAMESPACE_ID: ${{ vars.KV_NAMESPACE_ID }}
+            R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME }}
+            SEND_MODE: ${{ vars.SEND_MODE }}
 
       - name: Publish with Wrangler
         uses: cloudflare/wrangler-action@v3
