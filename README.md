@@ -142,6 +142,12 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 11. `npm run cloudflare-deploy`でデプロイします。
 12. cloudflareのダッシュボードからシークレットにLINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENを設定します。
 
+GitHub Actionsでデプロイする場合は、terraformでインフラを準備したら以下を実行します。
+
+1. KVのnamespace idとR2のバケット名をそれぞれリポジトリ変数`KV_NAMESPACE_ID`と`R2_BUCKET_NAME`に設定します。また、リポジトリ変数`SEND_MODE`に送信モードとして`group`を設定します
+2. リポジトリのシークレット`CLOUDFLARE_API_TOKEN`にAPI Tokenを設定します
+3. `Deploy Cloudflare Worker`ワークフローをGitHubのページから手動で実行します。
+
 ## 使用方法
 
 1. デプロイしたボットのエンドポイント(AWS Lambdaの場合はcdkのOutputsで出てきたLambda関数URL、Azure Functionsの場合は {Funcitonsのホスト名}/api/HttpTrigger)を、LINE公式アカウントのWebhook URLに設定します。
