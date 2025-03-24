@@ -25,7 +25,7 @@ jobs:
       - name: create wrangler.toml
         run: |
             # 環境変数に基づいてテンプレートを処理
-            cat wrangler.tmp.toml | envsubst > wrangler.toml
+            cat wrangler.toml.template | envsubst > wrangler.toml
         env:
             KV_NAMESPACE_ID: ${{ vars.KV_NAMESPACE_ID }}
             R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME }}
