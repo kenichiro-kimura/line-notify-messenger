@@ -8,6 +8,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 - エントリポイント
   - `src/lambdahandler.ts`: AWS Lambdaのエントリポイント。
   - `src/functions/HttpTrigger.ts`: Azure Functionsのエントリポイント。
+  - `src/cloudflareworker.ts`: cloudflare workerのエントリポイント。
 - メインロジック
   - `src/core/LineNotifyMessengerApp.ts`: LINE Messaging APIからのイベントやHTTPリクエストを処理するロジックを実装しています。
   - `src/services/groupService.ts`: グループIDを管理するサービスクラスを定義しています。グループIDの保存や取得を行うメソッドが含まれています。
@@ -17,16 +18,19 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 - 実行環境特有のロジック
   - `src/handlers/lambdaHttpRequestHandler.ts`: IHttpRequestHandlerを実装したクラス。AWS Lambda固有のロジックを実装しています。
   - `src/handlers/functionsHttpRequestHandler.ts`: IHttpRequestHandlerを実装したクラス。Azure Functions固有のロジックを実装しています。
+  - `src/handlers/cloudflareHttpRequestHandler.ts`: IHttpRequestHandlerを実装したクラス。cloudflare worker固有のロジックを実装しています。
 - LINE Messaging API関連
   - `src/services/lineService.ts`: LINE Messaging APIとのインタラクションを管理するサービスクラスを定義しています。メッセージの送信や受信を行うメソッドが含まれています。
 - 画像保存
   - `src/repositories/s3ImageStorage.ts`: IImageStorageを実装したクラス。Amazon S3に画像をアップロードするサービスクラスを定義しています。
   - `src/repositories/blobStorage.ts`: IImageStorageを実装したクラス。Azure Blob Storageに画像をアップロードするサービスクラスを定義しています。
+  - `src/repositories/r2Storage.ts`: IImageStorageを実装したクラス。cloudflare R2に画像をアップロードするサービスクラスを定義しています。
 - 画像サイズ変更
   - `src/utils/jimpImageProcessor.ts`: IImageProcessorを実装したクラス。Jimpを使用して画像を処理するサービスクラスを定義しています。
 - グループID保存
   - `src/repositories/dynamoGroupRepository.ts`: IGroupRepositoryを実装したクラス。Amazon DynamoDBにグループIDを保存するリポジトリクラスを定義しています。
   - `src/repositories/tableStorageGroupRepository.ts`: IGroupRepositoryを実装したクラス。Azure Table StorageにグループIDを保存するリポジトリクラスを定義しています。
+  - `src/repositories/kvStorageGroupRepository.ts`: IGroupRepositoryを実装したクラス。cloudflare KVにグループIDを保存するリポジトリクラスを定義しています。
 - 送信モード
   - `src/strategies/sendModeStrategy.ts`: ISendModeStrategyを実装したクラス。送信モードを取得する手段をストラテジークラスを定義しています。環境変数から取得するEnvironmentSendModeStrategyが実装されていて、これがデフォルトで利用されます。他の手段で取得する場合はここで実装し、`LineNotifyMessengerApp`クラスのコンストラクタでDIします。
 - IaC
@@ -34,6 +38,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
   - `lib/lambda-stack.ts`: AWSリソースを定義するCDKスタック。AWS Lambda関数の設定が記述されています。
   - `cdk.json`: CDKアプリケーションの設定ファイル。アプリケーションのエントリポイントやスタックの設定を記述します。
   - `bicep/`: Azureリソースを定義するBicepファイルを格納するディレクトリ。
+  - `terraform/`: cloudflareリソースを定義するTerraformファイルを格納するディレクトリ。
 - その他
   - `src/interfaces`: インターフェースを定義するディレクトリ。
   - `functions/`: Azure Functionsのプロジェクトファイルを格納するディレクトリ。
