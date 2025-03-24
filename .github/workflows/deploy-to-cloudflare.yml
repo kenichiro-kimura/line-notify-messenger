@@ -24,8 +24,6 @@ jobs:
 
       - name: create wrangler.toml
         run: |
-            cat wrangler.toml.template | sed 's/{{/{/g' | sed 's/}}/}/g' > wrangler.tmp.toml
-            
             # 環境変数に基づいてテンプレートを処理
             cat wrangler.tmp.toml | envsubst > wrangler.toml
             rm wrangler.tmp.toml

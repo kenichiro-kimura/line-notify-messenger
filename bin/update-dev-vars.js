@@ -18,9 +18,9 @@ fs.writeFileSync('.dev.vars', devVarsContent);
 // wrangler.toml.templateファイルを読み込み、${{PROD_R2_BUCKET_NAME}}"を置換
 const wranglerTomlTemplate = fs.readFileSync('wrangler.toml.template').toString();
 const wranglerToml = wranglerTomlTemplate
-  .replace('${{R2_BUCKET_NAME}}', terraformOutput.r2_bucket_name.value)
-  .replace('${{KV_NAMESPACE_ID}}', terraformOutput.kv_namespace_id.value)
-  .replace('${{SEND_MODE}}', process.env.SEND_MODE || "group");
+  .replace('${R2_BUCKET_NAME}', terraformOutput.r2_bucket_name.value)
+  .replace('${KV_NAMESPACE_ID}', terraformOutput.kv_namespace_id.value)
+  .replace('${SEND_MODE}', process.env.SEND_MODE || "group");
 
   fs.writeFileSync('wrangler.toml', wranglerToml);
 
