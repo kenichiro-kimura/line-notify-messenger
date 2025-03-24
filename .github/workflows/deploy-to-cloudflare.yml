@@ -1,0 +1,39 @@
+name: Deploy Cloudflare Worker
+
+on:
+    workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write  # OIDC経由の認証用
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: update config
+        run: |
+            npm run update-config 
+            npm run wrangler-types
+
+      - name: Publish with Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: '3'
+          postCommands: |
+            echo "Deploying with GitHub OIDC"
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          # API Tokenを使用せず、GitHub ActionsのOIDCを使用
