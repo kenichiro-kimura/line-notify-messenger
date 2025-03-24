@@ -16,9 +16,10 @@ export class R2ImageStorage implements IImageStorage {
 
         if (origin.endsWith("/")) {
             this.origin = origin.slice(0, -1);
+        } else {
+          this.origin = origin;
         }
         this.bucket = bucket;
-        this.origin = origin;        
     }
 
     async uploadImage(fileName: string, image: Buffer, contentType: string): Promise<string> {       

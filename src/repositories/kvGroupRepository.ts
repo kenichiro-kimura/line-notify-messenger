@@ -20,7 +20,7 @@ export class KVGroupRepository implements IGroupRepository {
    */
   async add(groupName: string): Promise<void> {
     try {
-      const upsertGroups = JSON.stringify({"name": groupName});
+      const upsertGroups = {"name": groupName};
       console.log(`Adding group ${groupName}`);
       await this.namespace.put(groupName, JSON.stringify(upsertGroups));
     } catch (error) {
