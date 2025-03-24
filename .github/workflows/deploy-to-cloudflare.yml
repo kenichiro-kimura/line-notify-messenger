@@ -23,9 +23,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: update config
-        run: npm run wrangler-types
-
       - name: create wrangler.toml
         run: |
             cp wrangler.toml.template wrangler.toml
@@ -36,6 +33,9 @@ jobs:
             KV_NAMESPACE_ID: ${{ vars.KV_NAMESPACE_ID }}
             R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME }}
             SEND_MODE: ${{ vars.SEND_MODE }}
+
+      - name: wrangler types
+        run: npm run wrangler-types
 
       - name: Publish with Wrangler
         uses: cloudflare/wrangler-action@v3
