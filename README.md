@@ -160,13 +160,23 @@ GitHub Actionsでデプロイする場合は、以下のようにします。
 
    [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fkenichiro-kimura.github.io%2Fline-notify-messenger%2Fazuredeploy.json)
 
-2. 本リポジトリをForkします。
+2. [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools/blob/v4.x/README.md)をインストールします
+3. 以下のコマンドを実行します
 
-3. 構築した環境のAzure Functionsから発行プロファイルを取得して、ForkしたリポジトリのGitHub ActionsのSecret `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` に登録します。
+```bash
+% cd functions
+% func azure functionapp publish {作成したFunctions名}
+```
 
-4. 同じくForkしたリポジトリのActionsのVariables `FUNCTION_NAME` に、Azure Functionsの関数名を登録します。
+GitHub Actionsでデプロイする場合は、環境を構築したら以下を実行します。
 
-5. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。
+1. 本リポジトリをForkします。
+
+2. 構築した環境のAzure Functionsから発行プロファイルを取得して、ForkしたリポジトリのGitHub ActionsのSecret `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` に登録します。
+
+3. 同じくForkしたリポジトリのActionsのVariables `FUNCTION_NAME` に、Azure Functionsの関数名を登録します。
+
+4. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。
 
 ### cloudflare
 
