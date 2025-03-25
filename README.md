@@ -120,15 +120,39 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
 GitHub Actionsでデプロイする場合は、以下のようにします。
 
-1. AWS CDKのデプロイに必要な環境変数をリポジトリのSecretに設定します。
+1. `cdk bootstrap`コマンドを実行し、cdkの初期化を行います。
+2. [こちら](https://aws.amazon.com/jp/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/)を参考にデプロイに利用するIAMロールを作成して、そのARNを取得します。IAMロールには、以下のインラインポリシーをアタッチして下さい。
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "sts:AssumeRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::{アカウトID}:role/cdk-hnb659fds-deploy-role-{アカウントID}-{リージョン名}",
+        "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-file-publishing-role-{アカウントID}-{リージョン名}",
+        "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-image-publishing-role-{アカウントID}-{リージョン名}",
+        "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-lookup-role-{アカウントID}-{リージョン名}"
+      ]
+    }
+  ]
+}
+```
+
+3. AWS CDKのデプロイに必要な環境変数をリポジトリのSecretに設定します。
    - `LINE_CHANNEL_ACCESS_TOKEN`: LINE Messaging APIのチャンネルアクセストークン
    - `AUTHORIZATION_TOKEN`: LINE NotifyのAuthorizationヘッダの値
-   - `AWS_ROLE_ARN`: デプロイ時に使用するIAMロールのARN。[こちら](https://aws.amazon.com/jp/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/)を参考にIAMロールを作成して、そのARNを設定します。
-2. AWS CDKのデプロイに必要な環境変数をリポジトリの環境変数に設定します。
+   - `AWS_ROLE_ARN`: 前の手順で作成した、デプロイ時に使用するIAMロールのARN。
+4. AWS CDKのデプロイに必要な環境変数をリポジトリの環境変数に設定します。
    - `AWS_REGION`: AWSリージョン
    - `SEND_MODE`: 送信モードとして`group`を設定します
    - `APP_SUFFIX`: スタック名にサフィックスをつける場合は、任意のサフィックスを設定します
-3. `Deploy AWS Lambda`ワークフローをGitHubのページから手動で実行します。[GitHubの公式ドキュメント](https://docs.github.com/ja/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow)を参照して下さい。
+5. `Deploy AWS Lambda`ワークフローをGitHubのページから手動で実行します。[GitHubの公式ドキュメント](https://docs.github.com/ja/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow)を参照して下さい。
 
 ### Azure
 
