@@ -134,7 +134,7 @@ GitHub Actionsでデプロイする場合は、以下のようにします。
         "sts:AssumeRole"
       ],
       "Resource": [
-        "arn:aws:iam::{アカウトID}:role/cdk-hnb659fds-deploy-role-{アカウントID}-{リージョン名}",
+        "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-deploy-role-{アカウントID}-{リージョン名}",
         "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-file-publishing-role-{アカウントID}-{リージョン名}",
         "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-image-publishing-role-{アカウントID}-{リージョン名}",
         "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-lookup-role-{アカウントID}-{リージョン名}"
