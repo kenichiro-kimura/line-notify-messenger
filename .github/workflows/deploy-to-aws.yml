@@ -2,6 +2,15 @@ name: Deploy AWS Lambda
 
 on:
     workflow_dispatch:
+    push:
+      branches:
+        - main
+      paths:
+            - 'src/**'
+    pull_request:
+        types: [opened, synchronize, reopened]
+        paths:
+            - 'src/**'
 
 jobs:
     job:
