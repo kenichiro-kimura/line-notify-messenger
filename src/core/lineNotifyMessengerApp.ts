@@ -26,8 +26,6 @@ export class LineNotifyMessengerApp {
     private requestHandler: RequestHandler;
     /** 認証トークンの検証ストラテジー */
     private checkAuthorizationTokenStrategy;
-    /** 認証トークン */
-    private authorizationToken: string;
 
     /**
      * LineNotifyMessengerAppのコンストラクタ
@@ -37,7 +35,6 @@ export class LineNotifyMessengerApp {
      * @param groupRepository - LINEグループ情報管理用リポジトリ
      * @param sendModeStrategy - メッセージ送信モード決定用戦略
      * @param lineService - LINE API通信用サービス
-     * @param authorizationToken - 認証トークン
      */
     constructor(
         @inject('IHttpRequestHandler') handler: IHttpRequestHandler,
@@ -45,7 +42,6 @@ export class LineNotifyMessengerApp {
         @inject('ISendModeStrategy') sendModeStrategy: ISendModeStrategy,
         @inject('LineService') lineService: LineService,
         @inject('ICheckAuthorizationToken') checkAuthorizationTokenStrategy: ICheckAuthorizationToken,
-        @inject('AuthorizationToken') authorizationToken: string
     ) {
         this.handler = handler;
         this.lineService = lineService;
@@ -53,7 +49,6 @@ export class LineNotifyMessengerApp {
         this.sendModeStrategy = sendModeStrategy;
         this.requestHandler = new RequestHandler(handler);
         this.checkAuthorizationTokenStrategy = checkAuthorizationTokenStrategy;
-        this.authorizationToken = authorizationToken;
     }
     
     /**
@@ -171,7 +166,7 @@ export class LineNotifyMessengerApp {
         if (this.requestHandler.isNotifyServiceRequest()) {
             const bearerToken = this.requestHandler.getBearerToken();
 
-            if (! this.checkAuthorizationTokenStrategy.checkToken(bearerToken)) {
+            if (await this.checkAuthorizationTokenStrategy.checkToken(bearerToken) == false) {
                 return this.httpUnAuthorizedErrorMessage('Invalid authorization token');
             }
 
