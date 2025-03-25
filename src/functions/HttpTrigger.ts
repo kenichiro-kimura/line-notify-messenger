@@ -52,6 +52,7 @@ export async function HttpTrigger(request: HttpRequest, context: InvocationConte
 
     // Tsyringeで依存関係を登録
     container.registerInstance('LineChannelAccessToken', lineChannelAccessToken);
+    container.registerInstance('AuthorizationToken', process.env.AUTHORIZATION_TOKEN);
     container.registerInstance<IImageStorage>('IImageStorage', new BlobImageStorage(blobConnectionString, blobName));
     container.register<IImageConverter>('IImageConverter', JimpImageConverter);
     container.registerInstance<IGroupRepository>('IGroupRepository', new TableStorageGroupRepository(tableConnectionString, tableName));

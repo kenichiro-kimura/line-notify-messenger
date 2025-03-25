@@ -17,16 +17,15 @@ export class JimpImageConverter implements IImageConverter {
      * @returns リサイズされた画像のBufferを含むPromise
      */
     async resizeImage(
-        url: string, 
+        originalImage: Buffer, 
         width: number, 
         height: number, 
         contentType: 'image/bmp' | 'image/tiff' | 'image/x-ms-bmp' | 'image/gif' | 'image/jpeg' | 'image/png'
     ): Promise<Buffer> {
-        // URLから画像を読み込む
-        const image = await Jimp.read(url);
+        // Bufferから画像を読み込む
+        const image = await Jimp.read(Buffer.from(originalImage));
         const imageWidth = image.width;
         const imageHeight = image.height;
-        
         // 画像が指定サイズより大きい場合のみリサイズを実行
         if (imageWidth > width || imageHeight > height) {
             // 横長画像の場合は幅に合わせてリサイズ

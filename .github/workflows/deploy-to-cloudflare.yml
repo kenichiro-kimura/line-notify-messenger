@@ -1,0 +1,50 @@
+name: Deploy Cloudflare Worker
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+  pull_request:
+      types: [opened, synchronize, reopened]
+      paths:
+          - 'src/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Install dependencies
+        run: npm install
+
+      - name: create wrangler.toml
+        run: |
+            # 環境変数に基づいてテンプレートを処理
+            cat wrangler.toml.template | envsubst > wrangler.toml
+        env:
+            KV_NAMESPACE_ID: ${{ vars.KV_NAMESPACE_ID }}
+            R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME }}
+            SEND_MODE: ${{ vars.SEND_MODE }}
+
+      - name: wrangler types
+        run: npm run wrangler-types
+
+      - name: Publish with Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: '4.3.0'
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

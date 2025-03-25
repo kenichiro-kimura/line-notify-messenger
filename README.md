@@ -8,6 +8,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 - エントリポイント
   - `src/lambdahandler.ts`: AWS Lambdaのエントリポイント。
   - `src/functions/HttpTrigger.ts`: Azure Functionsのエントリポイント。
+  - `src/cloudflareworker.ts`: cloudflare workerのエントリポイント。
 - メインロジック
   - `src/core/LineNotifyMessengerApp.ts`: LINE Messaging APIからのイベントやHTTPリクエストを処理するロジックを実装しています。
   - `src/services/groupService.ts`: グループIDを管理するサービスクラスを定義しています。グループIDの保存や取得を行うメソッドが含まれています。
@@ -17,11 +18,13 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 - 実行環境特有のロジック
   - `src/handlers/lambdaHttpRequestHandler.ts`: IHttpRequestHandlerを実装したクラス。AWS Lambda固有のロジックを実装しています。
   - `src/handlers/functionsHttpRequestHandler.ts`: IHttpRequestHandlerを実装したクラス。Azure Functions固有のロジックを実装しています。
+  - `src/handlers/cloudflareHttpRequestHandler.ts`: IHttpRequestHandlerを実装したクラス。cloudflare worker固有のロジックを実装しています。
 - LINE Messaging API関連
   - `src/services/lineService.ts`: LINE Messaging APIとのインタラクションを管理するサービスクラスを定義しています。メッセージの送信や受信を行うメソッドが含まれています。
 - 画像保存
   - `src/repositories/s3ImageStorage.ts`: IImageStorageを実装したクラス。Amazon S3に画像をアップロードするサービスクラスを定義しています。
   - `src/repositories/blobStorage.ts`: IImageStorageを実装したクラス。Azure Blob Storageに画像をアップロードするサービスクラスを定義しています。
+  - `src/repositories/r2Storage.ts`: IImageStorageを実装したクラス。cloudflare R2に画像をアップロードするサービスクラスを定義しています。
 - 画像サイズ変更
   - `src/utils/jimpImageProcessor.ts`: IImageProcessorを実装したクラス。Jimpを使用して画像を処理するサービスクラスを定義しています。
 - グループID保存
@@ -36,6 +39,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
   - `lib/lambda-stack.ts`: AWSリソースを定義するCDKスタック。AWS Lambda関数の設定が記述されています。
   - `cdk.json`: CDKアプリケーションの設定ファイル。アプリケーションのエントリポイントやスタックの設定を記述します。
   - `bicep/`: Azureリソースを定義するBicepファイルを格納するディレクトリ。
+  - `terraform/`: cloudflareリソースを定義するTerraformファイルを格納するディレクトリ。
 - その他
   - `src/interfaces`: インターフェースを定義するディレクトリ。
   - `functions/`: Azure Functionsのプロジェクトファイルを格納するディレクトリ。
@@ -71,7 +75,7 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
    bashの場合
 
    ```bash
-   export LINE_CHANNEL_ACCESS='YOUR_CHANNEL_ACCESS_TOKEN'
+   export LINE_CHANNEL_ACCESS_TOKEN='YOUR_CHANNEL_ACCESS_TOKEN'
    ```
 
    PowerShellの場合
@@ -115,19 +119,86 @@ AWS LambdaまたはAzure Functionsをデプロイ先として使用します。
 
    この場合、`npm run deploy`を実行すると、スタック名が`LineNotifyMessengerS3Stack-xxxx`と`LineNotifyMessengerLambdaStack-xxxx`になります。
 
+GitHub Actionsでデプロイする場合は、以下のようにします。
+
+1. `cdk bootstrap`コマンドを実行し、cdkの初期化を行います。
+2. [こちら](https://aws.amazon.com/jp/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/)を参考にデプロイに利用するIAMロールを作成して、そのARNを取得します。IAMロールには、以下のインラインポリシーをアタッチして下さい。
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "sts:AssumeRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-deploy-role-{アカウントID}-{リージョン名}",
+        "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-file-publishing-role-{アカウントID}-{リージョン名}",
+        "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-image-publishing-role-{アカウントID}-{リージョン名}",
+        "arn:aws:iam::{アカウントID}:role/cdk-hnb659fds-lookup-role-{アカウントID}-{リージョン名}"
+      ]
+    }
+  ]
+}
+```
+
+3. AWS CDKのデプロイに必要な環境変数をリポジトリのSecretに設定します。
+   - `LINE_CHANNEL_ACCESS_TOKEN`: LINE Messaging APIのチャンネルアクセストークン
+   - `AUTHORIZATION_TOKEN`: LINE NotifyのAuthorizationヘッダの値
+   - `AWS_ROLE_ARN`: 前の手順で作成した、デプロイ時に使用するIAMロールのARN。
+4. AWS CDKのデプロイに必要な環境変数をリポジトリの環境変数に設定します。
+   - `AWS_REGION`: AWSリージョン
+   - `SEND_MODE`: 送信モードとして`group`を設定します
+   - `APP_SUFFIX`: スタック名にサフィックスをつける場合は、任意のサフィックスを設定します
+5. `Deploy AWS Lambda`ワークフローをGitHubのページから手動で実行します。[GitHubの公式ドキュメント](https://docs.github.com/ja/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow)を参照して下さい。
+
 ### Azure
 
 1. 以下のボタンを押して環境を構築します。LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENには、LINE Messaging APIのチャンネルアクセストークンと、これまで使っていたLINE NotifyのAuthorizationヘッダの値を設定します。
 
    [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fkenichiro-kimura.github.io%2Fline-notify-messenger%2Fazuredeploy.json)
 
-2. 本リポジトリをForkします。
+2. [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools/blob/v4.x/README.md)をインストールします
+3. 以下のコマンドを実行します
 
-3. 構築した環境のAzure Functionsから発行プロファイルを取得して、ForkしたリポジトリのGitHub ActionsのSecret `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` に登録します。
+```bash
+% cd functions
+% func azure functionapp publish {作成したFunctions名}
+```
 
-4. 同じくForkしたリポジトリのActionsのVariables `FUNCTION_NAME` に、Azure Functionsの関数名を登録します。
+GitHub Actionsでデプロイする場合は、環境を構築したら以下を実行します。
 
-5. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。[GitHubの公式ドキュメント](https://docs.github.com/ja/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow)を参照して下さい。
+1. 本リポジトリをForkします。
+
+2. 構築した環境のAzure Functionsから発行プロファイルを取得して、ForkしたリポジトリのGitHub ActionsのSecret `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` に登録します。
+
+3. 同じくForkしたリポジトリのActionsのVariables `FUNCTION_NAME` に、Azure Functionsの関数名を登録します。
+
+4. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。
+
+### cloudflare
+
+1. LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENとSEND_MODを環境変数に設定します。
+2. cloudflareのダッシュボードから、cloudflare R2を使えるようにします
+3. cloudflareのダッシュボードから、デプロイ用のAPIトークンを作成します
+4. `cd terraform`でterraformディレクトリに移動します。
+5. `terraform.tfvars.template`をコピーして`terraform.tfvars`を作成し、`cloudflare_api_token`と`cloudflare_account_id`を設定します。
+6. `terraform init`で初期化します。
+7. `terraform apply`でデプロイします。
+8. `cd ../`で元のディレクトリに戻ります。
+9. `npm run update-config`で設定ファイルを更新します。
+10. `npm run cloudflare-build`でビルドします。
+11. `npm run cloudflare-deploy`でデプロイします。
+12. cloudflareのダッシュボードからシークレットにLINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENを設定します。
+
+GitHub Actionsでデプロイする場合は、terraformでインフラを準備したら以下を実行します。
+
+1. KVのnamespace idとR2のバケット名をそれぞれリポジトリ変数`KV_NAMESPACE_ID`と`R2_BUCKET_NAME`に設定します。また、リポジトリ変数`SEND_MODE`に送信モードとして`group`を設定します
+2. リポジトリのシークレット`CLOUDFLARE_API_TOKEN`にAPI Tokenを設定します
+3. `Deploy Cloudflare Worker`ワークフローをGitHubのページから手動で実行します。
 
 ## 使用方法
 

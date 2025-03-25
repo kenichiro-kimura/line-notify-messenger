@@ -34,3 +34,20 @@ export class EnvironmentSendModeStrategy implements ISendModeStrategy {
         return mode as SendMode;
     }
 }
+
+export class BindingSendModeStrategy implements ISendModeStrategy {
+    private readonly env: Env;
+
+    constructor(env: Env) {
+        this.env = env;
+        
+    }
+
+    getSendMode(): SendMode {
+        const mode = this.env.SEND_MODE || SendMode.broadcast;
+        if (!Object.values(SendMode).includes(mode as SendMode)) {
+            return SendMode.broadcast;
+        }
+        return mode as SendMode;
+    }
+}
