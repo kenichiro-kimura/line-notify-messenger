@@ -1,7 +1,16 @@
 name: Deploy Cloudflare Worker
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+  pull_request:
+      types: [opened, synchronize, reopened]
+      paths:
+          - 'src/**'
 
 jobs:
   deploy:

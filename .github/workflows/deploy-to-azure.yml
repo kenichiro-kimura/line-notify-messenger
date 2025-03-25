@@ -1,7 +1,16 @@
 name: Build and deploy Node.js project to Azure Function App
 
 on:
-  workflow_dispatch:
+    workflow_dispatch:
+    push:
+      branches:
+        - main
+      paths:
+            - 'src/**'
+    pull_request:
+        types: [opened, synchronize, reopened]
+        paths:
+            - 'src/**'
 
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'functions' # set this to the path to your web app project, defaults to the repository root
