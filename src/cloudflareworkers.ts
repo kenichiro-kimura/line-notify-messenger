@@ -12,6 +12,8 @@ import { KVGroupRepository } from '@repositories/kvGroupRepository';
 import { BindingSendModeStrategy } from '@strategies/sendModeStrategy';
 import { ISendModeStrategy } from '@interfaces/sendModeStrategy';
 import { IImageStorage } from '@interfaces/imageStorage';
+import { ICheckAuthorizationToken } from '@interfaces/checkAuthorizationToken';
+import { AuthorizationTokenStrategyFactory } from '@factories/authorizationTokenStrategyFactory';
 import LineService from '@services/lineService';
 
 //interface Env {};
@@ -44,6 +46,7 @@ export default {
     container.registerInstance<IGroupRepository>('IGroupRepository', new KVGroupRepository(kvNamespace));
     container.registerInstance<IHttpRequestHandler>('IHttpRequestHandler', cloudflareHttpRequestHandler);
     container.registerInstance<ISendModeStrategy>('ISendModeStrategy', bindingSendModeStrategy);
+    container.registerInstance<ICheckAuthorizationToken>('ICheckAuthorizationToken', AuthorizationTokenStrategyFactory.createDefaultStrategy());
     container.register('LineService', { useClass: LineService });
  
     // TsyringeでLineNotifyMessengerAppを解決
