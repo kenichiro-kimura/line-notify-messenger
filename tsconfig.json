@@ -12,7 +12,9 @@
     "baseUrl": "./",
     "allowJs": true,
     "paths": {
+      "@adapters/*": ["src/adapters/*"],
       "@core/*": ["src/core/*"],
+      "@factories/*": ["src/factories/*"],
       "@services/*": ["src/services/*"],
       "@repositories/*": ["src/repositories/*"],
       "@interfaces/*": ["src/interfaces/*"],
