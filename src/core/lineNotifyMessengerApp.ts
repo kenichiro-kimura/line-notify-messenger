@@ -6,6 +6,7 @@ import { IGroupRepository } from '@interfaces/groupRepository';
 import { SendMode, ISendModeStrategy } from '@interfaces/sendModeStrategy';
 import { RequestHandler } from '@handlers/requestHandler';
 import { inject, injectable } from 'tsyringe';
+import { ICheckAuthorizationToken } from '@interfaces/checkAuthorizationToken';
 
 /**
  * LINE Notify Messenger アプリケーションのメインクラス
@@ -23,8 +24,8 @@ export class LineNotifyMessengerApp {
     private sendModeStrategy: ISendModeStrategy;
     /** HTTPリクエストの処理とデータ抽出を行うハンドラー */
     private requestHandler: RequestHandler;
-    /** 認証トークン */
-    private authorizationToken: string;
+    /** 認証トークンの検証ストラテジー */
+    private checkAuthorizationTokenStrategy;
 
     /**
      * LineNotifyMessengerAppのコンストラクタ
@@ -34,21 +35,20 @@ export class LineNotifyMessengerApp {
      * @param groupRepository - LINEグループ情報管理用リポジトリ
      * @param sendModeStrategy - メッセージ送信モード決定用戦略
      * @param lineService - LINE API通信用サービス
-     * @param authorizationToken - 認証トークン
      */
     constructor(
         @inject('IHttpRequestHandler') handler: IHttpRequestHandler,
         @inject('IGroupRepository') groupRepository: IGroupRepository,
         @inject('ISendModeStrategy') sendModeStrategy: ISendModeStrategy,
         @inject('LineService') lineService: LineService,
-        @inject('AuthorizationToken') authorizationToken: string
+        @inject('ICheckAuthorizationToken') checkAuthorizationTokenStrategy: ICheckAuthorizationToken,
     ) {
         this.handler = handler;
         this.lineService = lineService;
         this.groupRepository = groupRepository;
         this.sendModeStrategy = sendModeStrategy;
         this.requestHandler = new RequestHandler(handler);
-        this.authorizationToken = authorizationToken;
+        this.checkAuthorizationTokenStrategy = checkAuthorizationTokenStrategy;
     }
     
     /**
@@ -166,7 +166,7 @@ export class LineNotifyMessengerApp {
         if (this.requestHandler.isNotifyServiceRequest()) {
             const bearerToken = this.requestHandler.getBearerToken();
 
-            if (!bearerToken || bearerToken !== this.authorizationToken) {
+            if (await this.checkAuthorizationTokenStrategy.checkToken(bearerToken) == false) {
                 return this.httpUnAuthorizedErrorMessage('Invalid authorization token');
             }
 

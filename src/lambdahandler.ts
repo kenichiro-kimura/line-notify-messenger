@@ -11,7 +11,9 @@ import { IImageStorage } from '@interfaces/imageStorage';
 import { IImageConverter } from '@interfaces/imageConverter';
 import { IGroupRepository } from '@interfaces/groupRepository';
 import { ISendModeStrategy } from '@interfaces/sendModeStrategy';
+import { ICheckAuthorizationToken } from '@interfaces/checkAuthorizationToken';
 import { EnvironmentSendModeStrategy } from '@strategies/sendModeStrategy';
+import { AuthorizationTokenStrategyFactory } from '@factories/authorizationTokenStrategyFactory';
 import LineService from '@services/lineService';
 
 /**
@@ -64,7 +66,8 @@ export const handler = async (event: any): Promise<AwsLambdaHttpResponse> => {
     container.registerInstance<IHttpRequestHandler>('IHttpRequestHandler', new LambdaHttpRequestHandler(event));
     container.register<ISendModeStrategy>('ISendModeStrategy', { useClass: EnvironmentSendModeStrategy });
     container.register('LineService', { useClass: LineService });
-    
+    container.registerInstance<ICheckAuthorizationToken>('ICheckAuthorizationToken', AuthorizationTokenStrategyFactory.createDefaultStrategy());
+
     // TsyringeでLineNotifyMessengerAppを解決
     const app = container.resolve(LineNotifyMessengerApp);
 
