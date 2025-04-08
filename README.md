@@ -179,6 +179,20 @@ GitHub Actionsでデプロイする場合は、環境を構築したら以下を
 
 4. `Build and deploy Node.js project to Azure Function App`ワークフローをGitHubのページから手動で実行します。
 
+Visual Studio Codeを使用している場合は、Azure Functionsの拡張機能でのデプロイも可能です。
+
+1. Azure Functionsの拡張機能をインストールします
+
+2. Azure Functionsの拡張機能を開き、Functionsを右クリックして「Deploy to Function App」を選択します
+
+3. コマンドパレットから「Azure Functions: Deploy to Function App」を選択します
+
+4. デプロイターゲットのディレクトリの指定で、`functions`ディレクトリを選択します
+
+5. デプロイ先のサブスクリプションを選択します
+
+6. 先ほど作成したFunction Appを選択します
+
 ### cloudflare
 
 1. LINE_CHANNEL_ACCESS_TOKENとAUTHORIZATION_TOKENとSEND_MODを環境変数に設定します。
