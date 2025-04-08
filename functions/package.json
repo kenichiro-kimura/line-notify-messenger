@@ -19,7 +19,6 @@
   },
   "devDependencies": {
     "@azure/functions": "^4.6.1",
-    "@azure/storage-blob": "^12.26.0",
     "@types/node": "18.x",
     "azure-functions-core-tools": "^4.x",
     "esbuild": "^0.25.0",
