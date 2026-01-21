@@ -47,7 +47,7 @@
     "ts-jest": "^29.2.5",
     "tsyringe": "^4.8.0",
     "typescript": "^4.0.0",
-    "wrangler": "^4.3.0"
+    "wrangler": "^4.59.1"
   },
   "lint-staged": {
     "**/*.ts": [
